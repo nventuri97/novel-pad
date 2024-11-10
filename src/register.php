@@ -2,7 +2,7 @@
 // Connessione al database
 // We need two different databases: one for the user data and one for the novels.
 $host = 'mysql';
-$db = 'authentication';
+$db = 'authentication_db';
 $user = 'admin';
 $pass = 'admin';
 $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Convalida input
     if (empty($username) || empty($password)) {
-        echo "Nome utente e password sono obbligatori.";
+        echo "Username and password are required.";
         exit;
     }
 
@@ -27,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':password', $passwordHash);
         $stmt->execute();
-        echo "Registrazione avvenuta con successo!";
+        echo "Registration successfully completed!";
     } catch (PDOException $e) {
         if ($e->getCode() == 23000) { // Codice errore per duplicati (username già in uso)
-            echo "Nome utente già in uso. Scegli un altro nome.";
+            echo "Username already in use. Choose a different one.";
         } else {
             echo "Errore: " . $e->getMessage();
         }
