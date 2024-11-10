@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  php-apache:
+    build: .
+    container_name: php-apache
+    ports:
+      - "8085:80"
+    volumes:
+      - ./src:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: 'password'
+    volumes:
+      #- mysql-data:/var/lib/mysql                        # Actually persistency of data is not required for development
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  phpmyadmin:
+    depends_on:
+      - mysql
+    container_name: mysql-ui
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+# volumes:
+#   mysql-data:
