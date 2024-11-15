@@ -1,19 +1,15 @@
 <?php
+include 'user.php';
+include 'db-client.php';
 ini_set("session.cookie_httponly", 1); // Prevents JavaScript from accessing session cookies
 ini_set("session.cookie_secure", 1); // Ensures cookies are sent only over HTTPS
 ini_set("session.use_strict_mode", 1); // Prevents session fixation attacks
 session_start();
 ob_start();
 
-$user = "admin";
-$pass = "admin";
-$host = "mysql";
-$auth_db = "authentication_db";
-$auth_conn = new PDO("mysql:host=$host;dbname=$auth_db", $user, $pass);
-$auth_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$auth_conn = db_client::get_connection($"authentication_db");
 
-$novel_db = "novels_db";
-$novel_conn = new PDO("mysql:host=$host;dbname=$novel_db", $user, $pass);
+$novel_conn = db_client::get_connection("novels_db");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = $_POST["username"];
@@ -33,16 +29,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Correct query to retrieve is_premium from user_profiles
         $novel_stmt = $novel_conn->prepare(
-            "SELECT is_premium FROM user_profiles WHERE user_id = :user_id"
+            "SELECT * FROM user_profiles WHERE user_id = :user_id"
         );
         $novel_stmt->bindParam(":user_id", $user_id);
         $novel_stmt->execute();
         $novel_user = $novel_stmt->fetch(PDO::FETCH_ASSOC);
+        $user= new User($novel_user["user_id"], $username, $novel_user["email"], $novel_user["full_name"], $novel_user["is_premium"]);
 
         if ($novel_user) {
             // Save session information
-            $_SESSION["user_id"] = $user_id;
-            $_SESSION["is_premium"] = $novel_user["is_premium"];
+            $_SESSION["user"] = $user;
             echo "Login succed!";
             // Redirecting to the dashboard
             header("Location: user_dashboard.php");

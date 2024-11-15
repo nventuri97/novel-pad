@@ -1,11 +1,10 @@
 <?php
+include 'db-client.php';
+include 'user.php';
 ob_start();
 // Configurazione del database
-$host = 'mysql';
 $auth_db = 'authentication_db';
 $novels_db = 'novels_db';
-$user = 'admin';
-$pass = 'admin';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Dati dell'utente inviati tramite POST
@@ -22,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Connessione al database di autenticazione
-        $auth_conn = new PDO("mysql:host=$host;dbname=$auth_db", $user, $pass);
-        $auth_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $auth_conn = db_client::get_connection($auth_db);
 
         // Creazione di un salt univoco
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
@@ -38,8 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $auth_conn->lastInsertId();
 
         // Connessione al database novels_db per i dati del profilo
-        $novels_conn = new PDO("mysql:host=$host;dbname=$novels_db", $user, $pass);
-        $novels_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $novels_conn = db_client::get_connection($novels_db);
 
         // Inserimento dei dati del profilo in `user_profiles` su novels_db
         $novels_stmt = $novels_conn->prepare("INSERT INTO user_profiles (user_id, email, full_name, is_premium) VALUES (:user_id, :email, :full_name, :is_premium)");
@@ -50,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $novels_stmt->execute();
 
         echo "Registration successfully completed!";
+        session_start();
+
+        $user= new User($user_id, $username, $email, $full_name, 0);
+        $_SESSION["user"] = $user;
         header("Location: user_dashboard.php");
         exit;
     } catch (PDOException $e) {
