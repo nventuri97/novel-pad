@@ -47,9 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $novels_stmt->execute();
 
         echo "Registration successfully completed!";
-        session_start();
+        
 
-        $user= new User($user_id, $username, $email, $full_name, 0);
+        $user = new User($user_id, $username, $email, $full_name, 0);
+        
+        // echo $user->get_full_name();
+        session_start();
         $_SESSION["user"] = $user;
         header("Location: user_dashboard.php");
         exit;
@@ -60,30 +63,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ob_end_flush();
 ?>
 
-<!-- Codice HTML per il form di registrazione -->
 <!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione</title>
-</head>
-<body>
-    <h2>Registrazione Nuovo Utente</h2>
-    <form method="post" action="register.php">
-        <label for="username">Nome utente:</label>
-        <input type="text" id="username" name="username" required><br><br>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User registration</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <div class="register-container">
+            <h2>Register</h2>
+            <form id="registerForm" action="register.php" method="POST">
+                <div class="error-message" id="error-message" style="display: none;"></div>
+                <div class="success-message" id="success-message" style="display: none;"></div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter a password" required>
 
-        <label for="full_name">Nome completo:</label>
-        <input type="text" id="full_name" name="full_name"><br><br>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
 
-        <button type="submit">Registrati</button>
-    </form>
-</body>
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
+
+                <button type="submit">Register</button>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('registerForm').addEventListener('submit', function(event) {
+                // Prevent submission if there are validation errors
+                const errorMessage = document.getElementById('error-message');
+                const successMessage = document.getElementById('success-message');
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                // Get form field values
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const email = document.getElementById('email').value.trim();
+
+                // Example client-side validation
+                if (username.length < 4) {
+                    event.preventDefault();
+                    errorMessage.textContent = "Username must be at least 4 characters.";
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                if (password.length < 6) {
+                    event.preventDefault();
+                    errorMessage.textContent = "Password must be at least 6 characters.";
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                if (!email.includes('@')) {
+                    event.preventDefault();
+                    errorMessage.textContent = "Please enter a valid email address.";
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                // Show a success message before submission (optional)
+                successMessage.textContent = "All data is valid. Submitting...";
+                successMessage.style.display = 'block';
+            });
+        </script>
+    </body>
 </html>
+

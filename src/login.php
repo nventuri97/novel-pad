@@ -7,7 +7,7 @@ ini_set("session.use_strict_mode", 1); // Prevents session fixation attacks
 session_start();
 ob_start();
 
-$auth_conn = db_client::get_connection($"authentication_db");
+$auth_conn = db_client::get_connection("authentication_db");
 
 $novel_conn = db_client::get_connection("novels_db");
 
@@ -53,11 +53,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 ob_end_flush();
 ?>
 
-<!-- Form di login -->
-<form method="post" action="login.php">
-    <label>Nome utente:</label>
-    <input type="text" name="username" required>
-    <label>Password:</label>
-    <input type="password" name="password" required>
-    <button type="submit">Accedi</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="loginForm" action="login.php" method="POST">
+                <div class="error-message" id="error-message" style="display: none;"></div>
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.style.display = 'none';
+
+                // Get field values
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                // Example validation
+                if (username === '' || password === '') {
+                    event.preventDefault();
+                    errorMessage.textContent = "Both fields are required.";
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+            });
+        </script>
+    </body>
+</html>
+
