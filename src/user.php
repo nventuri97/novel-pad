@@ -6,12 +6,22 @@
         private $full_name;
         private $is_premium;
 
-        function User($id, $username, $email, $full_name, $is_premium){
+        function __construct($id, $username, $email, $full_name, $is_premium){
             $this->id = $id;
             $this->username = $username;
             $this->email = $email;
             $this->full_name = $full_name;
             $this->is_premium = $is_premium;
+        }
+
+        public function to_array() {
+            return [
+                "id" => $this->id,
+                "username" => $this->username,
+                "full_name" => $this->full_name,
+                "email" => $this->email,
+                "is_premium" => $this->is_premium,
+            ];
         }
 
         function get_id(){
