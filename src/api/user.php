@@ -5,13 +5,15 @@
         private $email;
         private $full_name;
         private $is_premium;
+        private $logged_in;
 
-        function __construct($id, $username, $email, $full_name, $is_premium){
+        function __construct($id, $username, $email, $full_name, $is_premium, $logged_in){
             $this->id = $id;
             $this->username = $username;
             $this->email = $email;
             $this->full_name = $full_name;
             $this->is_premium = $is_premium;
+            $this->logged_in = $logged_in;
         }
 
         public function to_array() {
@@ -21,6 +23,7 @@
                 "full_name" => $this->full_name,
                 "email" => $this->email,
                 "is_premium" => $this->is_premium,
+                "logged_in" => $this->logged_in
             ];
         }
 
@@ -44,6 +47,10 @@
             return $this->is_premium;
         }
 
+        function is_logged_in(){
+            return $this->logged_in;
+        }
+
         function set_premium($is_premium){
             $this->is_premium = $is_premium;
         }
@@ -62,6 +69,10 @@
 
         function set_id($id){
             $this->id = $id;
+        }
+
+        function set_logged_in($logged_in){
+            $this->logged_in = $logged_in;
         }
     }
 ?>

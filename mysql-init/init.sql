@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
     `is_premium` BOOLEAN DEFAULT FALSE,
     `email` VARCHAR(100),
     `full_name` VARCHAR(100),
+    `logged_in` BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (`user_id`) REFERENCES `authentication_db`.`users`(`id`) ON DELETE CASCADE
 );
 
