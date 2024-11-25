@@ -1,3 +1,5 @@
+import API_CONFIG from "./config";
+
 document.getElementById('registerForm').addEventListener('submit', function(event) {
     // Prevent the form from submitting traditionally (default behavior)
     event.preventDefault();
@@ -36,7 +38,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     }
 
     // Send the data to the backend (register.php)
-    fetch('../api/register.php', {
+    fetch(API_CONFIG.register(), {
         method: 'POST',
         body: new URLSearchParams({
             username: username,

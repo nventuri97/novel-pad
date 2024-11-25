@@ -1,3 +1,5 @@
+import API_CONFIG from "./config";
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     // Prevent the form from submitting traditionally (default behavior)
     event.preventDefault();
@@ -19,7 +21,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         return;
     }
 
-    fetch('../api/login.php', {
+    fetch(API_CONFIG.login(), {
         method: 'POST',
         body: new URLSearchParams({
             username: username,

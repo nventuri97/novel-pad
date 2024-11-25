@@ -1,3 +1,5 @@
+import API_CONFIG from "./config";
+
 // Passing user data from PHP to JavaScript
 document.addEventListener('DOMContentLoaded', function () {
     const errorMessage = document.getElementById('error-message');
@@ -5,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     logoutButton = document.getElementsByClassName('logout-button')[0];
 
     // Fetch user data from the server
-    fetch('../api/user_dashboard.php', {
+    fetch(API_CONFIG.userDashboard(), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
     logoutButton.addEventListener('click', function (event) {
         event.preventDefault();
         // Fetch user data from the server
-        fetch('../api/logout.php', {
+        fetch(API_CONFIG.logout(), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
