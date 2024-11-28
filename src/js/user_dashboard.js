@@ -1,10 +1,10 @@
-import API_CONFIG from "./config";
+import API_CONFIG from "./config.js";
 
 // Passing user data from PHP to JavaScript
 document.addEventListener('DOMContentLoaded', function () {
     const errorMessage = document.getElementById('error-message');
 
-    logoutButton = document.getElementsByClassName('logout-button')[0];
+    const logoutButton = document.getElementsByClassName('logout-button')[0];
 
     // Fetch user data from the server
     fetch(API_CONFIG.userDashboard(), {
@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
         alert("An error occurred. Please try again later.");
     });
 
+    // Logout button event listener to handle user logout
     logoutButton.addEventListener('click', function (event) {
         event.preventDefault();
         // Fetch user data from the server

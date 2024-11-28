@@ -1,4 +1,4 @@
-import API_CONFIG from "./config";
+import API_CONFIG from "./config.js";
 
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     // Prevent the form from submitting traditionally (default behavior)
