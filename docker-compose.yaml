@@ -5,7 +5,9 @@ services:
     ports:
       - "8085:80"
     volumes:
-      - ./src:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
+      - ./init/php.ini:/usr/local/etc/php/php.ini             # This volume allows to change the php.ini file without rebuilding the image
+      - code-sync:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
+      - novel-upload:/var/www/html/uploads                    # This volume allows to sync the uploads between host and container without rebuilding the image   
     networks:
       - app-network
     depends_on:
@@ -20,7 +22,7 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     volumes:
       #- mysql-data:/var/lib/mysql                        # Actually persistency of data is not required for development
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      - ./init:/docker-entrypoint-initdb.d
     networks:
       - app-network
 
@@ -43,5 +45,18 @@ services:
 networks:
   app-network:
 
-# volumes:
+volumes:
+  code-sync:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./src
+      o: bind
+  novel-upload:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./uploads
+      o: bind
+  
 #   mysql-data:
