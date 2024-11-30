@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <div class="dashboard-container">
@@ -24,7 +26,50 @@
         </div>
     </div>
 
+    <!-- Add Novel Button (Right Bottom Corner) -->
+    <button id="addNovelButton" class="add-novel-button">+</button>
+
+    <!-- Modal for Adding Novel -->
+    <div id="addNovelModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close-button">&times;</span>
+            <h3>Add a New Novel</h3>
+            <form id="addNovelForm" method="POST" enctype="multipart/form-data">
+                <div class="form-field">
+                    <label for="novelTitle">Title:</label>
+                    <input type="text" id="novelTitle" name="title" required />
+                </div>
+                <div class="form-field">
+                    <label for="novelDescription">Description:</label>
+                    <textarea id="novelDescription" name="description"></textarea>
+                </div>
+                <div class="form-field">
+                    <label for="novelGenre">Genre:</label>
+                    <input type="text" id="novelGenre" name="genre" />
+                </div>
+                <div class="form-field">
+                    <label for="novelType">Type:</label>
+                    <select id="novelType" name="type" required>
+                        <option value="short_story">Short Story</option>
+                        <option value="full_novel">Full Novel</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="novelFile">Upload File:</label>
+                    <input type="file" id="novelFile" name="file" accept=".pdf,.txt" required />
+                </div>
+                <div class="form-field">
+                    <label for="novelPremium">Premium:</label>
+                    <input type="checkbox" id="novelPremium" name="is_premium" />
+                </div>
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+            <div id="error-message" class="error-message"></div>
+        </div>
+    </div>
+
     <script type="module" src="js/user_dashboard.js"></script>
 
 </body>
+
 </html>
