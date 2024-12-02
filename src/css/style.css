@@ -110,11 +110,17 @@ button:hover {
     margin-top: 20px;
 }
 
+.novel-list {
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
 .novel-item {
+    margin-bottom: 10px; /* Add some space between items */
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    margin-bottom: 10px;
+    background-color: #f9f9f9;
 }
 
 .novel-item h3 {

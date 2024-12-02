@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 const user = data.data;
-                document.getElementById('fullName').innerText = user.full_name || 'N/A';
+                document.getElementById('username').innerText = user.username || 'N/A';
                 document.getElementById('email').innerText = user.email || 'N/A';
-                document.getElementById('fullNameText').innerText = user.full_name || 'N/A';
+                document.getElementById('fullName').innerText = user.full_name || 'N/A';
                 document.getElementById('status').innerText = user.is_premium ? 'Premium' : 'Standard';
             } else {
                 console.error('Error:', data.message);
@@ -100,22 +100,69 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: formData,
         })
-        .then(response => response.json())
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal and reset the form
+                    addNovelModal.style.display = 'none';
+                    addNovelForm.reset();
+                    alert(data.message); // Show success message
+                    fetchAndDisplayNovels(); // Fetch and display novels
+                } else {
+                    // Show error message
+                    errorMessage.innerText = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessage.innerText = 'An error occurred. Please try again.';
+            });
+    });
+
+    const novelsList = document.getElementById('novelsList');
+
+    // Fetch all user novels
+    // Function to fetch and display novels
+    function fetchAndDisplayNovels() {
+        fetch(API_CONFIG.get_novels(), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json(); // Attempt to parse JSON
+        })
         .then(data => {
             if (data.success) {
-                // Close the modal and reset the form
-                addNovelModal.style.display = 'none';
-                addNovelForm.reset();
-                alert(data.message); // Show success message
+                const novels = data.data;
+                novelsList.innerHTML = ''; // Clear the list
+
+                novels.forEach(novel => {
+                    const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
+                    const novelItem = document.createElement('div');
+                    novelItem.innerHTML = `
+                        <div class="novel-item">
+                            <p><b>Title</b>: ${novel.title}</p>
+                            <p><b>Description</b>: ${novel.description}</p>
+                            <p><b>Genre</b>: ${novel.genre}</p>
+                            <p><a href="${relativeFilePath}">Go to the story</a></p>
+                        </div>`;
+                    novelsList.appendChild(novelItem);
+                });
             } else {
-                // Show error message
-                errorMessage.innerText = data.message;
+                console.error('Error:', data.message);
+                alert(data.message); // Show error message
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            errorMessage.innerText = 'An error occurred. Please try again.';
+            console.error('Error fetching novels:', error);
+            alert("An error occurred. Please try again later.");
         });
-    });
+    }
 
+    fetchAndDisplayNovels(); // Fetch and display novels
 });
