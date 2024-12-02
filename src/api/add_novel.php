@@ -50,12 +50,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Ensure the uploads directory exists
-        $uploadDir = '/var/www/html/uploads/';
+        $uploadDir = '/var/www/html/uploads/'. $_SESSION["user"]->get_username() . '/';
         if (!is_dir($uploadDir)) {
-            $response["message"] = "Uploads directory does not present.";
-            echo json_encode($response);
-            ob_end_flush();
-            exit;
+            if (!mkdir($uploadDir, 0755, true)) {
+                $response["message"] = "Failed to create upload directory.";
+                echo json_encode($response);
+                ob_end_flush();
+                exit;
+            }
         }
 
         // Save file to a directory (ensure appropriate directory exists and has write permissions)
