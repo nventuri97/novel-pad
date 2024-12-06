@@ -21,7 +21,7 @@ services:
       MYSQL_PASSWORD: 'admin'
       MYSQL_ROOT_PASSWORD: 'password'
     volumes:
-      #- mysql-data:/var/lib/mysql                        # Actually persistency of data is not required for development
+      - mysql-data:/var/lib/mysql                        # Actually persistency of data is not required for development
       - ./init:/docker-entrypoint-initdb.d
     networks:
       - app-network
@@ -53,10 +53,4 @@ volumes:
       device: ./src
       o: bind
   novel-upload:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./uploads
-      o: bind
-  
-#   mysql-data:
+  mysql-data:
