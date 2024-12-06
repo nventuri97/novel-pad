@@ -49,6 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
+        if(($type == 'short_story' && $file['type'] == 'application/pdf') || ($type == 'full_novel' && $file['type'] == 'text/plain')){
+            $response["message"] = "This type of file is not allowed for this type of novel.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
         // Ensure the uploads directory exists
         $uploadDir = '/var/www/html/uploads/'. $_SESSION["user"]->get_username() . '/';
         if (!is_dir($uploadDir)) {
