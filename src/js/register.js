@@ -1,4 +1,5 @@
 import API_CONFIG from "./config.js";
+import {default as passwordChecker} from "./zxcvbn.js";
 
 document.getElementById('registerForm').addEventListener('submit', function(event) {
     // Prevent the form from submitting traditionally (default behavior)
@@ -22,11 +23,19 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         return;
     }
 
-    if (password.length < 6) {
-        errorMessage.textContent = "Password must be at least 6 characters.";
+    if (password.length < 8) {
+        errorMessage.textContent = "Password must be at least 8 characters.";
         errorMessage.style.display = 'block';
         document.getElementById('password').focus();
         return;
+    } else {
+        const result = passwordChecker(password);
+        if (result.score < 3) {
+            errorMessage.textContent = "Password is too weak. Please use a stronger password.";
+            errorMessage.style.display = 'block';
+            document.getElementById('password').focus();
+            return;
+        }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
