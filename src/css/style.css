@@ -299,7 +299,20 @@ textarea {
     background-color: #0c0294;
 }
 
-.error-message {
-    color: red;
-    margin-top: 15px;
+.password-requirements {
+    text-align: left;
+    display: inline-block;
+}
+
+.password-requirements ul {
+    list-style: disc;
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.password-requirements li {
+    margin: 0 0 5px 20px;
+    text-align: left;          
 }

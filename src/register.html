@@ -18,6 +18,15 @@
 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter a password" required>
+                <div class="error-message password-requirements" id="password-policy" style="display: none;">
+                    <p style="text-align: center;">Password must contains:</p>
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>At least one uppercase letter</li>
+                            <li>At least one lowercase letter</li>
+                            <li>At least one number</li>
+                        </ul>
+                </div>
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" placeholder="Enter your email" required>

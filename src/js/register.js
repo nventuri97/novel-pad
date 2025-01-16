@@ -1,5 +1,5 @@
 import API_CONFIG from "./config.js";
-import {default as passwordChecker} from "./zxcvbn.js";
+import "./zxcvbn.js";
 
 document.getElementById('registerForm').addEventListener('submit', function(event) {
     // Prevent the form from submitting traditionally (default behavior)
@@ -7,6 +7,8 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
+    const passwordPolicy = document.getElementById('password-policy');
+    passwordPolicy.style.display = 'none';
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
@@ -29,10 +31,11 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         document.getElementById('password').focus();
         return;
     } else {
-        const result = passwordChecker(password);
+        const result = zxcvbn(password, [String(username), String(email), String(full_name)]);
         if (result.score < 3) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
+            passwordPolicy.style.display = 'block';
             document.getElementById('password').focus();
             return;
         }
