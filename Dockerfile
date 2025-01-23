@@ -21,6 +21,8 @@ COPY src/ /var/www/html/
 WORKDIR /var/www/html
 RUN if [ -f "composer.json" ]; then composer install; fi
 
+RUN composer require phpmailer/phpmailer && composer install
+
 # Assegna i permessi appropriati
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html
