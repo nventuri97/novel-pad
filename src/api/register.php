@@ -49,7 +49,7 @@ try {
         $novels_stmt->bindParam(':email', $email);
         $novels_stmt->bindParam(':full_name', $full_name);
         $novels_stmt->bindValue(':is_premium', 0, PDO::PARAM_BOOL);
-        $novels_stmt->bindValue(':logged_in', 1, PDO::PARAM_BOOL);
+        $novels_stmt->bindValue(':logged_in', 0, PDO::PARAM_BOOL);
         $novels_stmt->execute();
 
         // Send verification email
@@ -58,19 +58,13 @@ try {
         $mailSent = sendVerificationMail($email, $token);
         if (!$mailSent) {
             $response['message'] = "Failed to send verification email.";
-            echo json_encode($response);
-            exit;
+        } else {
+            echo "Verification email sent.";
+
+            // Successful verification message
+            $response['success'] = true;
+            $response['message'] = "Verification mail send correctly!";
         }
-        echo "Verification email sent.";
-
-        // Successful registration
-        $response['success'] = true;
-        $response['message'] = "Registration completed successfully!";
-
-        $user = new User($user_id, $username, $email, $full_name, false, true);
-        session_start();
-
-        $_SESSION['user'] = $user;
     } else {
         $response['message'] = "Invalid request method.";
     }

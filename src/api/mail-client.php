@@ -29,7 +29,7 @@ function sendVerificationMail($user_mail, $token) {
 
         // Content
         $mail->isHTML(true);
-        $confirmationUrl = $config['novelpad_url'] . '/confirm?token=' . urlencode($token);
+        $confirmationUrl = $config['novelpad_url'] . '/confirm.html?token=' . urlencode($token);
 
         $mail->Subject = 'Subscription Confirmation';
         $mail->Body = '<p>Thank you for subscribing! Please confirm your subscription by clicking <a href="' . htmlspecialchars($confirmationUrl) . '">here</a>.</p>';
