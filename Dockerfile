@@ -19,13 +19,14 @@ COPY src/ /var/www/html/
 
 # Installa le dipendenze PHP con Composer, se è presente un file composer.json
 WORKDIR /var/www/html
-RUN if [ -f "composer.json" ]; then composer install; fi
 
-RUN composer require phpmailer/phpmailer && composer install
+RUN composer require phpmailer/phpmailer \
+    && composer install
 
 # Assegna i permessi appropriati
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-RUN chmod 775 /var/www/html/uploads/
-RUN chown www-data:www-data /var/www/html/uploads/
+RUN mkdir -p /var/www/html/uploads \
+    && chmod 775 /var/www/html/uploads \
+    && chown www-data:www-data /var/www/html/uploads
