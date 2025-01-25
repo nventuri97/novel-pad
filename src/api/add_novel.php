@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $file = $_FILES['file'] ?? null;
 
         // Define allowed file types and size limits
-        $allowedTypes = ['application/pdf', 'text/plain'];
+        $allowedTypes = ['application/pdf'];
         if (!in_array($file['type'], $allowedTypes)) {
             $response["message"] = "Invalid file type.";
             echo json_encode($response);
@@ -49,8 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        if(($type == 'short_story' && $file['type'] == 'application/pdf') || ($type == 'full_novel' && $file['type'] == 'text/plain')){
-            $response["message"] = "This type of file is not allowed for this type of novel.";
+        if(($type == 'full_novel' && $file['type'] != 'application/pdf')) {
+            $response["message"] = "This type of file is not allowed. Pleas upload a pdf.";
             echo json_encode($response);
             ob_end_flush();
             exit;
