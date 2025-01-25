@@ -7,9 +7,11 @@ RUN docker-php-ext-install mysqli pdo_mysql
 # Copia il codice sorgente nel container
 COPY src/ /var/www/html/
 
-# Assegna i permessi appropriati
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+# Assegna i permessi appropriati per il contenuto copiato
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-RUN chmod 775 /var/www/html/uploads/
-RUN chown www-data:www-data /var/www/html/uploads/
+# Crea la directory "uploads" e assegna permessi specifici
+RUN mkdir -p /var/www/html/uploads \
+    && chmod 775 /var/www/html/uploads \
+    && chown www-data:www-data /var/www/html/uploads
