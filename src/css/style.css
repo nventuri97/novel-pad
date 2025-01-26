@@ -98,6 +98,7 @@ button a:hover {
     width: 100%; /* Mobile-friendly width */
     max-width: 500px; /* Limit width on larger screens */
     margin: auto;
+    margin-bottom: 20px;
     text-align: center;
     display: flex;
     flex-direction: column;

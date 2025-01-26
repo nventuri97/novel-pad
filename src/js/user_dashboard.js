@@ -76,6 +76,34 @@ document.addEventListener('DOMContentLoaded', function () {
         addNovelModal.style.display = 'block';
     });
 
+
+    console.log("Add novel button clicked!");
+
+        // Handle the novel type select element
+    const novelTypeSelect = document.getElementById("novelType");
+    const shortStoryField = document.getElementById("shortStoryField");
+    const fileField = document.getElementById("fileField");
+
+    const handleNovelTypeChange = () => {
+        const selectedType = novelTypeSelect.value;
+        if (selectedType === "short_story") {
+            shortStoryField.style.display = "block";
+            fileField.style.display = "none";
+        } else if (selectedType === "full_novel") {
+            shortStoryField.style.display = "none";
+            fileField.style.display = "block";
+        } else {
+            shortStoryField.style.display = "none";
+            fileField.style.display = "none";
+        }
+    };
+
+    // Attach event listener to the novel type select element
+    if (novelTypeSelect) {
+        novelTypeSelect.addEventListener("change", handleNovelTypeChange);
+    }
+    handleNovelTypeChange();
+
     // Close the modal when the close button is clicked
     closeModal.addEventListener('click', function () {
         addNovelModal.style.display = 'none';
@@ -94,6 +122,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Collect form data
         const formData = new FormData(addNovelForm);
+
+        if (formData.get("type") === "short_story") {
+            const title = formData.get("title");
+            const genre = formData.get("genre");
+            const storyContent = formData.get("story_content");
+            
+            if (!storyContent.trim()) {
+                errorMessage.innerText = "Please provide content for the story.";
+                return;
+            }
+
+
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+</head>
+<body>
+    <h1>${title}</h1>
+    <p>Genre: ${genre}</p>
+    <div>${storyContent}</div>
+</body>
+</html>`;
+
+            const htmlFile = new Blob([htmlContent], { type: "text/html" });
+            formData.append("file", htmlFile, `${title.replace(/\s+/g, "_")}.html`);
+        }
 
         // Send form data to the server via Fetch API
         fetch(API_CONFIG.add_novel(), {
@@ -147,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     novelItem.innerHTML = `
                         <div class="novel-item">
                             <p><b>Title</b>: ${novel.title}</p>
-                            <p><b>Description</b>: ${novel.description}</p>
                             <p><b>Genre</b>: ${novel.genre}</p>
                             <p><a href="${relativeFilePath}">Go to the story</a></p>
                         </div>`;
