@@ -45,4 +45,8 @@ function sendVerificationMail($user_mail, $token) {
     }
 }
 
+function sendRecoveryPwdMail($user_mail, $token){
+    
+}
+
 ?>
