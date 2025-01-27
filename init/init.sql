@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
 CREATE TABLE IF NOT EXISTS `novels` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
-    `description` TEXT,
     `genre` VARCHAR(100),
     `type` ENUM('short_story', 'full_novel') NOT NULL,
     `file_path` VARCHAR(255),

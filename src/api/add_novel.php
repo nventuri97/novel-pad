@@ -30,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Collect form data
     $title = $_POST['title'] ?? '';
-    $description = $_POST['description'] ?? '';
     $genre = $_POST['genre'] ?? '';
     $type = $_POST['type'] ?? '';
     $is_premium = isset($_POST['is_premium']) ? 1 : 0;
@@ -41,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $file = $_FILES['file'] ?? null;
 
         // Define allowed file types and size limits
-        $allowedTypes = ['application/pdf', 'text/plain'];
+        $allowedTypes = ['application/pdf', 'text/html'];
         if (!in_array($file['type'], $allowedTypes)) {
             $response["message"] = "Invalid file type.";
             echo json_encode($response);
@@ -49,8 +48,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        if(($type == 'short_story' && $file['type'] == 'application/pdf') || ($type == 'full_novel' && $file['type'] == 'text/plain')){
-            $response["message"] = "This type of file is not allowed for this type of novel.";
+        if(($type == 'full_novel' && $file['type'] != 'application/pdf')) {
+            $response["message"] = "This type of file is not allowed. Pleas upload a pdf.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
+        if(($type == 'short_story' && $file['type'] != 'text/html')) {
+            $response["message"] = "Error occured: not an html file.";
             echo json_encode($response);
             ob_end_flush();
             exit;
@@ -85,10 +91,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Insert novel data into the database
     try {
         $stmt = $novel_conn->prepare(
-            "INSERT INTO novels (title, description, genre, type, file_path, is_premium, user_id) 
-            VALUES (:title, :description, :genre, :type, :file_path, :is_premium, :user_id)");
+            "INSERT INTO novels (title, genre, type, file_path, is_premium, user_id) 
+            VALUES (:title, :genre, :type, :file_path, :is_premium, :user_id)");
         $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':description', $description);
         $stmt->bindParam(':genre', $genre);
         $stmt->bindParam(':type', $type);
         $stmt->bindParam(':file_path', $filePath);

@@ -35,7 +35,6 @@ try {
     foreach ($novels as $novel) {
         $response['data'][] = (new Novel($novel['id'], 
                                         $novel['title'], 
-                                        $novel['description'], 
                                         $user->get_username(), 
                                         $novel['genre'], 
                                         $novel['type'], 
