@@ -18,6 +18,9 @@ const API_CONFIG = {
     },
     get_novels() {
         return `${this.BASE_URL}get_novels.php`;
+    },
+    get_other_novels() {
+        return `${this.BASE_URL}get_other_novels.php`;
     }
 };
 
