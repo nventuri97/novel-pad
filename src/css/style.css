@@ -177,9 +177,10 @@ input[type="email"] {
 }
 
 .novel-list {
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
+    max-height: 400px; /* Altezza massima del contenitore */
+    overflow-y: auto;  /* Abilita lo scroll verticale */
 }
+
 
 .novel-item {
     margin-bottom: 10px; /* Add some space between items */
@@ -192,12 +193,13 @@ input[type="email"] {
 .novel-item h3 {
     margin: 0 0 5px;
 }
+  
 
 /* Add Novel Button Styles */
 .add-novel-button {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -315,4 +317,22 @@ textarea {
 .password-requirements li {
     margin: 0 0 5px 20px;
     text-align: left;          
+}
+ /* Esempio di layout a 2 colonne (left - right) */
+ .two-column-container {
+    display: flex; 
+    gap: 20px;
+}
+.left-box {
+    flex: 1; /* occuperà lo spazio necessario */
+    max-width: 80%; /* se vuoi limitare la larghezza */
+}
+.right-box {
+    flex: 2; /* box più grande a destra */
+}
+/* Un po' di margine intorno */
+.right-box {
+    border: 1px solid #ccc; 
+    padding: 15px;
+    border-radius: 5px;
 }
