@@ -370,12 +370,34 @@ document.addEventListener('DOMContentLoaded', function () {
             const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
             const novelDiv = document.createElement('div');
             novelDiv.classList.add('novel-item');
-            novelDiv.innerHTML = `
-                <p><b>Title</b>: ${novel.title}</p>
-                <p><b>Author</b>: ${novel.author ?? 'No author'}</p>
-                <p><b>Genre</b>: ${novel.genre}</p>
-                <p><a href="${relativeFilePath}" target="_blank">Open novel</a></p>
-            `;
+            
+            if (novel.type === "short_story") {
+                novelDiv.innerHTML = `
+                <div class="novel-item">
+                    <p><b>Title</b>: ${novel.title}</p>
+                    <p><b>Author</b>: ${novel.author ?? 'No author'}</p>
+                    <p><b>Genre</b>: ${novel.genre}</p>
+                    <p><a href="${relativeFilePath}">Read the story</a></p>
+                </div>`;
+            } else if (novel.type === "full_novel") {
+                novelDiv.innerHTML = `
+                <div class="novel-item">
+                    <p><b>Title</b>: ${novel.title}</p>
+                    <p><b>Author</b>: ${novel.author ?? 'No author'}</p>
+                    <p><b>Genre</b>: ${novel.genre}</p>
+                    <p><a href="${relativeFilePath}" download="${novel.title}.pdf">Download the story</a></p>
+                </div>`;
+            }
+            else {
+                novelDiv.innerHTML = `
+                <div class="novel-item">
+                    <p><b>Title</b>: ${novel.title}</p>
+                    <p><b>Author</b>: ${novel.author ?? 'No author'}</p>
+                    <p><b>Genre</b>: ${novel.genre}</p>
+                    <p>Invalid novel type</p>
+                </div>`;
+            }
+
             otherNovelsList.appendChild(novelDiv);
         });
     }

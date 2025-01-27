@@ -61,7 +61,6 @@ try {
         $response['data'][] = (new Novel(
             $novel['id'],
             $novel['title'],
-            $novel['description'],
             $author_name, // Passa 'full_name' come author_name
             $novel['genre'],
             $novel['type'],
