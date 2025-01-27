@@ -2,7 +2,6 @@
     class Novel{
         private $id;
         private $title;
-        private $description;
         private $author;
         private $genre;
         private $type;
@@ -10,10 +9,9 @@
         private $is_premium;
         private $uploaded_at;
 
-        function __construct($id, $title, $description, $author, $genre, $type, $file_path, $is_premium, $uploaded_at){
+        function __construct($id, $title, $author, $genre, $type, $file_path, $is_premium, $uploaded_at){
             $this->id = $id;
             $this->title = $title;
-            $this->description = $description;
             $this->author = $author;
             $this->genre = $genre;
             $this->type = $type;
@@ -26,7 +24,6 @@
             return [
                 "id" => $this->id,
                 "title" => $this->title,
-                "description" => $this->description,
                 "author" => $this->author,
                 "genre" => $this->genre,
                 "type" => $this->type,
@@ -42,10 +39,6 @@
 
         function get_title(){
             return $this->title;
-        }
-        
-        function get_description(){
-            return $this->description;
         }
 
         function get_author(){
@@ -78,10 +71,6 @@
 
         function set_title($title){
             $this->title = $title;
-        }
-
-        function set_description($description){
-            $this->description = $description;
         }
 
         function set_author($author){

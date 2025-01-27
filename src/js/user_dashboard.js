@@ -76,9 +76,6 @@ document.addEventListener('DOMContentLoaded', function () {
         addNovelModal.style.display = 'block';
     });
 
-
-    console.log("Add novel button clicked!");
-
         // Handle the novel type select element
     const novelTypeSelect = document.getElementById("novelType");
     const shortStoryField = document.getElementById("shortStoryField");
@@ -202,12 +199,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 novels.forEach(novel => {
                     const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
                     const novelItem = document.createElement('div');
-                    novelItem.innerHTML = `
+                    
+                    if (novel.type === "short_story") {
+                        novelItem.innerHTML = `
                         <div class="novel-item">
                             <p><b>Title</b>: ${novel.title}</p>
                             <p><b>Genre</b>: ${novel.genre}</p>
-                            <p><a href="${relativeFilePath}">Go to the story</a></p>
+                            <p><a href="${relativeFilePath}">Read the story</a></p>
                         </div>`;
+                    } else if (novel.type === "full_novel") {
+                        novelItem.innerHTML = `
+                        <div class="novel-item">
+                            <p><b>Title</b>: ${novel.title}</p>
+                            <p><b>Genre</b>: ${novel.genre}</p>
+                            <p><a href="${relativeFilePath}" download="${novel.title}.pdf">Download the story</a></p>
+                        </div>`;
+                    }
+                    else {
+                        novelItem.innerHTML = `
+                        <div class="novel-item">
+                            <p><b>Title</b>: ${novel.title}</p>
+                            <p><b>Genre</b>: ${novel.genre}</p>
+                            <p>Invalid novel type</p>
+                        </div>`;
+                    }
                     novelsList.appendChild(novelItem);
                 });
             } else {
