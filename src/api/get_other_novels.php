@@ -33,17 +33,30 @@ try {
     // Ottieni l'utente dalla sessione
     $user = $_SESSION['user'];
     $user_id = $user->get_id();
+    $is_premium = $user->is_premium();
+
 
     // Log del user_id per debug
     error_log("DEBUG get_other_novels.php: user_id = " . $user_id);
 
-    // Prepara la query SQL con JOIN per ottenere author_name
-    $stmt = $novel_conn->prepare(
-        'SELECT n.*, u.full_name AS author_name
-         FROM novels n
-         JOIN user_profiles u ON n.user_id = u.user_id
-         WHERE n.user_id != :user_id'
-    );
+      // Se l'utente è premium, mostriamo tutte le novel eccetto le proprie.
+    // Se l'utente NON è premium, mostriamo solo le novel free (is_premium=0) degli altri.
+    if ($is_premium) {
+        $stmt = $novel_conn->prepare(
+            'SELECT n.*, u.full_name AS author_name
+             FROM novels n
+             JOIN user_profiles u ON n.user_id = u.user_id
+             WHERE n.user_id != :user_id'
+        );
+    } else {
+        $stmt = $novel_conn->prepare(
+            'SELECT n.*, u.full_name AS author_name
+             FROM novels n
+             JOIN user_profiles u ON n.user_id = u.user_id
+             WHERE n.user_id != :user_id
+               AND n.is_premium = 0'
+        );
+    }
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
     $novels = $stmt->fetchAll(PDO::FETCH_ASSOC);
