@@ -39,7 +39,7 @@ try {
     // Log del user_id per debug
     error_log("DEBUG get_other_novels.php: user_id = " . $user_id);
 
-      // Se l'utente è premium, mostriamo tutte le novel eccetto le proprie.
+    // Se l'utente è premium, mostriamo tutte le novel eccetto le proprie.
     // Se l'utente NON è premium, mostriamo solo le novel free (is_premium=0) degli altri.
     if ($is_premium) {
         $stmt = $novel_conn->prepare(

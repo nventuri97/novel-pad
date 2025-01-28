@@ -20,6 +20,8 @@ COPY src/ /var/www/html/
 # Installa le dipendenze PHP con Composer, se è presente un file composer.json
 WORKDIR /var/www/html
 
+RUN if [ -f composer.json ]; then composer install; fi
+
 RUN composer require phpmailer/phpmailer \
     && composer install
 
