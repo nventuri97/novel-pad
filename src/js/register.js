@@ -35,7 +35,6 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         if (result.score < 3) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
-            passwordPolicy.style.display = 'block';
             document.getElementById('password').focus();
             return;
         }
@@ -70,7 +69,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             document.getElementById('registerForm').reset(); // Reset form on success
 
             // Optionally, you can redirect to the user dashboard if success
-            window.location.href = '../user_dashboard.html';  // Or any other page
+            window.location.href = '../confirm.html';  // Or any other page
         } else {
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';

@@ -1,6 +1,6 @@
 // config.js
 const API_CONFIG = {
-    BASE_URL: '../api/',
+    BASE_URL: '../php/api/',
     userDashboard() {
         return `${this.BASE_URL}user_dashboard.php`;
     },
@@ -18,6 +18,15 @@ const API_CONFIG = {
     },
     get_novels() {
         return `${this.BASE_URL}get_novels.php`;
+    },
+    confirm() {
+        return `${this.BASE_URL}confirm.php`;
+    },
+    recover_password() {
+        return `${this.BASE_URL}password_recover.php`;
+    },
+    reset_password() {
+        return `${this.BASE_URL}reset_password.php`;
     },
     get_other_novels() {
         return `${this.BASE_URL}get_other_novels.php`;

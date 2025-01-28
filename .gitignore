@@ -1,1 +1,4 @@
 uploads/
+.env
+composer.*
+vendor/

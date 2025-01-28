@@ -7,46 +7,46 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <div>
-            <div class="register-container">
-                <h2>Register</h2>
-                <form id="registerForm" method="POST">
-                    <div class="error-message" id="error-message" style="display: none;"></div>
-                    <div class="success-message" id="success-message" style="display: none;"></div>
-    
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
-    
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter a password" required>
-                    <div class="error-message password-requirements" id="password-policy" style="display: none;">
-                        <p style="text-align: center;">Password must contains:</p>
-                            <ul>
-                                <li>At least 8 characters</li>
-                                <li>At least one uppercase letter</li>
-                                <li>At least one lowercase letter</li>
-                                <li>At least one number</li>
-                            </ul>
-                    </div>
-    
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-    
-                    <label for="full_name">Full Name</label>
-                    <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
-    
-                    <button type="submit">Register</button>
-                </form>
-            </div>
-    
-            <div class="login-container">
+==== BASE ====
+	<div>
+        <div class="register-container">
+            <h2>Register</h2>
+            <form id="registerForm" method="POST">
+                <div class="error-message" id="error-message" style="display: none;"></div>
+                <div class="success-message" id="success-message" style="display: none;"></div>
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter a password" required>
+                <div class="error-message password-requirements" id="password-policy" style="display: none;">
+                    <p style="text-align: center;">Password must contains:</p>
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>At least one uppercase letter</li>
+                            <li>At least one lowercase letter</li>
+                            <li>At least one number</li>
+                        </ul>
+                </div>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
+
+                <button type="submit">Register</button>
+            </form>
+==== BASE ====
+        </div>
+	<div class="login-container">
                 <p>Already have an account?</p>
                 <button id="loginButton">
                     <a href="login.html">Go to login</a>
                 </button>
             </div>
-        </div>
-
+	</div>
         <script type="module" src="js/register.js"></script>
     </body>
 </html>

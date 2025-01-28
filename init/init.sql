@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(50) NOT NULL UNIQUE,
     `password_hash` VARCHAR(255) NOT NULL,
+    `verification_token` VARCHAR(255) UNIQUE,
+    `is_verified` BOOLEAN DEFAULT FALSE,
+    `reset_token` VARCHAR(255) UNIQUE,
+    `reset_token_expiry` TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -17,7 +21,7 @@ USE `novels_db`;
 CREATE TABLE IF NOT EXISTS `user_profiles` (
     `user_id` INT PRIMARY KEY,                  -- Link with `authentication_db.users`
     `is_premium` BOOLEAN DEFAULT FALSE,
-    `email` VARCHAR(100),
+    `email` VARCHAR(100) UNIQUE,
     `full_name` VARCHAR(100),
     `logged_in` BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (`user_id`) REFERENCES `authentication_db`.`users`(`id`) ON DELETE CASCADE

@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json'); // Ensure response is JSON
 
-include 'user.php';
-include 'db-client.php';
+include '../utils/user.php';
+include '../utils/db-client.php';
 
 session_start();
 

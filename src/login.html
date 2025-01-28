@@ -7,31 +7,33 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <div>
-            <div class="login-container">
-                <h2>Login</h2>
-                <form id="loginForm" method="POST">
-                    <div class="error-message" id="error-message" style="display: none;"></div>
-                    <div class="success-message" id="success-message" style="display: none;"></div>
-    
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
-    
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-    
-                    <button type="submit">Login</button>
-                </form>
-            </div>
-    
-            <div class="register-container">
+	<div>
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="loginForm" method="POST">
+                <div class="error-message" id="error-message" style="display: none;"></div>
+                <div class="success-message" id="success-message" style="display: none;"></div>
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <div class="password-recovery">
+                    <a href="recover-password.html">Forgot your password?</a>
+                </div>
+                
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+	<div class="register-container">
                 <p>You don’t have an account?</p>
                 <button id="registerButton">
                     <a href="register.html">Go to register</a>
                 </button>
-            </div>
         </div>
-
+	<div>
         <script type="module" src="js/login.js"></script>
     </body>
 </html>

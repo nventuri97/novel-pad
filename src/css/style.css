@@ -302,9 +302,11 @@ textarea {
     background-color: #0c0294;
 }
 
-.password-requirements {
+.password-requirements{
     text-align: left;
     display: inline-block;
+    margin-top: -10px;
+    margin-bottom: 30px;
 }
 
 .password-requirements ul {
@@ -313,13 +315,19 @@ textarea {
     margin: 0;
     padding: 0;
     text-align: left;
+    color: rgb(149, 149, 155);
 }
 
 .password-requirements li {
     margin: 0 0 5px 20px;
     text-align: left;          
 }
- /* Esempio di layout a 2 colonne (left - right) */
+
+.password-recovery {
+    margin: 0 0 20px 0;
+}
+
+/* Esempio di layout a 2 colonne (left - right) */
  .two-column-container {
     display: flex; 
     gap: 20px;
