@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if(window.location.search.length > 0) {
         const token = window.location.search.split('=')[1];
-        console.log(token);
         fetch(API_CONFIG.confirm(), {
             method: 'POST',
             body: new URLSearchParams({

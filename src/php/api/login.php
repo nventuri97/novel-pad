@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json'); // Ensure response is JSON
 
-include 'user.php';
-include 'db-client.php';
+include '../utils/user.php';
+include '../utils/db-client.php';
 
 // ini_set("session.cookie_httponly", 1); // Prevents JavaScript from accessing session cookies
 // ini_set("session.cookie_secure", 1); // Ensures cookies are sent only over HTTPS

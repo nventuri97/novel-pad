@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json'); // Ensure the response is JSON
 
-include 'db-client.php';
-include 'user.php';
-require 'mail-client.php';
+include '../utils/db-client.php';
+include '../utils/user.php';
+require '../utils/mail-client.php';
 
 // Enable output buffering to prevent accidental output
 ob_start();

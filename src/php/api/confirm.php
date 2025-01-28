@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json'); 
 
-include 'db-client.php';
-include 'user.php';
+include '../utils/db-client.php';
+include '../utils/user.php';
 
 ob_start();
 

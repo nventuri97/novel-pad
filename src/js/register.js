@@ -35,7 +35,6 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         if (result.score < 3) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
-            passwordPolicy.style.display = 'block';
             document.getElementById('password').focus();
             return;
         }
