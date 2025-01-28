@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS `users` (
     `password_hash` VARCHAR(255) NOT NULL,
     `verification_token` VARCHAR(255) UNIQUE,
     `is_verified` BOOLEAN DEFAULT FALSE,
+    `reset_token` VARCHAR(255) UNIQUE,
+    `reset_token_expiry` TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

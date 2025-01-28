@@ -1,6 +1,6 @@
 // config.js
 const API_CONFIG = {
-    BASE_URL: '../api/',
+    BASE_URL: '../php/api/',
     userDashboard() {
         return `${this.BASE_URL}user_dashboard.php`;
     },
@@ -21,7 +21,13 @@ const API_CONFIG = {
     },
     confirm() {
         return `${this.BASE_URL}confirm.php`;
-    }
+    },
+    recover_password() {
+        return `${this.BASE_URL}password_recover.php`;
+    },
+    reset_password() {
+        return `${this.BASE_URL}reset_password.php`;
+    },
 };
 
 export default API_CONFIG;
