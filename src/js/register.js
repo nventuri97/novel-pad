@@ -8,7 +8,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
     const passwordPolicy = document.getElementById('password-policy');
-    passwordPolicy.style.display = 'none';
+
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
@@ -47,6 +47,8 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         document.getElementById('email').focus();
         return;
     }
+
+    passwordPolicy.style.display = 'none';
 
     // Send the data to the backend (register.php)
     fetch(API_CONFIG.register(), {
