@@ -98,7 +98,6 @@ button a:hover {
     width: 100%; /* Mobile-friendly width */
     max-width: 500px; /* Limit width on larger screens */
     margin: auto;
-    margin-bottom: 20px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -180,6 +179,13 @@ input[type="email"] {
 .novel-list {
     max-height: 400px; /* Altezza massima del contenitore */
     overflow-y: auto;  /* Abilita lo scroll verticale */
+}
+
+.showNovel {
+    background-color: #1b67a57a; /* Slightly darker shade */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -287,6 +293,33 @@ textarea {
     resize: vertical;
     height: 100px;
 }
+
+.nav-bar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.home-button {
+    display: inline-block;
+    padding: 12px 18px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg, #5a8dee, #82b4ff);
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.3s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.home-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
 
 .submit-button {
     width: 100%;
