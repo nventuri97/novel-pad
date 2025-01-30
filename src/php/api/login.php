@@ -25,13 +25,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Retrieve user from authentication_db
     $stmt = $auth_conn->prepare(
-        "SELECT id, password_hash FROM users WHERE username = :username"
+        "SELECT id, password_hash, is_verified FROM users WHERE username = :username"
     );
     $stmt->bindParam(":username", $username);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user["password_hash"])) {
+    if (!$user["is_verified"]) {
+        $response["message"]= "User not verified. Please check your email.";
+    } else if ($user && password_verify($password, $user["password_hash"])) {
         // Login successful, retrieve premium status from novels_db
         $user_id = $user["id"];
 

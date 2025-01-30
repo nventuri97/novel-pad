@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(error => {
         console.error('Error fetching user data:', error);
         alert("An error occurred. Please try again later.");
+        window.location.href = '../login.html'; // Redirect to login page
+        return;
     });
 
     // Handle user logout when the logout button is clicked
@@ -61,6 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error during logout:', error);
             alert("An error occurred. Please try again later.");
+            window.location.href = '../login.html'; // Redirect to login page
+            return;
         });
     });
 
@@ -165,6 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error:', error);
             errorMessage.innerText = 'An error occurred. Please try again.';
+            window.location.href = '../login.html'; // Redirect to login page
+            return;
         });
     });
 
@@ -223,6 +229,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error fetching novels:', error);
             alert("An error occurred. Please try again later.");
+            window.location.href = '../login.html'; // Redirect to login page
+            return;
         });
     }
 

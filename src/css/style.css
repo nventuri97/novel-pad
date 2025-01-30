@@ -331,6 +331,11 @@ textarea {
     cursor: pointer;
 }
 
+button[disabled] {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 .submit-button:hover {
     background-color: #0c0294;
 }

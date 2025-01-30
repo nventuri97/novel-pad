@@ -7,7 +7,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
-    const passwordPolicy = document.getElementById('password-policy');
+    const submitButton = document.getElementById('register-button');
 
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
@@ -48,7 +48,9 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         return;
     }
 
-    passwordPolicy.style.display = 'none';
+    // passwordPolicy.style.display = 'none';
+    submitButton.disabled = true;
+    submitButton.textContent = 'Registering...';
 
     // Send the data to the backend (register.php)
     fetch(API_CONFIG.register(), {
@@ -73,13 +75,17 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             // Optionally, you can redirect to the user dashboard if success
             window.location.href = '../confirm.html';  // Or any other page
         } else {
-            errorMessage.textContent = data.message;
+            console.log(data.message);
+            errorMessage.textContent = "Email or username already exists. Please try again.";
             errorMessage.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Register';
         }
     })
     .catch(error => {
         console.error('Error:', error);
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
+        submitButton.disabled = false;
     });
 });
