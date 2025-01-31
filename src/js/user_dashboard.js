@@ -138,11 +138,52 @@ document.addEventListener('DOMContentLoaded', function () {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .story-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            font-family: 'Georgia', serif;
+            text-align: center;
+            color: #333;
+        }
+        .genre {
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+            background: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .story-content {
+            margin-top: 20px;
+            line-height: 1.6;
+            text-align: justify;
+        }
+    </style>
 </head>
 <body>
-    <h1>${title}</h1>
-    <p>Genre: ${genre}</p>
-    <div>${storyContent}</div>
+    <div class="story-container">
+        <h1>${title}</h1>
+        <p class="genre">${genre}</p>
+        <div class="story-content">${storyContent}</div>
+    </div>
 </body>
 </html>`;
 
