@@ -1,33 +1,49 @@
 # Use the official PHP image with Apache
 FROM php:8.3.14-apache-bookworm
 
-# Install necessary extensions, including pdo_mysql for MySQL support
+# Install necessary extensions
 RUN docker-php-ext-install mysqli pdo_mysql
 
-# Install additional dependencies for PHPMailer
+# Install required dependencies
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     curl \
     unzip \
+    apache2-utils \
     && docker-php-ext-install sockets
 
-# Copy the source code into the container
-COPY src/ /var/www/html/
+# Enable SSL and necessary Apache modules
+RUN a2enmod ssl rewrite headers
 
-# Install PHP dependencies with Composer if a composer.json file is present
+# Set working directory
 WORKDIR /var/www/html
+
+# Copy Composer files first (for caching)
+COPY src/composer.json src/composer.lock /var/www/html/
+
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer 
+    # && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+# Copy application source code
+COPY src/ /var/www/html/
 
 # Assign appropriate permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Create the uploads directory with correct permissions
-RUN mkdir -p /var/www/html/uploads \
-    && chmod 775 /var/www/html/uploads \
-    && chown www-data:www-data /var/www/html/uploads
+# Copy Apache SSL configuration
+COPY init/apache-ssl.conf /etc/apache2/sites-available/000-default.conf
 
-# Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Create SSL certificate (for development)
+RUN mkdir -p /etc/apache2/ssl
+COPY certs/server.crt /etc/apache2/ssl/apache.crt
+COPY certs/server.key /etc/apache2/ssl/apache.key
 
-# Install PHPMailer via Composer
-RUN composer require phpmailer/phpmailer
+# Enable the SSL site configuration
+RUN a2ensite 000-default.conf
+
+# Expose HTTP and HTTPS ports
+EXPOSE 80 443
+
+RUN service apache2 start

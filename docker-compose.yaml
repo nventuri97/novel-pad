@@ -3,7 +3,7 @@ services:
     build: .
     container_name: php-apache
     ports:
-      - "8085:80"
+      - "8085:443"
     environment:
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_USER=${SMTP_USER}
