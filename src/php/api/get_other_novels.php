@@ -61,23 +61,27 @@ try {
     $stmt->execute();
     $novels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Log del numero di novel recuperate
-    error_log("DEBUG get_other_novels.php: fetched " . count($novels) . " novels.");
-
     foreach ($novels as $novel) {
-        // Log dettagli della novel
-        error_log("DEBUG get_other_novels.php: novel ID " . $novel['id'] . ", title: " . $novel['title'] . ", author: " . $novel['author_name']);
-
         // Gestisci casi in cui author_name potrebbe essere null
         $author_name = $novel['author_name'] ?? 'Unknown Author';
+        $dir_name = basename(dirname($novel['file_path']));
+        $file_name = basename($novel['file_path']);
+
+        $file_location = $dir_name . '/' . $file_name;
+        
+        if ($novel['type'] === 'short_story') {
+            $link = 'php/api/read_novel.php?file=' . $dir_name .'/' . urlencode($file_name);
+        } else {
+            $link = 'php/api/download_novel.php?file=' . $dir_name .'/' . urlencode($file_name);
+        }
 
         $response['data'][] = (new Novel(
             $novel['id'],
             $novel['title'],
-            $author_name, // Passa 'full_name' come author_name
+            $author_name,
             $novel['genre'],
             $novel['type'],
-            $novel['file_path'],
+            $link,
             $novel['is_premium'],
             $novel['uploaded_at']
         ))->to_array();
@@ -87,14 +91,10 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    // Log dell'eccezione
     error_log("Error in get_other_novels.php: " . $e->getMessage());
     $response['message'] = 'An error occurred while processing other novels.';
 }
 
-
-
-// Esegui l'output del JSON
 echo json_encode($response);
 
 exit;

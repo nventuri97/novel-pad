@@ -14,7 +14,7 @@ services:
     volumes:
       - ./init/php.ini:/usr/local/etc/php/php.ini             # This volume allows to change the php.ini file without rebuilding the image
       - code-sync:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
-      - novel-upload:/var/www/html/uploads                    # This volume allows to sync the uploads between host and container without rebuilding the image   
+      - novel-upload:/var/www/private/uploads                    # This volume allows to sync the uploads between host and container without rebuilding the image   
     networks:
       - app-network
     depends_on:

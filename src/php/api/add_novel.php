@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Ensure the uploads directory exists
-        $uploadDir = '/var/www/html/uploads/'. $_SESSION["user"]->get_username() . '/';
+        $uploadDir = '/var/www/private/uploads/'. $_SESSION["user"]->get_username() . '/';
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 $response["message"] = "Failed to create upload directory.";

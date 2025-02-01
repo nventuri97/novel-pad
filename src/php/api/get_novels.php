@@ -33,16 +33,25 @@ try {
     $novels= $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($novels as $novel) {
-        $response['data'][] = (new Novel($novel['id'], 
-                                        $novel['title'], 
-                                        $user->get_username(), 
-                                        $novel['genre'], 
-                                        $novel['type'], 
-                                        $novel['file_path'], 
-                                        $novel['is_premium'], 
-                                        $novel['uploaded_at']))->to_array();
+        $file_name =  basename($novel['file_path']);
+        
+        if ($novel['type'] === 'short_story') {
+            $link = 'php/api/read_novel.php?file=' . $user->get_username() .'/' . urlencode($file_name);
+        } else {
+            $link = 'php/api/download_novel.php?file=' . $user->get_username() .'/' . urlencode($file_name);
+        }
+
+        $response['data'][] = (new Novel(
+            $novel['id'],
+            $novel['title'],
+            $user->get_username(),
+            $novel['genre'],
+            $novel['type'],
+            $link,
+            $novel['is_premium'],
+            $novel['uploaded_at']
+        ))->to_array();
     }
-    
 
     $response['success'] = true;
 } catch (Exception $e) {

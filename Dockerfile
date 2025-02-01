@@ -25,6 +25,11 @@ COPY src/composer.json src/composer.lock /var/www/html/
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer 
     # && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
+# Create uploads directory
+RUN mkdir -p /var/www/private/uploads \
+    && chown -R www-data:www-data /var/www/private \
+    && chmod -R 755 /var/www/private
+
 # Copy application source code
 COPY src/ /var/www/html/
 

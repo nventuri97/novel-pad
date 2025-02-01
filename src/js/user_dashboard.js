@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
             margin: 0;
             padding: 20px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -176,6 +177,20 @@ document.addEventListener('DOMContentLoaded', function () {
             line-height: 1.6;
             text-align: justify;
         }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -184,8 +199,10 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="genre">${genre}</p>
         <div class="story-content">${storyContent}</div>
     </div>
+    <button class="back-button"  onclick="window.history.back()">Back to Dashboard</button>
 </body>
 </html>`;
+
 
             const htmlFile = new Blob([htmlContent], { type: "text/html" });
             formData.append("file", htmlFile, `${title.replace(/\s+/g, "_")}.html`);
@@ -234,7 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 novelsList.innerHTML = ''; // Clear the list
 
                 novels.forEach(novel => {
-                    const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
                     const novelItem = document.createElement('div');
 
                     // Generate the appropriate HTML based on the novel type
@@ -243,14 +259,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="novel-item">
                             <p><b>Title</b>: ${novel.title}</p>
                             <p><b>Genre</b>: ${novel.genre}</p>
-                            <p><a href="${relativeFilePath}">Read the story</a></p>
+                            <p><a href="${novel.file_path}">Read the story</a></p>
                         </div>`;
                     } else if (novel.type === "full_novel") {
                         novelItem.innerHTML = `
                         <div class="novel-item">
                             <p><b>Title</b>: ${novel.title}</p>
                             <p><b>Genre</b>: ${novel.genre}</p>
-                            <p><a href="${relativeFilePath}" download="${novel.title}.pdf">Download the story</a></p>
+                            <p><a href="${novel.file_path}">Download the story</a></p>
                         </div>`;
                     } else {
                         novelItem.innerHTML = `
