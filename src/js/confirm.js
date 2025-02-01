@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const confirmLabel = document.getElementById('confirm-label');
 
     if(window.location.search.length > 0) {
-        const token = window.location.search.split('=')[1];
+        const queryParams = new URLSearchParams(window.location.search);
+
+        const token = queryParams.get('token');
+
         fetch(API_CONFIG.confirm(), {
             method: 'POST',
             body: new URLSearchParams({
