@@ -36,8 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
             email=data.email;
             full_name=data.full_name;
         } else {
-            errorMessage.textContent = data.message;
-            errorMessage.style.display = 'block';
+            waitingContainer.innerHTML = '<h2 style="color: red;">'+data.message+'</h2>';
         }
     })
     .catch(error => {

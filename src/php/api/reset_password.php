@@ -61,9 +61,12 @@ try {
             $password = $_PUT['password'];
             $user_id = $_PUT['id'];
 
+            $expiry = date('Y-m-d H:i:s', strtotime('now')); // Invalid token
+
             $auth_conn = db_client::get_connection($auth_db);
-            $stmt = $auth_conn->prepare("UPDATE users SET password_hash = :password WHERE id = :id");
+            $stmt = $auth_conn->prepare("UPDATE users SET password_hash = :password, reset_token = NULL, reset_token_expiry = :expiry WHERE id = :id");
             $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT));
+            $stmt->bindParam(':expiry', $expiry);
             $stmt->bindParam(':id', $user_id);
             $stmt->execute();
 
