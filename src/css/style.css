@@ -200,30 +200,6 @@ input[type="email"] {
 .novel-item h3 {
     margin: 0 0 5px;
 }
-  
-
-/* Add Novel Button Styles */
-.add-novel-button {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 24px;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.add-novel-button:hover {
-    background-color: #0c0294;
-}
 
 /* Modal Panel Styles */
 .modal {
