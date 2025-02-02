@@ -2,4 +2,5 @@ uploads/
 .env
 composer.*
 vendor/
+certs/
 TODO
