@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="genre">${genre}</p>
         <div class="story-content">${storyContent}</div>
     </div>
-    <button class="back-button"  onclick="window.history.back()">Back to Dashboard</button>
+    <button class="back-button"  onclick="location.href='/user_dashboard.html'">Back to Dashboard</button>
 </body>
 </html>`;
 
