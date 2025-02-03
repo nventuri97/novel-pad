@@ -8,7 +8,8 @@ session_start();
 
 if (!isset($_SESSION['user'])) {
     http_response_code(401); // Unauthorized
-    echo json_encode(['message' => 'User not authenticated.']);
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
     exit;
 }
 
