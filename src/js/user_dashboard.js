@@ -398,14 +398,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         novelsArray.forEach(novel => {
-            const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
             const novelDiv = document.createElement('div');
             novelDiv.innerHTML = `
                 <div class="novel-item">
                     <p><b>Title</b>: ${novel.title}</p>
                     <p><b>Genre</b>: ${novel.genre}</p>
                     <p><b>Author</b>: ${novel.author}</p>
-                    <p><a href="${relativeFilePath}" ${novel.type === "full_novel" ? `download="${novel.title}.pdf"` : ""}>
+                    <p><a href="${novel.file_path}" ${novel.type === "full_novel" ? `download="${novel.title}.pdf"` : ""}>
                         ${novel.type === "full_novel" ? "Download" : "Read"} the story
                     </a></p>
                 </div>`;

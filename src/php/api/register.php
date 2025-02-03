@@ -29,6 +29,26 @@ try {
 
         // Database operations
         $auth_conn = db_client::get_connection($auth_db);
+        $novels_conn = db_client::get_connection($novels_db);
+
+        // Check if the username already exists
+        $check_username_stmt = $auth_conn->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
+        $check_username_stmt->bindParam(':username', $username);
+        $check_username_stmt->execute();
+        $username_exists = $check_username_stmt->fetchColumn() > 0;
+
+        // Check if the email already exists
+        $check_email_stmt = $novels_conn->prepare("SELECT COUNT(*) FROM user_profiles WHERE email = :email");
+        $check_email_stmt->bindParam(':email', $email);
+        $check_email_stmt->execute();
+        $email_exists = $check_email_stmt->fetchColumn() > 0;
+
+        if ($email_exists || $username_exists) {
+            $response['message'] = "Email or username already exists. Please try again.";
+            echo json_encode($response);
+            exit;
+        }
+
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
         // Generate a random token for email verification
         $token = bin2hex(random_bytes(16));
@@ -43,7 +63,6 @@ try {
         $user_id = $auth_conn->lastInsertId();
 
         // Insert the new user into the novels database
-        $novels_conn = db_client::get_connection($novels_db);
         $novels_stmt = $novels_conn->prepare("INSERT INTO user_profiles (user_id, email, full_name, is_premium, logged_in) VALUES (:user_id, :email, :full_name, :is_premium, :logged_in)");
         $novels_stmt->bindParam(':user_id', $user_id);
         $novels_stmt->bindParam(':email', $email);
