@@ -5,6 +5,7 @@ include '../utils/novel.php';
 include '../utils/user.php';
 include '../utils/db-client.php';
 
+openlog("get_other_novels.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
 
 // Inizializza la risposta
@@ -16,6 +17,8 @@ $response = [
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['user'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to get novels.');
+
     http_response_code(401); // Non autorizzato
     $response['message'] = 'User not authenticated.';
     echo json_encode($response);
@@ -30,17 +33,16 @@ try {
         throw new Exception('Failed to connect to novels_db');
     }
 
+    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get novels of other authors.');
+
     // Ottieni l'utente dalla sessione
     $user = $_SESSION['user'];
     $user_id = $user->get_id();
     $is_premium = $user->is_premium();
 
-
-    // Log del user_id per debug
-    error_log("DEBUG get_other_novels.php: user_id = " . $user_id);
-
     // Se l'utente è premium, mostriamo tutte le novel eccetto le proprie.
     // Se l'utente NON è premium, mostriamo solo le novel free (is_premium=0) degli altri.
+    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Retrieving novels from DB according to premium policy.');
     if ($is_premium) {
         $stmt = $novel_conn->prepare(
             'SELECT n.*, u.full_name AS author_name
@@ -61,6 +63,7 @@ try {
     $stmt->execute();
     $novels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Processing novels.');
     foreach ($novels as $novel) {
         // Gestisci casi in cui author_name potrebbe essere null
         $author_name = $novel['author_name'] ?? 'Unknown Author';
@@ -87,9 +90,12 @@ try {
         ))->to_array();
     }
 
+    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Novels processed successfully.');
     $response['success'] = true;
 
 } catch (Exception $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  An error occurred while processing other novels: ' . $e->getMessage());
+    
     http_response_code(500);
     error_log("Error in get_other_novels.php: " . $e->getMessage());
     $response['message'] = 'An error occurred while processing other novels.';

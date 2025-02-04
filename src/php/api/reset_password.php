@@ -5,6 +5,7 @@ include '../utils/db-client.php';
 
 // Enable output buffering to prevent accidental output
 ob_start();
+openlog("reset_password.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
 $novel_db = 'novels_db';
@@ -15,7 +16,10 @@ $request= $_SERVER['REQUEST_METHOD'];
 try {
     switch ($request) {
         case 'POST':
+            syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Received request to verify reset token.");
             if (!isset($_POST['reset_token']) || !isset($_POST['id'])) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Required parameters missing.");
+
                 $response['message'] = "Required parameters missing.";
                 echo json_encode($response);
                 exit;
@@ -40,19 +44,26 @@ try {
             $novel_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && strtotime($user['reset_token_expiry']) > time()) {
+                syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Token is valid.");
+
                 $response['success'] = true;
                 $response['message'] = "Token is valid.";
                 $response['username'] = $user['username'];
                 $response['email'] = $novel_user['email'];
                 $response['full_name'] = $novel_user['full_name'];
             } else {
-                $response['message'] = "Invalid token or token expired.";
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid or expired token.");
+
+                $response['message'] = "Invalid or expired token.";
             }
             break;
             
         case 'PUT':
+            syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Received request to reset password.");
             parse_str(file_get_contents("php://input"), $_PUT);
             if (!isset($_PUT['password']) || !isset($_PUT['id'])) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Required parameters missing.");
+
                 $response['message'] = "Required parameters missing.";
                 echo json_encode($response);
                 exit;
@@ -61,6 +72,7 @@ try {
             $password = $_PUT['password'];
             $user_id = $_PUT['id'];
 
+            syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalidating token after password reset.");
             $expiry = date('Y-m-d H:i:s', strtotime('now')); // Invalid token
 
             $auth_conn = db_client::get_connection($auth_db);
@@ -70,14 +82,20 @@ try {
             $stmt->bindParam(':id', $user_id);
             $stmt->execute();
 
+            syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Password reset successfully.");
+
             $response['success'] = true;
             $response['message'] = "Password reset successfully.";
             break;
         default:
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid request method.");
+
             $response['message'] = "Invalid request method.";
             break;
     }
 } catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Database error: " . $e->getMessage());
+    
     $response['message'] = "Database error: " . $e->getMessage();
 }
 
