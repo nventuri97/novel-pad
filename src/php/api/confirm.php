@@ -5,6 +5,7 @@ include '../utils/db-client.php';
 include '../utils/user.php';
 
 ob_start();
+openlog("confirm.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
 $novels_db = 'novels_db';
@@ -13,6 +14,8 @@ $response = ['success' => false, 'message' => ''];
 
 try{
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User registration confirmation request received.");
+
         $token = $_POST['token'];
 
         $auth_conn = db_client::get_connection($auth_db);
@@ -21,6 +24,8 @@ try{
         $auth_stmt->execute();
 
         if ($auth_stmt->rowCount() === 0) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User sent invalid token.");
+
             $response['message'] = "Invalid token.";
             echo json_encode($response);
             exit;
@@ -32,27 +37,17 @@ try{
         $auth_stmt->bindParam(':id', $user_id);
         $auth_stmt->execute();
 
-        $novels_conn = db_client::get_connection($novels_db);
-        $novels_stmt = $novels_conn->prepare("SELECT * FROM user_profiles WHERE user_id = :user_id");
-        $novels_stmt->bindParam(':user_id', $user_id);
-        $novels_stmt->execute();
-
-        $user = $novels_stmt->fetch(PDO::FETCH_ASSOC);
-        $username = $user['username'];
-        $email = $user['email'];
-        $full_name = $user['full_name'];
-
         $response['success'] = true;
         $response['message'] = "Registration completed successfully!";
-    
-        // $user = new User($user_id, $username, $email, $full_name, false, false);
-        session_start();
-    
-        $_SESSION['user'] = $user;
+
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User registration completed successfully.");
     } else {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid request method.");
         $response['message'] = "Invalid request method.";
     }
 }catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Database error: ". $e->getMessage());
+
     $response['message'] = "Database error: " . $e->getMessage();
 }
 
