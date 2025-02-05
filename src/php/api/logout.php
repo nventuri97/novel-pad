@@ -7,11 +7,10 @@ include '../utils/db-client.php';
 session_start();
 
 // Ensure the user is logged in
-if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'No user is logged in.'
-    ]);
+if (!isset($_SESSION['user'])) {
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
     exit;
 }
 

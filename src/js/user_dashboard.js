@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(error => {
         handleError('Error fetching user data:' + error, "An error occurred. Please try again later.");
-        window.location.href = '../login.html'; // Redirect to login page
         return;
     });
 
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
             handleError(error, "An error occurred. Please try again later.");
-            window.location.href = '../login.html'; // Redirect to login page
             return;
         });
     });

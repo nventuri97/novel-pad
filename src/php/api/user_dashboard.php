@@ -15,8 +15,8 @@ $response = [
 
 if (!isset($_SESSION['user'])) {
     http_response_code(401); // Unauthorized
-    $response['message'] = 'User not authenticated.';
-    echo json_encode($response);
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
     exit;
 }
 

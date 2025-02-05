@@ -16,14 +16,15 @@ $response = [
     'message' => ''
 ];
 
+if (!isset($_SESSION['user'])) {
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     session_start();
-    if (!isset($_SESSION["user"])) {
-        $response["message"] = "User is not logged in.";
-        echo json_encode($response);
-        ob_end_flush();
-        exit;
-    }
 
     // Get the user ID from session
     $user_id = $_SESSION["user"]->get_id();
