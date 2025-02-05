@@ -75,7 +75,6 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             // Optionally, you can redirect to the user dashboard if success
             window.location.href = '../confirm.html';  // Or any other page
         } else {
-            console.log(data.message);
             errorMessage.textContent = "Email or username already exists. Please try again.";
             errorMessage.style.display = 'block';
             submitButton.disabled = false;

@@ -18,8 +18,8 @@ if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated.");
 
     http_response_code(401); // Unauthorized
-    $response['message'] = 'User not authenticated.';
-    echo json_encode($response);
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
     exit;
 }
 

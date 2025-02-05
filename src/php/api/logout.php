@@ -8,12 +8,13 @@ openlog("logout.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
 
 // Ensure the user is logged in
-if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
+if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  No user is logged in.');
-    echo json_encode([
-        'success' => false,
-        'message' => 'No user is logged in.'
-    ]);
+  
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
+
     exit;
 }
 

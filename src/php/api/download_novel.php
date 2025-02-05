@@ -10,8 +10,8 @@ if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to download a novel.');
 
     http_response_code(401); // Unauthorized
-    $response['message'] = 'User not authenticated.';
-    echo json_encode($response);
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
     exit;
 }
 
@@ -30,7 +30,7 @@ $file_path = "/var/www/private/uploads/" . $file;
 if (file_exists($file_path)) {
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $file . '"');
+    header('Content-Disposition: attachment; filename="' . basename($file) . '"');
     header('Expires: 0');
     header('Cache-Control: must-revalidate');
     header('Pragma: public');

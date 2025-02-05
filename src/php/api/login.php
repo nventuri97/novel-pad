@@ -46,7 +46,7 @@ try{
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Retrieving user profile from novels_db");
             // Login successful, retrieve premium status from novels_db
             $user_id = $user["id"];
-
+          
             // Correct query to retrieve is_premium from user_profiles
             $novel_stmt = $novel_conn->prepare(
                 "SELECT * FROM user_profiles WHERE user_id = :user_id"
@@ -73,6 +73,7 @@ try{
                 $response["message"]="Login succed!";
             } else {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User already logged in");
+              
                 $response["message"]= "Already logged in";
             } 
         } else {
@@ -83,7 +84,10 @@ try{
     } else {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
-        $response["message"]= "Invalid request method";
+        http_response_code(405); // HTTP method not allowed
+        $error_message = urlencode('Invalid request method');
+        header("Location: /error.html?error=$error_message");
+        exit;
     }
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  " . $e->getMessage());

@@ -2,8 +2,18 @@ import API_CONFIG from "./config.js";
 
 // Execute when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
-    const errorMessage = document.getElementById('error-message');
     const logoutButton = document.getElementsByClassName('logout-button')[0];
+
+    function handleError(error, userMessage = "An unexpected error occurred.") {
+        console.error('Error:', error);
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            errorMessage.innerText = userMessage;
+            errorMessage.style.display = 'block';
+        } else {
+            alert(userMessage);
+        }
+    }    
 
     // Fetch user data from the server and display it on the dashboard
     fetch(API_CONFIG.userDashboard(), {
@@ -26,14 +36,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('fullName').innerText = user.full_name || 'N/A';
             document.getElementById('status').innerText = user.is_premium ? 'Premium' : 'Standard';
         } else {
-            console.error('Error:', data.message);
-            alert(data.message); // Display error message
+            handleError(data.message, data.message);
         }
     })
     .catch(error => {
-        console.error('Error fetching user data:', error);
-        alert("An error occurred. Please try again later.");
-        window.location.href = '../login.html'; // Redirect to login page
+        handleError('Error fetching user data:' + error, "An error occurred. Please try again later.");
         return;
     });
 
@@ -56,14 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 window.location.href = '../login.html'; // Redirect to login page
             } else {
-                console.error('Error:', data.message);
-                alert(data.message); // Display error message
+                handleError(data.message, data.message);
             }
         })
         .catch(error => {
-            console.error('Error during logout:', error);
-            alert("An error occurred. Please try again later.");
-            window.location.href = '../login.html'; // Redirect to login page
+            handleError(error, "An error occurred. Please try again later.");
             return;
         });
     });
@@ -127,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const storyContent = formData.get("story_content");
 
             if (!storyContent.trim()) {
-                errorMessage.innerText = "Please provide content for the story.";
+                handleError("Please provide content for the story.", "Please provide content for the story.");
                 return;
             }
 
@@ -221,12 +225,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(data.message); // Display success message
                 fetchAndDisplayNovels(); // Refresh the novel list
             } else {
-                errorMessage.innerText = data.message; // Show error message
+                handleError(data.message, data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            errorMessage.innerText = 'An error occurred. Please try again.';
+            handleError(error, "An error occurred. Please try again later.");
             window.location.href = '../login.html'; // Redirect to login page
             return;
         });
@@ -279,13 +282,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     novelsList.appendChild(novelItem);
                 });
             } else {
-                console.error('Error:', data.message);
-                alert(data.message); // Display error message
+                handleError(data.message, data.message);
             }
         })
         .catch(error => {
-            console.error('Error fetching novels:', error);
-            alert("An error occurred. Please try again later.");
+            handleError(error, "An error occurred. Please try again later.");
             window.location.href = '../login.html'; // Redirect to login page
             return;
         });
@@ -302,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function populateGenreSelect() {
         const genreSelect = document.getElementById('novelGenre');
         if (!genreSelect) {
-            console.error("Genre select element not found!");
+            handleError("Genre select element not found!", "Genre select element not found!");
             return;
         }
         genreSelect.innerHTML = '<option value="">Select Genre</option>'; // Clear options
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedGenre = document.getElementById('novelGenre').value;
         if (selectedGenre === "") {
             event.preventDefault();
-            errorMessage.innerText = "Please select a genre.";
+            handleError("Please select a genre.", "Please select a genre.");
             return;
         }
         const isValidGenre = genresEnum.some(genre =>
@@ -328,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
         if (!isValidGenre) {
             event.preventDefault();
-            errorMessage.innerText = "Invalid genre selected.";
+            handleError("Invalid genre selected.", "Invalid genre selected.");
         }
     });
 
@@ -345,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Populate the genre dropdown in the right box
     function populateRightBoxGenres() {
         if (!selectGenreSearch) {
-            console.error("selectGenre element not found!");
+            handleError("selectGenre element not found!", "selectGenre element not found!");
             return;
         }
         // Keep the first option ("All Genres") and remove others
@@ -380,13 +381,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 allOtherNovels = data.data;
                 renderOtherNovels(allOtherNovels); // Render the novels
             } else {
-                console.error('Error:', data.message);
-                alert(data.message);
+                handleError(data.message, data.message);
             }
         })
         .catch(error => {
-            console.error('Error fetching other novels:', error);
-            alert("An error occurred (other novels). Please try again later.");
+            handleError(error, "An error occurred. Please try again later.");
         });
     }
 
@@ -398,14 +397,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         novelsArray.forEach(novel => {
-            const relativeFilePath = novel.file_path.replace('/var/www/html/', '');
             const novelDiv = document.createElement('div');
             novelDiv.innerHTML = `
                 <div class="novel-item">
                     <p><b>Title</b>: ${novel.title}</p>
                     <p><b>Genre</b>: ${novel.genre}</p>
                     <p><b>Author</b>: ${novel.author}</p>
-                    <p><a href="${relativeFilePath}" ${novel.type === "full_novel" ? `download="${novel.title}.pdf"` : ""}>
+                    <p><a href="${novel.file_path}" ${novel.type === "full_novel" ? `download="${novel.title}.pdf"` : ""}>
                         ${novel.type === "full_novel" ? "Download" : "Read"} the story
                     </a></p>
                 </div>`;

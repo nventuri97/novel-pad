@@ -17,16 +17,17 @@ $response = [
     'message' => ''
 ];
 
+if (!isset($_SESSION['user'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User try to add novel without log in.");
+  
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     session_start();
-    if (!isset($_SESSION["user"])) {
-        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User try to add novel without log in.");
-
-        $response["message"] = "User is not logged in.";
-        echo json_encode($response);
-        ob_end_flush();
-        exit;
-    }
 
     syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User is trying to add a novel.");
 
