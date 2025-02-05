@@ -34,7 +34,11 @@ try{
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user["is_verified"]) {
+        if (!$user) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong username or password");
+
+            $response["message"]= "Wrong username or password.";
+        } else if (!$user["is_verified"]) {
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User not verified");
 
             $response["message"]= "User not verified. Please check your email.";
@@ -70,18 +74,21 @@ try{
             } else {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User already logged in");
                 $response["message"]= "Already logged in";
-            }
-            
+            } 
         } else {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong username or password");
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong username or password");
 
             $response["message"]= "Wrong username or password.";
         }
+    } else {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
+
+        $response["message"]= "Invalid request method";
     }
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  " . $e->getMessage());
 
-    $response['message'] = "Database error: " . $e->getMessage();
+    $response['message'] = "Database error";
 }
 
 echo json_encode($response);
