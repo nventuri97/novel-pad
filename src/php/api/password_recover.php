@@ -6,6 +6,7 @@ require '../utils/mail-client.php';
 
 // Enable output buffering to prevent accidental output
 ob_start();
+openlog("password_recover.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
 $novel_db = 'novels_db';
@@ -18,10 +19,14 @@ try {
 
         // Basic validation
         if (empty($email)) {
-            $response['message'] = "Username, password, and email are required.";
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt without email.');
+
+            $response['message'] = "Email is required.";
             echo json_encode($response);
             exit;
         }
+
+        syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
         // Database operations
         $novel_conn = db_client::get_connection($novel_db);
@@ -30,6 +35,8 @@ try {
         $novel_stmt->execute();
 
         if ($novel_stmt->rowCount() === 0) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid recovery token.');
+
             $response['message'] = "Invalid token.";
             echo json_encode($response);
             exit;
@@ -53,18 +60,24 @@ try {
         echo "Sending email...";
         $mailSent = sendRecoveryPwdMail($email, $token, $user_id);
         if (!$mailSent) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send password recovery email.');
+
             $response['message'] = "Failed to send verification email.";
         } else {
-            echo "Recovery password email sent.";
+            syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery email sent.');
 
             // Successful verification message
             $response['success'] = true;
             $response['message'] = "Mail to password recovery send correctly!";
         }
     } else {
+        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid request method.');
+
         $response['message'] = "Invalid request method.";
     }
 } catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
+    
     $response['message'] = "Database error: " . $e->getMessage();
 }
 

@@ -9,6 +9,7 @@ include '../utils/db-client.php';
 // ini_set("session.use_strict_mode", 1); // Prevents session fixation attacks
 
 ob_start();
+openlog("login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_conn = db_client::get_connection("authentication_db");
 
@@ -19,28 +20,33 @@ $response = [
     'message' => ''
 ];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
+try{
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Login attempt");
+        $username = $_POST["username"];
+        $password = $_POST["password"];
 
-    // Retrieve user from authentication_db
-    $stmt = $auth_conn->prepare(
-        "SELECT id, password_hash, is_verified FROM users WHERE username = :username"
-    );
-    $stmt->bindParam(":username", $username);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Retrieve user from authentication_db
+        $stmt = $auth_conn->prepare(
+            "SELECT id, password_hash, is_verified FROM users WHERE username = :username"
+        );
+        $stmt->bindParam(":username", $username);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if (!$user) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong username or password");
 
-    if (!$user) {
-        $response["message"] = "Wrong username or password.";
-    } elseif (!$user["is_verified"]) {
-        $response["message"] = "User not verified. Please check your email.";
-    } else {
-        if (password_verify($password, $user["password_hash"])) {
+            $response["message"]= "Wrong username or password.";
+        } else if (!$user["is_verified"]) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User not verified");
+
+            $response["message"]= "User not verified. Please check your email.";
+        } else if ($user && password_verify($password, $user["password_hash"])) {
+            syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Retrieving user profile from novels_db");
             // Login successful, retrieve premium status from novels_db
             $user_id = $user["id"];
-    
+          
             // Correct query to retrieve is_premium from user_profiles
             $novel_stmt = $novel_conn->prepare(
                 "SELECT * FROM user_profiles WHERE user_id = :user_id"
@@ -57,21 +63,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $novel_stmt->bindValue(":logged_in", 1, PDO::PARAM_BOOL);
                 $novel_stmt->bindParam(":user_id", $user_id);
                 $novel_stmt->execute();
-    
+
                 session_start();
-    
+                syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User logged in");
+
                 // Save session information
                 $_SESSION["user"] = $session_user;
                 $response["success"] = true;
                 $response["message"]="Login succed!";
             } else {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User already logged in");
+              
                 $response["message"]= "Already logged in";
-            }
-            
+            } 
         } else {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong username or password");
+
             $response["message"]= "Wrong username or password.";
         }
+    } else {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
+
+        http_response_code(405); // HTTP method not allowed
+        $error_message = urlencode('Invalid request method');
+        header("Location: /error.html?error=$error_message");
+        exit;
     }
+} catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  " . $e->getMessage());
+
+    $response['message'] = "Database error";
 }
 
 echo json_encode($response);

@@ -7,6 +7,7 @@ require '../utils/mail-client.php';
 
 // Enable output buffering to prevent accidental output
 ob_start();
+openlog("register.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
 $novels_db = 'novels_db';
@@ -22,11 +23,14 @@ try {
 
         // Basic validation
         if (empty($username) || empty($password) || empty($email)) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User attempted to register with missing fields.');
+
             $response['message'] = "Username, password, and email are required.";
             echo json_encode($response);
             exit;
         }
 
+        syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User requested to register');
         // Database operations
         $auth_conn = db_client::get_connection($auth_db);
         $novels_conn = db_client::get_connection($novels_db);
@@ -72,22 +76,27 @@ try {
         $novels_stmt->execute();
 
         // Send verification email
-        echo "Sending verification email...";
         sendVerificationMail($email, $token);
         $mailSent = sendVerificationMail($email, $token);
         if (!$mailSent) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send verification email.');
+
             $response['message'] = "Failed to send verification email.";
         } else {
-            echo "Verification email sent.";
+            syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Verification email sent.');
 
             // Successful verification message
             $response['success'] = true;
             $response['message'] = "Verification mail send correctly!";
         }
     } else {
+        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid request method.');
+
         $response['message'] = "Invalid request method.";
     }
 } catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
+    
     $response['message'] = "Database error: " . $e->getMessage();
 }
 

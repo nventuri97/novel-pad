@@ -6,6 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 
 // Load PHPMailer
 require __DIR__.'/../../vendor/autoload.php';
+openlog("add_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 // Take dynamic configuration from docker environment 
 $config = include 'config.php';
 
@@ -14,6 +15,7 @@ function sendVerificationMail($user_mail, $token) {
 
     try {
         $mail = new PHPMailer(true);
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Setting up SMTP connection.");
         // Server settings
         $mail->isSMTP();
         $mail->Host = $config['smtp_host'];
@@ -35,12 +37,13 @@ function sendVerificationMail($user_mail, $token) {
         $mail->Body = '<p>Thank you for subscribing! Please confirm your subscription by clicking <a href="' . htmlspecialchars($confirmationUrl) . '">here</a>.</p>';
         $mail->AltBody = 'Thank you for subscribing! Please confirm your subscription by visiting this link: ' . $confirmationUrl;
 
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending verification email.");
         $result=$mail->send();
         $mail->smtpClose();
 
         return $result;
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        syslog(LOG_ERR, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
     }
 }
 
@@ -49,6 +52,8 @@ function sendRecoveryPwdMail($user_mail, $token, $user_id){
 
     try {
         $mail = new PHPMailer(true);
+
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Setting up SMTP connection.");
         // Server settings
         $mail->isSMTP();
         $mail->Host = $config['smtp_host'];
@@ -70,12 +75,14 @@ function sendRecoveryPwdMail($user_mail, $token, $user_id){
         $mail->Body = '<p>We received your request to recover your password. To reset password click <a href="' . htmlspecialchars($resetUrl) . '">here</a>.</p>';
         $mail->AltBody = 'We received your request to recover your password. To reset password click this link: ' . $resetUrl;
 
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending recovery password email.");
+
         $result=$mail->send();
         $mail->smtpClose();
 
         return $result;
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        syslog(LOG_ERR, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
     }
 }
 
