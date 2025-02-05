@@ -78,7 +78,6 @@ try {
         $novels_stmt->execute();
 
         // Send verification email
-        sendVerificationMail($email, $token);
         $mailSent = sendVerificationMail($email, $token);
         if (!$mailSent) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send verification email.');
