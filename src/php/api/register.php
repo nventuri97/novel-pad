@@ -48,6 +48,8 @@ try {
         $email_exists = $check_email_stmt->fetchColumn() > 0;
 
         if ($email_exists || $username_exists) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email or username already exists. Please try again.');
+
             $response['message'] = "Email or username already exists. Please try again.";
             echo json_encode($response);
             exit;
