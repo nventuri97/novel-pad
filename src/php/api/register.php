@@ -11,6 +11,7 @@ openlog("register.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
 $novels_db = 'novels_db';
+$config = include '../utils/config.php';
 
 $response = ['success' => false, 'message' => '']; // Default response structure
 
@@ -33,7 +34,7 @@ try {
         }
 
         // Verify reCAPTCHA
-        $recaptcha_secret = "6Ld-uM4qAAAAAM-A8kEw9mGQi8O8hd9vksQnlH14";
+        $recaptcha_secret = $config['captcha_key'];
         $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
         $recaptcha_check = curl_init($recaptcha_url);
         curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);

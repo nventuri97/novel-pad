@@ -51,7 +51,8 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         }
     })
     .catch(error => {
-        errorMessage.textContent = error.message;
+        console.error('Error:', error);
+        errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
         grecaptcha.reset();
     })

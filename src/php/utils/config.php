@@ -8,6 +8,7 @@ return [
     'novelpad_url' => getenv('NOVELPAD_URL'),
     'db_host' => getenv('DB_HOST'),
     'db_user' => getenv('DB_USER'),
-    'db_password' => getenv('DB_PASSWORD')
+    'db_password' => getenv('DB_PASSWORD'),
+    'captcha_key' => getenv('CAPTCHA_KEY')
 ];
 ?>

@@ -3,6 +3,7 @@ header('Content-Type: application/json'); // Ensure response is JSON
 
 include '../utils/user.php';
 include '../utils/db-client.php';
+$config = include '../utils/config.php';
 
 // ini_set("session.cookie_httponly", 1); // Prevents JavaScript from accessing session cookies
 // ini_set("session.cookie_secure", 1); // Ensures cookies are sent only over HTTPS
@@ -33,7 +34,7 @@ try{
         }
 
         // Verify reCAPTCHA
-        $recaptcha_secret = "6Ld-uM4qAAAAAM-A8kEw9mGQi8O8hd9vksQnlH14";
+        $recaptcha_secret = $config['captcha_key'];
         $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
         $recaptcha_check = curl_init($recaptcha_url);
         curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);

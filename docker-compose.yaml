@@ -14,6 +14,7 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      - CAPTCHA_KEY=${CAPTCHA_KEY}
     volumes:
       - ./init/php.ini:/usr/local/etc/php/php.ini             # This volume allows to change the php.ini file without rebuilding the image
       - code-sync:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
