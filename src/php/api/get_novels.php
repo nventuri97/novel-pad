@@ -26,9 +26,10 @@ if (!isset($_SESSION['user'])) {
 
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get novels.');
 
-$novel_conn = db_client::get_connection('novels_db');
 
 try {
+    $novel_conn = db_client::get_connection('novels_db');
+
     $user = $_SESSION['user'];
     $user_id = $user->get_id();
 
@@ -39,15 +40,17 @@ try {
 
     foreach ($novels as $novel) {
         $file_name =  basename($novel['file_path']);
+        $dir_name = hash('sha256', $_SESSION["user"]->get_username());
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get novel: ' . $_SESSION["user"]->get_username());
         
         if ($novel['type'] === 'short_story') {
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get short novel: ' . $file_name);
 
-            $link = 'php/api/read_novel.php?file=' . $user->get_username() .'/' . urlencode($file_name);
+            $link = 'php/api/read_novel.php?file=' . $dir_name .'/' . urlencode($file_name);
         } else {
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get full novel: ' . $file_name);
 
-            $link = 'php/api/download_novel.php?file=' . $user->get_username() .'/' . urlencode($file_name);
+            $link = 'php/api/download_novel.php?file=' . $dir_name .'/' . urlencode($file_name);
         }
 
         $response['data'][] = (new Novel(

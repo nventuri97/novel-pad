@@ -9,8 +9,7 @@ include '../utils/db-client.php';
 
 ob_start();
 openlog("add_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-
-$novel_conn = db_client::get_connection("novels_db");
+session_start();
 
 $response = [
     'success' => false,
@@ -27,7 +26,6 @@ if (!isset($_SESSION['user'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    session_start();
 
     syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User is trying to add a novel.");
 
@@ -74,8 +72,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
+        $dir_name = hash('sha256', $_SESSION["user"]->get_username());
         // Ensure the uploads directory exists
-        $uploadDir = '/var/www/private/uploads/'. $_SESSION["user"]->get_username() . '/';
+        $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to create upload directory.");
@@ -108,6 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Insert novel data into the database
     try {
+        $novel_conn = db_client::get_connection("novels_db");
+
         $stmt = $novel_conn->prepare(
             "INSERT INTO novels (title, genre, type, file_path, is_premium, user_id) 
             VALUES (:title, :genre, :type, :file_path, :is_premium, :user_id)");
