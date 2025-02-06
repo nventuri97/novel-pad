@@ -26,9 +26,10 @@ if (!isset($_SESSION['user'])) {
 
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get novels.');
 
-$novel_conn = db_client::get_connection('novels_db');
 
 try {
+    $novel_conn = db_client::get_connection('novels_db');
+
     $user = $_SESSION['user'];
     $user_id = $user->get_id();
 
