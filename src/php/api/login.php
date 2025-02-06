@@ -20,18 +20,19 @@ $response = [
 try{
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Login attempt");
-        $username = $_POST["username"] ?? '';
+        $email = $_POST["email"] ?? '';
         $password = $_POST["password"] ?? '';
         $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
-        if (empty($username) || empty($password || empty($recaptcha_response))) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Empty username or password");
+        if (empty($email) || empty($password || empty($recaptcha_response))) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Empty email or password");
 
             $response["message"]= "Please fill all the fields.";
             echo json_encode($response);
             ob_end_flush();
             exit;
         }
+        $username = explode('@', $_POST['email'])[0];
 
         // Verify reCAPTCHA
         $recaptcha_secret = $config['captcha_key'];

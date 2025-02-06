@@ -10,7 +10,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     successMessage.style.display = 'none';
 
     // Get field values
-    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
 
@@ -21,7 +21,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     }
 
     // Example validation
-    if (username === '' || password === '') {
+    if (email === '' || password === '') {
         errorMessage.textContent = "Both fields are required.";
         errorMessage.style.display = 'block';
         return;
@@ -30,7 +30,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     fetch(API_CONFIG.login(), {
         method: 'POST',
         body: new URLSearchParams({
-            username: username,
+            email: email,
             password: password,
             recaptcharesponse: recaptcharesponse
         }),

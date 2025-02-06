@@ -17,14 +17,13 @@ $response = ['success' => false, 'message' => '']; // Default response structure
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
         $email = $_POST['email'] ?? '';
         $full_name = $_POST['full_name'] ?? '';
         $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
         // Basic validation
-        if (empty($username) || empty($password) || empty($email) || empty($full_name) || empty($recaptcha_response)) {
+        if (empty($password) || empty($email) || empty($full_name) || empty($recaptcha_response)) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User attempted to register with missing fields.');
 
             $response['message'] = "Please fill all the fields.";
@@ -32,6 +31,8 @@ try {
             ob_end_flush();
             exit;
         }
+
+        $username = explode('@', $_POST['email'])[0]; // Use the email as the username
 
         // Verify reCAPTCHA
         $recaptcha_secret = $config['captcha_key'];
