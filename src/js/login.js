@@ -12,10 +12,16 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     // Get field values
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+    const recaptcharesponse = grecaptcha.getResponse();
+
+    if (!recaptcharesponse) {
+        errorMessage.textContent = "Please complete the reCAPTCHA";
+        errorMessage.style.display = 'block';
+        return;
+    }
 
     // Example validation
     if (username === '' || password === '') {
-        event.preventDefault();
         errorMessage.textContent = "Both fields are required.";
         errorMessage.style.display = 'block';
         return;
@@ -26,6 +32,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         body: new URLSearchParams({
             username: username,
             password: password,
+            recaptcharesponse: recaptcharesponse
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -37,8 +44,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             successMessage.textContent = data.message;
             successMessage.style.display = 'block';
             document.getElementById('loginForm').reset(); // Reset form on success
-
-            // Optionally, you can redirect to the user dashboard if success
             window.location.href = '../user_dashboard.html';  // Or any other page
         } else {
             errorMessage.textContent = data.message;
@@ -46,8 +51,10 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         }
     })
     .catch(error => {
-        errorMessage.textContent = error.message;
+        console.error('Error:', error);
+        errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
+        grecaptcha.reset();
     })
 
 });

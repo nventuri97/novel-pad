@@ -3,6 +3,7 @@ header('Content-Type: application/json'); // Ensure response is JSON
 
 include '../utils/user.php';
 include '../utils/db-client.php';
+$config = include '../utils/config.php';
 
 // ini_set("session.cookie_httponly", 1); // Prevents JavaScript from accessing session cookies
 // ini_set("session.cookie_secure", 1); // Ensures cookies are sent only over HTTPS
@@ -10,10 +11,6 @@ include '../utils/db-client.php';
 
 ob_start();
 openlog("login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-
-$auth_conn = db_client::get_connection("authentication_db");
-
-$novel_conn = db_client::get_connection("novels_db");
 
 $response = [
     'success' => false,
@@ -23,8 +20,43 @@ $response = [
 try{
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Login attempt");
-        $username = $_POST["username"];
-        $password = $_POST["password"];
+        $username = $_POST["username"] ?? '';
+        $password = $_POST["password"] ?? '';
+        $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
+
+        if (empty($username) || empty($password || empty($recaptcha_response))) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Empty username or password");
+
+            $response["message"]= "Please fill all the fields.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
+        // Verify reCAPTCHA
+        $recaptcha_secret = $config['captcha_key'];
+        $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+        $recaptcha_check = curl_init($recaptcha_url);
+        curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
+            'secret' => $recaptcha_secret,
+            'response' => $recaptcha_response
+        ]);
+        $recaptcha_result = curl_exec($recaptcha_check);
+        curl_close($recaptcha_check);
+        
+        $captcha_success = json_decode($recaptcha_result, true);
+    
+        if (!$captcha_success || !$captcha_success["success"]) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
+
+            $response["message"]= "reCAPTCHA verification failed.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
+        $auth_conn = db_client::get_connection("authentication_db");
 
         // Retrieve user from authentication_db
         $stmt = $auth_conn->prepare(
@@ -47,6 +79,8 @@ try{
             // Login successful, retrieve premium status from novels_db
             $user_id = $user["id"];
           
+            $novel_conn = db_client::get_connection("novels_db");
+
             // Correct query to retrieve is_premium from user_profiles
             $novel_stmt = $novel_conn->prepare(
                 "SELECT * FROM user_profiles WHERE user_id = :user_id"

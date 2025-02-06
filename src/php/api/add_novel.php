@@ -72,8 +72,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
+        $dir_name = hash('sha256', $_SESSION["user"]->get_username());
         // Ensure the uploads directory exists
-        $uploadDir = '/var/www/private/uploads/'. $_SESSION["user"]->get_username() . '/';
+        $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to create upload directory.");

@@ -63,8 +63,6 @@ try {
         $author_name = $novel['author_name'] ?? 'Unknown Author';
         $dir_name = basename(dirname($novel['file_path']));
         $file_name = basename($novel['file_path']);
-
-        $file_location = $dir_name . '/' . $file_name;
         
         if ($novel['type'] === 'short_story') {
             $link = 'php/api/read_novel.php?file=' . $dir_name .'/' . urlencode($file_name);
