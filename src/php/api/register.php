@@ -16,17 +16,42 @@ $response = ['success' => false, 'message' => '']; // Default response structure
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $email = $_POST['email'];
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $email = $_POST['email'] ?? '';
         $full_name = $_POST['full_name'] ?? '';
+        $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
         // Basic validation
-        if (empty($username) || empty($password) || empty($email)) {
+        if (empty($username) || empty($password) || empty($email) || empty($full_name) || empty($recaptcha_response)) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User attempted to register with missing fields.');
 
-            $response['message'] = "Username, password, and email are required.";
+            $response['message'] = "Please fill all the fields.";
             echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
+        // Verify reCAPTCHA
+        $recaptcha_secret = "6Ld-uM4qAAAAAM-A8kEw9mGQi8O8hd9vksQnlH14";
+        $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+        $recaptcha_check = curl_init($recaptcha_url);
+        curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
+            'secret' => $recaptcha_secret,
+            'response' => $recaptcha_response
+        ]);
+        $recaptcha_result = curl_exec($recaptcha_check);
+        curl_close($recaptcha_check);
+
+        $captcha_success = json_decode($recaptcha_result, true);
+        
+        if (!$captcha_success || !$captcha_success["success"]) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
+
+            $response["message"]= "reCAPTCHA verification failed.";
+            echo json_encode($response);
+            ob_end_flush();
             exit;
         }
 

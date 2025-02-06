@@ -37,6 +37,8 @@
                 <label for="full_name">Full Name</label>
                 <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
 
+                <div class="g-recaptcha" data-sitekey="6Ld-uM4qAAAAAKupstOmSPyjWmYy4En80C6ZqPXq"></div>
+
                 <div class="error-message" id="error-message" style="display: none;"></div>
                 <div class="success-message" id="success-message" style="display: none;"></div>
 
@@ -46,5 +48,6 @@
             <p>Already have an account? <a href="login.html">Go to Login</a></p>
         </div>
         <script type="module" src="js/register.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     </body>
 </html>

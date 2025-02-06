@@ -16,6 +16,13 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     const password = document.getElementById('password').value.trim();
     const email = document.getElementById('email').value.trim();
     const full_name = document.getElementById('full_name').value.trim();
+    const recaptcharesponse = grecaptcha.getResponse();
+
+    if (!recaptcharesponse) {
+        errorMessage.textContent = "Please complete the reCAPTCHA";
+        errorMessage.style.display = 'block';
+        return;
+    }
 
     // Validation
     if (username.length < 4) {
@@ -59,7 +66,8 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             username: username,
             email: email,
             password: password,
-            full_name: full_name
+            full_name: full_name,
+            recaptcharesponse: recaptcharesponse
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -85,6 +93,8 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         console.error('Error:', error);
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
+        submitButton.textContent = 'Register';
         submitButton.disabled = false;
+        grecaptcha.reset();
     });
 });
