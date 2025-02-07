@@ -19,11 +19,11 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
         $email = $_POST['email'] ?? '';
-        $full_name = $_POST['full_name'] ?? '';
+        $nickname = $_POST['nickname'] ?? '';
         $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
         // Basic validation
-        if (empty($password) || empty($email) || empty($full_name) || empty($recaptcha_response)) {
+        if (empty($password) || empty($email) || empty($nickname) || empty($recaptcha_response)) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User attempted to register with missing fields.');
 
             $response['message'] = "Please fill all the fields.";
@@ -31,8 +31,6 @@ try {
             ob_end_flush();
             exit;
         }
-
-        $username = explode('@', $_POST['email'])[0]; // Use the email as the username
 
         // Verify reCAPTCHA
         $recaptcha_secret = $config['captcha_key'];
@@ -58,26 +56,47 @@ try {
         }
 
         syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User requested to register');
-        // Database operations
-        $auth_conn = db_client::get_connection($auth_db);
         $novels_conn = db_client::get_connection($novels_db);
 
-        // Check if the username already exists
-        $check_username_stmt = $auth_conn->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
-        $check_username_stmt->bindParam(':username', $username);
-        $check_username_stmt->execute();
-        $username_exists = $check_username_stmt->fetchColumn() > 0;
+        // Check if the nickname already exists
+        $check_nickname_stmt = $novels_conn->prepare("SELECT COUNT(*) FROM user_profiles WHERE nickname = :nickname");
+        $check_nickname_stmt->bindParam(':nickname', $nickname);
+        $check_nickname_stmt->execute();
+        $nickname_exists = $check_nickname_stmt->fetchColumn() > 0;
+
+        if ($nickname_exists) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname already exists. Please try again.');
+
+            $response['message'] = "This nickname already exists, please choose another one.";
+            echo json_encode($response);
+            exit;
+        }
+
+        // Database operations
+        $auth_conn = db_client::get_connection($auth_db);
 
         // Check if the email already exists
-        $check_email_stmt = $novels_conn->prepare("SELECT COUNT(*) FROM user_profiles WHERE email = :email");
+        $check_email_stmt = $auth_conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
         $check_email_stmt->bindParam(':email', $email);
         $check_email_stmt->execute();
         $email_exists = $check_email_stmt->fetchColumn() > 0;
 
-        if ($email_exists || $username_exists) {
-            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email or username already exists. Please try again.');
+        if ($email_exists) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email already exists. Send allert mail.');
 
-            $response['message'] = "Email or username already exists. Please try again.";
+            $mailSent = sendAllertMail($email);
+            if (!$mailSent) {
+                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send allert email.');
+    
+                $response['message'] = "Failed to send verification email.";
+            } else {
+                syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Allert email sent.');
+    
+                // Successful verification message
+                $response['success'] = true;
+                $response['message'] = "Verification mail send correctly!";
+            }
+            ob_end_clean();
             echo json_encode($response);
             exit;
         }
@@ -87,8 +106,8 @@ try {
         $token = bin2hex(random_bytes(16));
 
         // Insert the new user into the authentication database
-        $auth_stmt = $auth_conn->prepare("INSERT INTO users (username, password_hash, verification_token) VALUES (:username, :password_hash, :verification_token)");
-        $auth_stmt->bindParam(':username', $username);
+        $auth_stmt = $auth_conn->prepare("INSERT INTO users (email, password_hash, verification_token) VALUES (:email, :password_hash, :verification_token)");
+        $auth_stmt->bindParam(':email', $email);
         $auth_stmt->bindParam(':password_hash', $passwordHash);
         $auth_stmt->bindParam(':verification_token', $token);
         $auth_stmt->execute();
@@ -96,10 +115,9 @@ try {
         $user_id = $auth_conn->lastInsertId();
 
         // Insert the new user into the novels database
-        $novels_stmt = $novels_conn->prepare("INSERT INTO user_profiles (user_id, email, full_name, is_premium, logged_in) VALUES (:user_id, :email, :full_name, :is_premium, :logged_in)");
+        $novels_stmt = $novels_conn->prepare("INSERT INTO user_profiles (user_id, nickname, is_premium, logged_in) VALUES (:user_id, :nickname, :is_premium, :logged_in)");
         $novels_stmt->bindParam(':user_id', $user_id);
-        $novels_stmt->bindParam(':email', $email);
-        $novels_stmt->bindParam(':full_name', $full_name);
+        $novels_stmt->bindParam(':nickname', $nickname);
         $novels_stmt->bindValue(':is_premium', 0, PDO::PARAM_BOOL);
         $novels_stmt->bindValue(':logged_in', 0, PDO::PARAM_BOOL);
         $novels_stmt->execute();
@@ -125,7 +143,7 @@ try {
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
     
-    $response['message'] = "Database error: " . $e->getMessage();
+    $response['message'] = "An error occurred. Please try again later or contact support.";
 }
 
 // Output the response as JSON

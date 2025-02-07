@@ -7,9 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const resetContainer = document.getElementById('reset-container');
     const waitingContainer = document.getElementById('waiting-container');
 
-    let username='';
     let email='';
-    let full_name='';
+    let nickname='';
 
     const queryParams = new URLSearchParams(window.location.search);
 
@@ -32,9 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
             waitingContainer.style.display='none';
             resetContainer.style.display='block';
 
-            username=data.username;
             email=data.email;
-            full_name=data.full_name;
+            nickname=data.nickname;
         } else {
             waitingContainer.innerHTML = '<h2 style="color: red;">'+data.message+'</h2>';
         }
@@ -57,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('password').focus();
             return;
         } else {
-            const result = zxcvbn(password, [String(username), String(email), String(full_name)]);
+            const result = zxcvbn(password, [String(nickname), String(email)]);
             if (result.score < 3) {
                 errorMessage.textContent = "Password is too weak. Please use a stronger password.";
                 errorMessage.style.display = 'block';

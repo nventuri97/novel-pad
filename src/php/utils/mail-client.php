@@ -47,6 +47,43 @@ function sendVerificationMail($user_mail, $token) {
     }
 }
 
+function sendAllertMail($user_mail) {
+    global $config;
+
+    try {
+        $mail = new PHPMailer(true);
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Setting up SMTP connection.");
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = $config['smtp_host'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $config['smtp_user'];
+        $mail->Password = $config['smtp_password'];
+        $mail->SMTPSecure = $config['smtp_encryption'];
+        $mail->Port = intval($config['smtp_port']);
+
+        // Recipients
+        $mail->setFrom($mail->Username, 'Novelpad');
+        $mail->addAddress($user_mail); // Replace with the user's email
+
+        // Content
+        $mail->isHTML(true);
+
+        $mail->Subject = 'Security Alert: Registration Attempt Detected';
+        $mail->Body = '<p>We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
+        $mail->AltBody = 'We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
+
+
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending allert email.");
+        $result=$mail->send();
+        $mail->smtpClose();
+
+        return $result;
+    } catch (Exception $e) {
+        syslog(LOG_ERR, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+    }
+}
+
 function sendRecoveryPwdMail($user_mail, $token, $user_id){
     global $config;
 

@@ -14,7 +14,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
-    const full_name = document.getElementById('full_name').value.trim();
+    const nickname = document.getElementById('nickname').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
 
     if (!recaptcharesponse) {
@@ -28,6 +28,15 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         errorMessage.textContent = "Please enter a valid email address.";
         errorMessage.style.display = 'block';
         document.getElementById('email').focus();
+        grecaptcha.reset();
+        return;
+    }
+
+    if (nickname.length < 4) {
+        errorMessage.textContent = "Nickname must be at least 4 characters.";
+        errorMessage.style.display = 'block';
+        document.getElementById('nickname').focus();
+        grecaptcha.reset();
         return;
     }
     
@@ -35,13 +44,15 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         errorMessage.textContent = "Password must be at least 8 characters.";
         errorMessage.style.display = 'block';
         document.getElementById('password').focus();
+        grecaptcha.reset();
         return;
     } else {
-        const result = zxcvbn(password, [String(email), String(full_name)]);
+        const result = zxcvbn(password, [String(email), String(nickname)]);
         if (result.score < 3) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
             document.getElementById('password').focus();
+            grecaptcha.reset();
             return;
         }
     }
@@ -56,7 +67,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         body: new URLSearchParams({
             email: email,
             password: password,
-            full_name: full_name,
+            nickname: nickname,
             recaptcharesponse: recaptcharesponse
         }),
         headers: {
@@ -73,7 +84,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             // Optionally, you can redirect to the user dashboard if success
             window.location.href = '../confirm.html';  // Or any other page
         } else {
-            errorMessage.textContent = "Email already exists. Please try again.";
+            errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';
             submitButton.disabled = false;
             submitButton.textContent = 'Register';

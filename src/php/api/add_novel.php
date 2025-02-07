@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        $dir_name = hash('sha256', $_SESSION["user"]->get_username());
+        $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
         // Ensure the uploads directory exists
         $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
         if (!is_dir($uploadDir)) {

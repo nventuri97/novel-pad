@@ -27,6 +27,14 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errorMessage.textContent = "Please enter a valid email address.";
+        errorMessage.style.display = 'block';
+        document.getElementById('email').focus();
+        return;
+    }
+
     fetch(API_CONFIG.login(), {
         method: 'POST',
         body: new URLSearchParams({
@@ -48,6 +56,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         } else {
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';
+            grecaptcha.reset();
         }
     })
     .catch(error => {

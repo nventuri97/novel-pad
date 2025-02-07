@@ -40,14 +40,14 @@ try {
 
     if ($is_premium) {
         $stmt = $novel_conn->prepare(
-            'SELECT n.*, u.full_name AS author_name
+            'SELECT n.*, u.nickname AS author_name
              FROM novels n
              JOIN user_profiles u ON n.user_id = u.user_id
              WHERE n.user_id != :user_id'
         );
     } else {
         $stmt = $novel_conn->prepare(
-            'SELECT n.*, u.full_name AS author_name
+            'SELECT n.*, u.nickname AS author_name
              FROM novels n
              JOIN user_profiles u ON n.user_id = u.user_id
              WHERE n.user_id != :user_id

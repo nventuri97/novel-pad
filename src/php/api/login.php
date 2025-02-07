@@ -32,7 +32,6 @@ try{
             ob_end_flush();
             exit;
         }
-        $username = explode('@', $_POST['email'])[0];
 
         // Verify reCAPTCHA
         $recaptcha_secret = $config['captcha_key'];
@@ -61,16 +60,16 @@ try{
 
         // Retrieve user from authentication_db
         $stmt = $auth_conn->prepare(
-            "SELECT id, password_hash, is_verified FROM users WHERE username = :username"
+            "SELECT id, password_hash, is_verified FROM users WHERE email = :email"
         );
-        $stmt->bindParam(":username", $username);
+        $stmt->bindParam(":email", $email);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$user) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong username or password");
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong email");
 
-            $response["message"]= "Wrong username or password.";
+            $response["message"]= "Wrong credentials.";
         } else if (!$user["is_verified"]) {
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User not verified");
 
@@ -90,7 +89,7 @@ try{
             $novel_stmt->execute();
             $novel_user = $novel_stmt->fetch(PDO::FETCH_ASSOC);
             if (!$novel_user["logged_in"]){
-                $session_user = new User($novel_user["user_id"], $username, $novel_user["email"], $novel_user["full_name"], $novel_user["is_premium"], !($novel_user["logged_in"]));
+                $session_user = new User($novel_user["user_id"], $email, $novel_user["nickname"], $novel_user["is_premium"], !($novel_user["logged_in"]));
                 
                 $novel_stmt = $novel_conn->prepare(
                     "UPDATE user_profiles SET logged_in = :logged_in WHERE user_id = :user_id"
@@ -112,9 +111,9 @@ try{
                 $response["message"]= "Already logged in";
             } 
         } else {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong username or password");
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong password");
 
-            $response["message"]= "Wrong username or password.";
+            $response["message"]= "Wrong credentials.";
         }
     } else {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");

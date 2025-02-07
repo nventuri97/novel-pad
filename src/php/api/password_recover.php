@@ -29,12 +29,12 @@ try {
         syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
         // Database operations
-        $novel_conn = db_client::get_connection($novel_db);
-        $novel_stmt = $novel_conn->prepare("SELECT user_id FROM user_profiles WHERE email = :email");
-        $novel_stmt->bindParam(':email', $email);
-        $novel_stmt->execute();
+        $auth_conn = db_client::get_connection($auth_db);
+        $auth_stmt = $auth_conn->prepare("SELECT id FROM users WHERE email = :email");
+        $auth_stmt->bindParam(':email', $email);
+        $auth_stmt->execute();
 
-        if ($novel_stmt->rowCount() === 0) {
+        if ($auth_stmt->rowCount() === 0) { //TODO: wrong email (?)
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid recovery token.');
 
             $response['message'] = "Invalid token.";
@@ -42,13 +42,12 @@ try {
             exit;
         }
 
-        $user = $novel_stmt->fetch(PDO::FETCH_ASSOC);
-        $user_id = $user['user_id'];
+        $user = $auth_stmt->fetch(PDO::FETCH_ASSOC);
+        $user_id = $user['id'];
         $token = bin2hex(random_bytes(16)); // Secure random token
         $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
 
         // Save token and expiry to the database
-        $auth_conn = db_client::get_connection($auth_db);
         $update_stmt = $auth_conn->prepare("UPDATE users SET reset_token = :token, reset_token_expiry = :expiry WHERE id = :id");
         $update_stmt->bindParam(':token', $token);
         $update_stmt->bindParam(':expiry', $expiry);

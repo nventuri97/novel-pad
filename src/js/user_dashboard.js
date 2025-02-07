@@ -31,9 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
         if (data.success) {
             const user = data.data;
-            document.getElementById('username').innerText = user.username || 'N/A';
+            document.getElementById('nickname').innerText = user.nickname || 'N/A';
             document.getElementById('email').innerText = user.email || 'N/A';
-            document.getElementById('fullName').innerText = user.full_name || 'N/A';
             document.getElementById('status').innerText = user.is_premium ? 'Premium' : 'Standard';
         } else {
             handleError(data.message, data.message);

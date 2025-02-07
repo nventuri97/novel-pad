@@ -10,7 +10,7 @@ openlog("reset_password.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 $auth_db = 'authentication_db';
 $novel_db = 'novels_db';
 
-$response = ['success' => false, 'message' => '', 'username' => '', 'email' => '', 'full_name' => '']; // Default response structure
+$response = ['success' => false, 'message' => '', 'email' => '', 'nickname' => '']; // Default response structure
 $request= $_SERVER['REQUEST_METHOD'];
 
 try {
@@ -29,7 +29,7 @@ try {
             $user_id = $_POST['id'];
 
             $auth_conn = db_client::get_connection($auth_db);
-            $stmt = $auth_conn->prepare("SELECT username, reset_token_expiry FROM users WHERE id = :id AND reset_token = :reset_token");
+            $stmt = $auth_conn->prepare("SELECT email, reset_token_expiry FROM users WHERE id = :id AND reset_token = :reset_token");
             $stmt->bindParam(':id', $user_id);
             $stmt->bindParam(':reset_token', $reset_token);
             $stmt->execute();
@@ -37,7 +37,7 @@ try {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             $novel_conn = db_client::get_connection($novel_db);
-            $stmt = $novel_conn->prepare("SELECT email, full_name FROM user_profiles WHERE user_id = :id");
+            $stmt = $novel_conn->prepare("SELECT nickname FROM user_profiles WHERE user_id = :id");
             $stmt->bindParam(':id', $user_id);
             $stmt->execute();
 
@@ -48,9 +48,8 @@ try {
 
                 $response['success'] = true;
                 $response['message'] = "Token is valid.";
-                $response['username'] = $user['username'];
                 $response['email'] = $novel_user['email'];
-                $response['full_name'] = $novel_user['full_name'];
+                $response['nickname'] = $novel_user['nickname'];
             } else {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid or expired token.");
 

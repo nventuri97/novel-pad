@@ -40,8 +40,7 @@ try {
 
     foreach ($novels as $novel) {
         $file_name =  basename($novel['file_path']);
-        $dir_name = hash('sha256', $_SESSION["user"]->get_username());
-        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get novel: ' . $_SESSION["user"]->get_username());
+        $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
         
         if ($novel['type'] === 'short_story') {
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to get short novel: ' . $file_name);
@@ -56,7 +55,7 @@ try {
         $response['data'][] = (new Novel(
             $novel['id'],
             $novel['title'],
-            $user->get_username(),
+            $user->get_nickname(),
             $novel['genre'],
             $novel['type'],
             $link,
