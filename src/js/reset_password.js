@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         } else {
             const result = zxcvbn(password, [String(nickname), String(email)]);
-            if (result.score < 3) {
+            if (result.score < 4) {
                 errorMessage.textContent = "Password is too weak. Please use a stronger password.";
                 errorMessage.style.display = 'block';
                 document.getElementById('password').focus();
