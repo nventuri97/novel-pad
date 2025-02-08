@@ -4,14 +4,12 @@
         private $email;
         private $nickname;
         private $is_premium;
-        private $logged_in;
 
-        function __construct($id, $email, $nickname, $is_premium, $logged_in){
+        function __construct($id, $email, $nickname, $is_premium){
             $this->id = $id;
             $this->email = $email;
             $this->nickname = $nickname;
             $this->is_premium = $is_premium;
-            $this->logged_in = $logged_in;
         }
 
         public function to_array() {
@@ -19,8 +17,7 @@
                 "id" => $this->id,
                 "email" => $this->email,
                 "nickname" => $this->nickname,
-                "is_premium" => $this->is_premium,
-                "logged_in" => $this->logged_in
+                "is_premium" => $this->is_premium
             ];
         }
 
@@ -40,10 +37,6 @@
             return $this->is_premium;
         }
 
-        function is_logged_in(){
-            return $this->logged_in;
-        }
-
         function set_premium($is_premium){
             $this->is_premium = $is_premium;
         }
@@ -58,10 +51,6 @@
 
         function set_id($id){
             $this->id = $id;
-        }
-
-        function set_logged_in($logged_in){
-            $this->logged_in = $logged_in;
         }
     }
 ?>

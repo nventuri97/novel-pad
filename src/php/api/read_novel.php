@@ -10,8 +10,19 @@ session_start();
 if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to read novel.');
 
+    session_destroy();
     http_response_code(401); // Unauthorized
     $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
+if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
+
+    session_destroy();
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('Session expired');
     header("Location: /error.html?error=$error_message");
     exit;
 }
@@ -23,6 +34,9 @@ if (!isset($_GET['file'])) {
     exit('No file specified.');
 }
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to read a novel.');
+
+// Update the session timeout
+$_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
 $file = $_GET['file'];
 $file_path = "/var/www/private/uploads/" . $file;

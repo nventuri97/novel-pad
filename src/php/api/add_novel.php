@@ -16,119 +16,139 @@ $response = [
     'message' => ''
 ];
 
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
+
+    http_response_code(405); // HTTP method not allowed
+    $error_message = urlencode('Invalid request method');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
 if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User try to add novel without log in.");
   
+    session_destroy();
     http_response_code(401); // Unauthorized
     $error_message = urlencode('User not authenticated');
     header("Location: /error.html?error=$error_message");
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
 
-    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User is trying to add a novel.");
+    session_destroy();
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('Session expired');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
 
-    // Get the user ID from session
-    $user_id = $_SESSION["user"]->get_id();
+syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User is trying to add a novel.");
 
-    // Collect form data
-    $title = $_POST['title'] ?? '';
-    $genre = $_POST['genre'] ?? '';
-    $type = $_POST['type'] ?? '';
-    $is_premium = isset($_POST['is_premium']) ? 1 : 0;
+// Update the session timeout
+$_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
-    // Handle file upload
-    
-    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['file'] ?? null;
+// Get the user ID from session
+$user_id = $_SESSION["user"]->get_id();
 
-        // Define allowed file types and size limits
-        $allowedTypes = ['application/pdf', 'text/html'];
-        if (!in_array($file['type'], $allowedTypes)) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid file type.");
+// Collect form data
+$title = $_POST['title'] ?? '';
+$genre = $_POST['genre'] ?? '';
+$type = $_POST['type'] ?? '';
+$is_premium = isset($_POST['is_premium']) ? 1 : 0;
 
-            $response["message"] = "Invalid file type.";
-            echo json_encode($response);
-            ob_end_flush();
-            exit;
-        }
+// Handle file upload
 
-        if(($type == 'full_novel' && $file['type'] != 'application/pdf')) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
+if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['file'] ?? null;
 
-            $response["message"] = "This type of file is not allowed. Pleas upload a pdf.";
-            echo json_encode($response);
-            ob_end_flush();
-            exit;
-        }
+    // Define allowed file types and size limits
+    $allowedTypes = ['application/pdf', 'text/html'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid file type.");
 
-        if(($type == 'short_story' && $file['type'] != 'text/html')) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
-
-            $response["message"] = "Error occured: not an html file.";
-            echo json_encode($response);
-            ob_end_flush();
-            exit;
-        }
-
-        $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
-        // Ensure the uploads directory exists
-        $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0755, true)) {
-                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to create upload directory.");
-
-                $response["message"] = "Failed to create upload directory.";
-                echo json_encode($response);
-                ob_end_flush();
-                exit;
-            }
-        }
-
-        // Save file to a directory (ensure appropriate directory exists and has write permissions)
-        $filePath = $uploadDir . basename($file['name']);
-        if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to upload the file.");
-
-            $response["message"] = "Failed to upload the file." . $file['tmp_name'] . " and " . $filePath;
-            echo json_encode($response);
-            ob_end_flush();
-            exit;
-        }
-    } else {
-        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  File upload error.");
-
-        $response["message"] = "File upload error.";
+        $response["message"] = "Invalid file type.";
         echo json_encode($response);
         ob_end_flush();
         exit;
     }
 
-    // Insert novel data into the database
-    try {
-        $novel_conn = db_client::get_connection("novels_db");
+    if(($type == 'full_novel' && $file['type'] != 'application/pdf')) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
 
-        $stmt = $novel_conn->prepare(
-            "INSERT INTO novels (title, genre, type, file_path, is_premium, user_id) 
-            VALUES (:title, :genre, :type, :file_path, :is_premium, :user_id)");
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':genre', $genre);
-        $stmt->bindParam(':type', $type);
-        $stmt->bindParam(':file_path', $filePath);
-        $stmt->bindParam(':is_premium', $is_premium);
-        $stmt->bindParam(':user_id', $user_id);
-
-        $stmt->execute();
-
-        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Novel added successfully");
-
-        $response["success"] = true;
-        $response["message"] = "Novel added successfully!";
-    } catch (Exception $e) {
-        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Error: " . $e->getMessage());
-        $response["message"] = "Error: " . $e->getMessage();
+        $response["message"] = "This type of file is not allowed. Pleas upload a pdf.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
     }
+
+    if(($type == 'short_story' && $file['type'] != 'text/html')) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
+
+        $response["message"] = "Error occured: not an html file.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+
+    $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
+    // Ensure the uploads directory exists
+    $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to create upload directory.");
+
+            $response["message"] = "Failed to create upload directory.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+    }
+
+    // Save file to a directory (ensure appropriate directory exists and has write permissions)
+    $filePath = $uploadDir . basename($file['name']);
+    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to upload the file.");
+
+        $response["message"] = "Failed to upload the file." . $file['tmp_name'] . " and " . $filePath;
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+} else {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  File upload error.");
+
+    $response["message"] = "File upload error.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// Insert novel data into the database
+try {
+    $novel_conn = db_client::get_connection("novels_db");
+
+    $stmt = $novel_conn->prepare(
+        "INSERT INTO novels (title, genre, type, file_path, is_premium, user_id) 
+        VALUES (:title, :genre, :type, :file_path, :is_premium, :user_id)");
+    $stmt->bindParam(':title', $title);
+    $stmt->bindParam(':genre', $genre);
+    $stmt->bindParam(':type', $type);
+    $stmt->bindParam(':file_path', $filePath);
+    $stmt->bindParam(':is_premium', $is_premium);
+    $stmt->bindParam(':user_id', $user_id);
+
+    $stmt->execute();
+
+    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Novel added successfully");
+
+    $response["success"] = true;
+    $response["message"] = "Novel added successfully!";
+} catch (Exception $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Error: " . $e->getMessage());
+    $response["message"] = "Error: " . $e->getMessage();
 }
 
 closelog();

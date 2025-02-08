@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
     `user_id` INT PRIMARY KEY,                  -- Link with `authentication_db.users`
     `nickname` VARCHAR(50) NOT NULL UNIQUE,
     `is_premium` BOOLEAN DEFAULT FALSE,
-    `logged_in` BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (`user_id`) REFERENCES `authentication_db`.`users`(`id`) ON DELETE CASCADE
 );
 
