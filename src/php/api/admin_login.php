@@ -47,37 +47,37 @@ try {
         }
 
         // Verifica reCAPTCHA
-$recaptcha_secret = $config['captcha_key'];
-$recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
-$recaptcha_check = curl_init($recaptcha_url);
-curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
-    'secret'   => $recaptcha_secret,
-    'response' => $recaptcha_response
-]);
-$recaptcha_result = curl_exec($recaptcha_check);
-curl_close($recaptcha_check);
+        $recaptcha_secret = $config['captcha_key'];
+        $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+        $recaptcha_check = curl_init($recaptcha_url);
+        curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
+            'secret'   => $recaptcha_secret,
+            'response' => $recaptcha_response
+        ]);
+        $recaptcha_result = curl_exec($recaptcha_check);
+        curl_close($recaptcha_check);
 
-// Decodifica la risposta JSON in modalità associativa
-$captcha_success = json_decode($recaptcha_result, true);
+        // Decodifica la risposta JSON in modalità associativa
+        $captcha_success = json_decode($recaptcha_result, true);
 
-// Debug: logga il risultato grezzo e quello decodificato
-error_log("Recaptcha raw result: " . $recaptcha_result);
-error_log("Recaptcha decoded: " . var_export($captcha_success, true));
+        // Debug: logga il risultato grezzo e quello decodificato
+        error_log("Recaptcha raw result: " . $recaptcha_result);
+        error_log("Recaptcha decoded: " . var_export($captcha_success, true));
 
-// Se il risultato non è un array, convertilo in array forzatamente
-if (!is_array($captcha_success)) {
-    $captcha_success = ["success" => $captcha_success];
-}
+        // Se il risultato non è un array, convertilo in array forzatamente
+        if (!is_array($captcha_success)) {
+            $captcha_success = ["success" => $captcha_success];
+        }
 
-// Ora verifica se la chiave "success" esiste e se è true
-if (!isset($captcha_success["success"]) || !$captcha_success["success"]) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
-    $response["message"] = "reCAPTCHA verification failed.";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
+        // Ora verifica se la chiave "success" esiste e se è true
+        if (!isset($captcha_success["success"]) || !$captcha_success["success"]) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
+            $response["message"] = "reCAPTCHA verification failed.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
 
 
 
@@ -92,6 +92,9 @@ if (!isset($captcha_success["success"]) || !$captcha_success["success"]) {
         $stmt->bindParam(":email", $email);
         $stmt->execute();
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  Admin found: " . $admin["id"] . " " . $admin["password_hash"]);
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  Password: " . password_hash($password, PASSWORD_BCRYPT));
 
         if (!$admin) {
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  Admin inserted wrong email");

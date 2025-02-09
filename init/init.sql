@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `admins` (
 
 -- Inserimento degli admin iniziali
 INSERT INTO `admins` (`name`, `email`, `password_hash`) VALUES 
-    ('francesco', 'francescobeno@gmail.com', SHA2('francesco', 256)),
+    ('francesco', 'francescobeno@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
     ('leonardo', 'leomanne2000@gmail.com', SHA2('leonardo', 256)),
     ('nicola', 'n.venturi97@gmail.com', SHA2('nicola', 256));
 
