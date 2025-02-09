@@ -30,7 +30,11 @@ const API_CONFIG = {
     },
     get_other_novels() {
         return `${this.BASE_URL}get_other_novels.php`;
+    },
+    adminLogin() {
+        return `${this.BASE_URL}admin_login.php`;
     }
+
 };
 
 export default API_CONFIG;
