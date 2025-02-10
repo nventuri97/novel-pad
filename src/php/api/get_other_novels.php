@@ -35,7 +35,7 @@ if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
 }
 
 // Update the session timeout
-$_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+5 minutes'));
+$_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
 try {
     $novel_conn = db_client::get_connection('novels_db');

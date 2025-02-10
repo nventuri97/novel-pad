@@ -5,13 +5,6 @@ include '../utils/user.php';
 include '../utils/db-client.php';
 $config = include '../utils/config.php';
 
-// ini_set("session.cookie_httponly", 1);                              // Prevents JavaScript from accessing session cookies
-// ini_set("session.cookie_secure", 1);                                // Ensures cookies are sent only over HTTPS
-// ini_set("session.use_strict_mode", 1);                              // Prevents session fixation attacks
-// ini_set("session.hash_function", 1);                                // SHA1
-// ini_set("session.hash_bits_per_character", 6);                      // 6 bits per character
-// ini_set("session.name", "NovelpadSessionID");                       // Custom session name
-
 session_start();
 ob_start();
 openlog("login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
@@ -112,7 +105,7 @@ try{
 
         $session_user = new User($novel_user["user_id"], $email, $novel_user["nickname"], $novel_user["is_premium"]);
 
-        $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+5 minutes"));
+        $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
 
         // Save session information
         $_SESSION["user"] = $session_user;

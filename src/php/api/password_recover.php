@@ -37,7 +37,7 @@ try {
         if ($auth_stmt->rowCount() === 0) { //TODO: wrong email (?)
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid recovery token.');
 
-            $response['message'] = "Invalid token.";
+            $response['message'] = "Invalid email.";
             echo json_encode($response);
             exit;
         }
