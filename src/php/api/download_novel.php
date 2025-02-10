@@ -9,8 +9,19 @@ session_start();
 if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to download a novel.');
 
+    session_destroy();
     http_response_code(401); // Unauthorized
     $error_message = urlencode('User not authenticated');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
+if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
+
+    session_destroy();
+    http_response_code(401); // Unauthorized
+    $error_message = urlencode('Session expired');
     header("Location: /error.html?error=$error_message");
     exit;
 }
@@ -24,10 +35,13 @@ if (!isset($_GET['file'])) {
 
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User requested to download a novel.');
 
-$file = $_GET['file'];
-$file_path = "/var/www/private/uploads/" . $file;
+$_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
-if (file_exists($file_path)) {
+$ok_dir= realpath("/var/www/private/uploads/");
+$file = $_GET['file'];
+$file_path = realpath($ok_dir. DIRECTORY_SEPARATOR . $file);
+
+if (str_starts_with($file_path, $ok_dir.DIRECTORY_SEPARATOR) && file_exists($file_path)) {
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="' . basename($file) . '"');
