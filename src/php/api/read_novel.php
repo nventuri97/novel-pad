@@ -38,10 +38,11 @@ syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Us
 // Update the session timeout
 $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
+$ok_dir= realpath("/var/www/private/uploads/");
 $file = $_GET['file'];
-$file_path = "/var/www/private/uploads/" . $file;
+$file_path = realpath($ok_dir. DIRECTORY_SEPARATOR . $file);
 
-if (file_exists($file_path)) {
+if (str_starts_with($file_path, $ok_dir.DIRECTORY_SEPARATOR) && file_exists($file_path)) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime_type = finfo_file($finfo, $file_path);
     finfo_close($finfo);
