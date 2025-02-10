@@ -75,7 +75,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         exit;
     }
 
-    if(($type == 'full_novel' && $file['type'] != 'application/pdf')) {
+    if(($type === 'full_novel' && $file['type'] !== 'application/pdf')) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
 
         $response["message"] = "This type of file is not allowed. Pleas upload a pdf.";
@@ -84,7 +84,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         exit;
     }
 
-    if(($type == 'short_story' && $file['type'] != 'text/html')) {
+    if(($type === 'short_story' && $file['type'] !== 'text/html')) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
 
         $response["message"] = "Error occured: not an html file.";
