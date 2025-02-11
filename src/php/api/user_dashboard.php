@@ -14,6 +14,15 @@ $response = [
     'message' => ''
 ];
 
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
+
+    http_response_code(405); // HTTP method not allowed
+    $error_message = urlencode('Invalid request method');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+
 if (!isset($_SESSION['user'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated.");
 
