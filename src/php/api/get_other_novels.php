@@ -19,8 +19,8 @@ if (!isset($_SESSION['user'])) {
 
     session_destroy();
     http_response_code(401); // Unauthorized
-    $error_message = urlencode('User not authenticated');
-    header("Location: /error.html?error=$error_message");
+    $response['message'] = 'An error occurred while processing user data.';
+    echo json_encode($response);
     exit;
 }
 

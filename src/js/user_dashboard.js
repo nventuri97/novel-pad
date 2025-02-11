@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     })
     .then(response => {
+        if (response.status === 401) {
+            window.location.href = "/error.html?error=User%20not%20authenticated";
+        }
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -216,7 +220,16 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: formData,
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "/error.html?error=User%20not%20authenticated";
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json(); // Parse JSON response
+        })
         .then(data => {
             if (data.success) {
                 addNovelModal.style.display = 'none'; // Close the modal
@@ -229,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
             handleError(error, "An error occurred. Please try again later.");
-            window.location.href = '../login.html'; // Redirect to login page
             return;
         });
     });
@@ -242,6 +254,9 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
         })
         .then(response => {
+            if (response.status === 401) {
+                window.location.href = "/error.html?error=User%20not%20authenticated";
+            }
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -286,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
             handleError(error, "An error occurred. Please try again later.");
-            window.location.href = '../login.html'; // Redirect to login page
             return;
         });
     }
@@ -368,6 +382,10 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
         })
         .then(response => {
+            if (response.status === 401) {
+                window.location.href = "/error.html?error=User%20not%20authenticated";
+            }
+
             if (!response.ok) {
                 return response.text().then(text => {
                     throw new Error(`HTTP error! status: ${response.status} - ${text}`);
