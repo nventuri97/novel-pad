@@ -34,10 +34,11 @@ try {
         $auth_stmt->bindParam(':email', $email);
         $auth_stmt->execute();
 
-        if ($auth_stmt->rowCount() === 0) { //TODO: wrong email (?)
-            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid recovery token.');
+        if ($auth_stmt->rowCount() === 0) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid email.');
 
-            $response['message'] = "Invalid email.";
+            $response['success'] = true;
+            $response['message'] = "Mail to password recovery send correctly!";
             echo json_encode($response);
             exit;
         }
