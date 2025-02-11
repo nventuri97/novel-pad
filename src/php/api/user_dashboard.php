@@ -19,8 +19,9 @@ if (!isset($_SESSION['user'])) {
 
     session_destroy();
     http_response_code(401); // Unauthorized
-    $response['message'] = 'An error occurred while processing user data.';
-    echo json_encode($response);
+    // $response['message'] = 'An error occurred while processing user data.';
+    // echo json_encode($response);
+    header("Location: /error.html?error=Unauthorized");
     exit;
 }
 

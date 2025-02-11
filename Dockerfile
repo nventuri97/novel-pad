@@ -51,4 +51,4 @@ RUN a2ensite 000-default.conf
 # Expose HTTP and HTTPS ports
 EXPOSE 80 443
 
-RUN service apache2 start
+CMD ["bash", "-c", "composer install && apache2-foreground"]
