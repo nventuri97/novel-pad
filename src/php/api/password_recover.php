@@ -13,72 +13,99 @@ $novel_db = 'novels_db';
 
 $response = ['success' => false, 'message' => '']; // Default response structure
 
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
+
+    http_response_code(405); // HTTP method not allowed
+    $error_message = urlencode('Invalid request method');
+    header("Location: /error.html?error=$error_message");
+    exit;
+}
+    
+$email = $_POST['email'] ?? '';
+$recaptcha_response = $_POST["recaptcharesponse"] ?? '';
+
+// Basic validation
+if (empty($email)) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Empty email or recaptcha');
+
+    $response['message'] = "Please fill all the fields.";
+    echo json_encode($response);
+    exit;
+}
+
+// Verify reCAPTCHA
+$recaptcha_secret = $config['captcha_key'];
+$recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+$recaptcha_check = curl_init($recaptcha_url);
+curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
+    'secret' => $recaptcha_secret,
+    'response' => $recaptcha_response
+]);
+$recaptcha_result = curl_exec($recaptcha_check);
+curl_close($recaptcha_check);
+
+$captcha_success = json_decode($recaptcha_result, true);
+
+if (!$captcha_success || !$captcha_success["success"]) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
+
+    $response["message"]= "reCAPTCHA verification failed.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
+
 try {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $email = $_POST['email'];
+    // Database operations
+    $auth_conn = db_client::get_connection($auth_db);
+    $auth_stmt = $auth_conn->prepare("SELECT id FROM users WHERE email = :email");
+    $auth_stmt->bindParam(':email', $email);
+    $auth_stmt->execute();
 
-        // Basic validation
-        if (empty($email)) {
-            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt without email.');
+    if ($auth_stmt->rowCount() === 0) {
+        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid email.');
 
-            $response['message'] = "Email is required.";
-            echo json_encode($response);
-            exit;
-        }
+        $response['success'] = true;
+        $response['message'] = "Mail to password recovery send correctly!";
+        echo json_encode($response);
+        exit;
+    }
 
-        syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
+    $user = $auth_stmt->fetch(PDO::FETCH_ASSOC);
+    $user_id = $user['id'];
+    $token = bin2hex(random_bytes(16)); // Secure random token
+    $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
 
-        // Database operations
-        $auth_conn = db_client::get_connection($auth_db);
-        $auth_stmt = $auth_conn->prepare("SELECT id FROM users WHERE email = :email");
-        $auth_stmt->bindParam(':email', $email);
-        $auth_stmt->execute();
-
-        if ($auth_stmt->rowCount() === 0) {
-            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt with invalid email.');
-
-            $response['success'] = true;
-            $response['message'] = "Mail to password recovery send correctly!";
-            echo json_encode($response);
-            exit;
-        }
-
-        $user = $auth_stmt->fetch(PDO::FETCH_ASSOC);
-        $user_id = $user['id'];
-        $token = bin2hex(random_bytes(16)); // Secure random token
-        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
-
-        // Save token and expiry to the database
-        $update_stmt = $auth_conn->prepare("UPDATE users SET reset_token = :token, reset_token_expiry = :expiry WHERE id = :id");
-        $update_stmt->bindParam(':token', $token);
-        $update_stmt->bindParam(':expiry', $expiry);
-        $update_stmt->bindParam(':id', $user_id);
-        $update_stmt->execute();
+    // Save token and expiry to the database
+    $update_stmt = $auth_conn->prepare("UPDATE users SET reset_token = :token, reset_token_expiry = :expiry WHERE id = :id");
+    $update_stmt->bindParam(':token', $token);
+    $update_stmt->bindParam(':expiry', $expiry);
+    $update_stmt->bindParam(':id', $user_id);
+    $update_stmt->execute();
 
 
-        // Send verification email
-        echo "Sending email...";
-        $mailSent = sendRecoveryPwdMail($email, $token, $user_id);
-        if (!$mailSent) {
-            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send password recovery email.');
+    // Send verification email
+    echo "Sending email...";
+    $mailSent = sendRecoveryPwdMail($email, $token, $user_id);
+    if (!$mailSent) {
+        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send password recovery email.');
 
-            $response['message'] = "Failed to send verification email.";
-        } else {
-            syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery email sent.');
-
-            // Successful verification message
-            $response['success'] = true;
-            $response['message'] = "Mail to password recovery send correctly!";
-        }
+        $response['message'] = "Failed to send verification email.";
     } else {
-        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid request method.');
+        syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery email sent.');
 
-        $response['message'] = "Invalid request method.";
+        // Successful verification message
+        $response['success'] = true;
+        $response['message'] = "Mail to password recovery send correctly!";
     }
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
     
-    $response['message'] = "Database error: " . $e->getMessage();
+    $response['message'] = "Database error.";
 }
 
 // Output the response as JSON
