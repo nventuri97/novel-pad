@@ -11,6 +11,13 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
 
     // Get field values
     const email = document.getElementById('e-mail').value.trim();
+    const recaptcharesponse = grecaptcha.getResponse();
+
+    if (!recaptcharesponse) {
+        errorMessage.textContent = "Please complete the reCAPTCHA";
+        errorMessage.style.display = 'block';
+        return;
+    }
 
     // Example validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,6 +32,7 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
         method: 'POST',
         body: new URLSearchParams({
             email: email,
+            recaptcharesponse: recaptcharesponse
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,6 +48,7 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';
         }
+        grecaptcha.reset();
     })
     .catch(error => {
         console.error('Error:', error);
