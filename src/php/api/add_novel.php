@@ -58,8 +58,17 @@ $genre = $_POST['genre'] ?? '';
 $type = $_POST['type'] ?? '';
 $is_premium = isset($_POST['is_premium']) ? 1 : 0;
 
-// Handle file upload
+// Check for invalid characters in the title
+if (!preg_match('/^[a-zA-Z0-9\s]+$/', $title)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel title.");
 
+    $response["message"] = "Invalid title. Only letters, numbers, and spaces are allowed.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// Handle file upload
 if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['file'] ?? null;
 

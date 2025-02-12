@@ -161,6 +161,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const genre = formData.get("genre");
             const storyContent = formData.get("story_content");
 
+            // Validate form fields
+            const titleRegex = /^[a-zA-Z0-9\s]+$/;
+            if (!titleRegex.test(title)) {
+                handleErrorAddNovel("Title can only contain letters, numbers, and spaces.", "Title can only contain letters, numbers, and spaces.");
+                return;
+            }
+
             if (!storyContent.trim()) {
                 handleErrorAddNovel("Please provide content for the story.", "Please provide content for the story.");
                 return;
