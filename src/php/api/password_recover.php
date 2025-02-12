@@ -21,20 +21,45 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: /error.html?error=$error_message");
     exit;
 }
+    
+$email = $_POST['email'] ?? '';
+$recaptcha_response = $_POST["recaptcharesponse"] ?? '';
+
+// Basic validation
+if (empty($email)) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Empty email or recaptcha');
+
+    $response['message'] = "Please fill all the fields.";
+    echo json_encode($response);
+    exit;
+}
+
+// Verify reCAPTCHA
+$recaptcha_secret = $config['captcha_key'];
+$recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+$recaptcha_check = curl_init($recaptcha_url);
+curl_setopt($recaptcha_check, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($recaptcha_check, CURLOPT_POSTFIELDS, [
+    'secret' => $recaptcha_secret,
+    'response' => $recaptcha_response
+]);
+$recaptcha_result = curl_exec($recaptcha_check);
+curl_close($recaptcha_check);
+
+$captcha_success = json_decode($recaptcha_result, true);
+
+if (!$captcha_success || !$captcha_success["success"]) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
+
+    $response["message"]= "reCAPTCHA verification failed.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
 try {
-    $email = $_POST['email'];
-
-    // Basic validation
-    if (empty($email)) {
-        syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recover attempt without email.');
-
-        $response['message'] = "Email is required.";
-        echo json_encode($response);
-        exit;
-    }
-
-    syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
     // Database operations
     $auth_conn = db_client::get_connection($auth_db);
@@ -81,7 +106,7 @@ try {
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
     
-    $response['message'] = "Database error: " . $e->getMessage();
+    $response['message'] = "Database error.";
 }
 
 // Output the response as JSON

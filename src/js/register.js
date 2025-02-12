@@ -40,8 +40,15 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         return;
     }
     
+    let passwordRegex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
     if (password.length < 8) {
         errorMessage.textContent = "Password must be at least 8 characters.";
+        errorMessage.style.display = 'block';
+        document.getElementById('password').focus();
+        grecaptcha.reset();
+        return;
+    } else if (!password.match(passwordRegex)) {
+        errorMessage.textContent = "Password must agree password policy";
         errorMessage.style.display = 'block';
         document.getElementById('password').focus();
         grecaptcha.reset();
@@ -57,7 +64,6 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         }
     }
 
-    // passwordPolicy.style.display = 'none';
     submitButton.disabled = true;
     submitButton.textContent = 'Registering...';
 
@@ -88,6 +94,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             errorMessage.style.display = 'block';
             submitButton.disabled = false;
             submitButton.textContent = 'Register';
+            grecaptcha.reset();
         }
     })
     .catch(error => {

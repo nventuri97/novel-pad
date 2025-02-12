@@ -25,7 +25,12 @@ document.addEventListener('DOMContentLoaded', function () {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             waitingContainer.style.display='none';
@@ -47,19 +52,26 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         const password = document.getElementById('password').value.trim();
 
-        console.log("I'm changing password");
-
+        let passwordRegex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
         if (password.length < 8) {
             errorMessage.textContent = "Password must be at least 8 characters.";
             errorMessage.style.display = 'block';
             document.getElementById('password').focus();
+            grecaptcha.reset();
+            return;
+        } else if (!password.match(passwordRegex)) {
+            errorMessage.textContent = "Password must agree password policy";
+            errorMessage.style.display = 'block';
+            document.getElementById('password').focus();
+            grecaptcha.reset();
             return;
         } else {
-            const result = zxcvbn(password, [String(nickname), String(email)]);
+            const result = zxcvbn(password, [String(email), String(nickname)]);
             if (result.score < 4) {
                 errorMessage.textContent = "Password is too weak. Please use a stronger password.";
                 errorMessage.style.display = 'block';
                 document.getElementById('password').focus();
+                grecaptcha.reset();
                 return;
             }
         }
@@ -74,7 +86,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 successMessage.textContent = data.message;

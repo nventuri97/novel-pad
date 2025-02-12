@@ -6,11 +6,19 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
 
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
+    const submitButton = document.getElementById('send-button');
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
     // Get field values
     const email = document.getElementById('e-mail').value.trim();
+    const recaptcharesponse = grecaptcha.getResponse();
+
+    if (!recaptcharesponse) {
+        errorMessage.textContent = "Please complete the reCAPTCHA";
+        errorMessage.style.display = 'block';
+        return;
+    }
 
     // Example validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,13 +26,18 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
         errorMessage.textContent = "Please enter a valid email address.";
         errorMessage.style.display = 'block';
         document.getElementById('email').focus();
+        grecaptcha.reset();
         return;
     }
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending...';
 
     fetch(API_CONFIG.recover_password(), {
         method: 'POST',
         body: new URLSearchParams({
             email: email,
+            recaptcharesponse: recaptcharesponse
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -39,12 +52,19 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
         } else {
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Send';
+            grecaptcha.reset();
         }
+        grecaptcha.reset();
     })
     .catch(error => {
         console.error('Error:', error);
         errorMessage.textContent = error.message;
         errorMessage.style.display = 'block';
+        submitButton.textContent = 'Send';
+        submitButton.disabled = false;
+        grecaptcha.reset();
     })
 
 });
