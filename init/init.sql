@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS `admins` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(50) UNIQUE NOT NULL,
     `email` VARCHAR(100) UNIQUE NOT NULL,
+    `is_verified` BOOLEAN DEFAULT FALSE,
+    `reset_token` VARCHAR(255) UNIQUE,
+    `reset_token_expiry` TIMESTAMP,
+    `logged_in` BOOLEAN DEFAULT FALSE,
     `password_hash` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -29,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `admins` (
 -- Inserimento degli admin iniziali
 INSERT INTO `admins` (`name`, `email`, `password_hash`) VALUES 
     ('francesco', 'francescobeno@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
-    ('leonardo', 'leomanne2000@gmail.com', SHA2('leonardo', 256)),
-    ('nicola', 'n.venturi97@gmail.com', SHA2('nicola', 256));
+    ('leonardo', 'leomanne2000@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
+    ('nicola', 'n.venturi97@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG');
 
 USE `novels_db`;
 

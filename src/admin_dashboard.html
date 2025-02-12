@@ -1,42 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="icon" type="image/png" href="./images/favicon_book.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" type="image/png" href="./images/favicon_book.png">
 </head>
 <body>
-    <div class="admin-dashboard-container">
-        <h1>Admin Dashboard</h1>
+  <div class="admin-dashboard-container">
+    <h1>Admin Dashboard</h1>
 
-        <div class="dashboard-header">
-            <p>Welcome, <span id="adminEmail"></span>!</p>
-            <button id="logoutButton">Logout</button>
-        </div>
-
-        <!-- Sezione per la gestione degli utenti -->
-        <div class="users-management">
-            <h2>User List</h2>
-            <p>Toggle premium status for any user:</p>
-            
-            <table id="usersTable">
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Nickname</th>
-                        <th>Current Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Righe utenti generate dinamicamente da JS -->
-                </tbody>
-            </table>
-        </div>
+    <!-- Messaggio di benvenuto -->
+    <div class="dashboard-header">
+      <p>Welcome, <span id="adminEmail"></span>!</p>
     </div>
 
-    <script type="module" src="js/admin_dashboard.js"></script>
+    <!-- Sezione per la gestione degli utenti -->
+    <div class="users-management">
+      <h2>User List</h2>
+      <p>Toggle premium status for any user:</p>
+      
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Nickname</th>
+            <th>Current Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Righe utenti generate dinamicamente da JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Logout in fondo -->
+    <div class="dashboard-footer">
+      <button id="logoutButton">Logout</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin_dashboard.js"></script>
 </body>
 </html>

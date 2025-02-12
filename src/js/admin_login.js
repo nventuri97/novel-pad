@@ -1,7 +1,6 @@
 import API_CONFIG from "./config.js";
 
 document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
-    // Impedisci il comportamento predefinito del form (submit tradizionale)
     event.preventDefault();
 
     const errorMessage = document.getElementById('error-message');
@@ -9,26 +8,22 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
-    // Recupera i valori dai campi del form
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
 
-    // Verifica che il reCAPTCHA sia stato completato
     if (!recaptcharesponse) {
         errorMessage.textContent = "Please complete the reCAPTCHA";
         errorMessage.style.display = 'block';
         return;
     }
 
-    // Validazione dei campi obbligatori
     if (email === '' || password === '') {
         errorMessage.textContent = "Both fields are required.";
         errorMessage.style.display = 'block';
         return;
     }
 
-    // Verifica del formato dell'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         errorMessage.textContent = "Please enter a valid email address.";
@@ -37,30 +32,44 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         return;
     }
 
-    // Effettua la richiesta all'endpoint del login per gli admin
+    // Esegui la fetch con credenziali di tipo form-urlencoded
     fetch(API_CONFIG.adminLogin(), {
-      method: 'POST',
-      body: new URLSearchParams({
-        email: email,
-        password: password,
-        recaptcharesponse: recaptcharesponse
-      }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      }
+        method: 'POST',
+        body: new URLSearchParams({
+            email: email,
+            password: password,
+            recaptcharesponse: recaptcharesponse
+        }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'include' // Importante per gestire sessioni/cookie
     })
-    .then(response => response.text())
-    .then(text => {
-      console.log("Raw response:", text);
-      // Prova a fare il parse manuale
-      try {
-        const data = JSON.parse(text);
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
         console.log("Parsed JSON:", data);
-      } catch (err) {
-        console.error("JSON parse error:", err);
-      }
+        if (data.success) {
+            // Se il flag force_password_change è true, reindirizza alla pagina per il cambio password
+            if (data.force_password_change) {
+                window.location.href = 'admin_change_password.html';
+            } else {
+                window.location.href = 'admin_dashboard.html';
+            }
+        } else {
+            errorMessage.textContent = data.message || "Login failed.";
+            errorMessage.style.display = 'block';
+            grecaptcha.reset();
+        }
     })
     .catch(error => {
-      console.error('Fetch error:', error);
+        console.error('Fetch error:', error);
+        errorMessage.textContent = "An error occurred. Please try again.";
+        errorMessage.style.display = 'block';
+        grecaptcha.reset();
     });
 });
