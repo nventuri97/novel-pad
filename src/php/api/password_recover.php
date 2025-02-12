@@ -60,6 +60,7 @@ if (!$captcha_success || !$captcha_success["success"]) {
 syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
 try {
+
     // Database operations
     $auth_conn = db_client::get_connection($auth_db);
     $auth_stmt = $auth_conn->prepare("SELECT id FROM users WHERE email = :email");

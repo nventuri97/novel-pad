@@ -35,13 +35,12 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
+if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
 
     session_destroy();
-    http_response_code(401); // Unauthorized
-    $error_message = urlencode('Session expired');
-    header("Location: /error.html?error=$error_message");
+    http_response_code(419); // Timeout error
+    header("Location: /error.html?error=" . urlencode('Session expired'));
     exit;
 }
 
@@ -112,7 +111,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     if (!move_uploaded_file($file['tmp_name'], $filePath)) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to upload the file.");
 
-        $response["message"] = "Failed to upload the file." . $file['tmp_name'] . " and " . $filePath;
+        $response["message"] = "Failed to upload the file.";
         echo json_encode($response);
         ob_end_flush();
         exit;
@@ -148,7 +147,9 @@ try {
     $response["message"] = "Novel added successfully!";
 } catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Error: " . $e->getMessage());
-    $response["message"] = "Error: " . $e->getMessage();
+    
+    http_response_code(500); // Internal Server Error
+    $response['message'] = 'An error occurred while processing user data.';
 }
 
 closelog();
