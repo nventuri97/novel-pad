@@ -34,6 +34,7 @@ try {
             SELECT u.email, up.nickname, up.is_premium
             FROM authentication_db.users u
             JOIN novels_db.user_profiles up ON u.id = up.user_id
+            WHERE u.is_verified = 1
         ");
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -62,7 +63,7 @@ try {
             SELECT up.user_id
             FROM novels_db.user_profiles up
             JOIN authentication_db.users u ON u.id = up.user_id
-            WHERE u.email = :email
+            WHERE u.email = :email AND u.is_verified = 1
         ");
         $stmt->bindParam(':email', $email);
         $stmt->execute();
