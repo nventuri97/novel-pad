@@ -18,28 +18,25 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    $error_message = urlencode('Invalid request method');
-    header("Location: /error.html?error=$error_message");
+    header("Location: /error.html?error=" . urlencode('Invalid request method'));
     exit;
 }
 
 if (!isset($_SESSION['user'])) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to get novels.');
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated.");
 
     session_destroy();
     http_response_code(401); // Unauthorized
-    // $response['message'] = 'An error occurred while processing user data.';
-    // echo json_encode($response);
+    header("Location: /error.html?error=" . urlencode('User not authenticated'));
     exit;
 }
 
-if($_SESSION["timeout"] < date("Y-m-d H:i:s")) {
+if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
 
     session_destroy();
-    http_response_code(401); // Unauthorized
-    $error_message = urlencode('Session expired');
-    header("Location: /error.html?error=$error_message");
+    http_response_code(419); // Timeout error
+    header("Location: /error.html?error=" . urlencode('Session expired'));
     exit;
 }
 

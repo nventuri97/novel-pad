@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 }
 
 if (!isset($_SESSION['user'])) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User not authenticated tried to download a novel.');
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated tried to download a novel.");
 
     session_destroy();
     http_response_code(401); // Unauthorized
@@ -27,8 +27,8 @@ if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");
 
     session_destroy();
-    http_response_code(401); // Unauthorized
-    header("Location: /error.html?error=" . urlencode('Timeout expired'));
+    http_response_code(419); // Timeout error
+    header("Location: /error.html?error=" . urlencode('Session expired'));
     exit;
 }
 

@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             alert(userMessage);
         }
-    }    
+    }
 
     // Fetch user data from the server and display it on the dashboard
     fetch(API_CONFIG.userDashboard(), {
@@ -25,6 +25,23 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(response => {
         if (response.status === 401) {
             window.location.href = "/error.html?error=User%20not%20authenticated";
+            return;
+        }
+        else if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
+        }
+        else if (response.status === 419) {
+            window.location.href = "/error.html?error=Session%20expired";
+            return;
+        }
+        else if (response.status === 404) {
+            window.location.href = "/error.html?error=Resource%20not%20found";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
         }
         
         if (!response.ok) {
@@ -43,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     })
     .catch(error => {
-        handleError('Error fetching user data:' + error, "An error occurred. Please try again later.");
+        handleError("An error occurred. Please try again later.", "An error occurred. Please try again later.");
         return;
     });
 
@@ -121,6 +138,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function handleErrorAddNovel(error, userMessage = "An unexpected error occurred.") {
+        console.error('Error:', error);
+        const errorMessage = document.getElementById('error-message-add-novel');
+        if (errorMessage) {
+            errorMessage.innerText = userMessage;
+            errorMessage.style.display = 'block';
+        } else {
+            alert(userMessage);
+        }
+    }
+
     // Handle form submission for adding a novel
     addNovelForm.addEventListener('submit', function (event) {
         event.preventDefault(); // Prevent default form submission
@@ -134,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const storyContent = formData.get("story_content");
 
             if (!storyContent.trim()) {
-                handleError("Please provide content for the story.", "Please provide content for the story.");
+                handleErrorAddNovel("Please provide content for the story.", "Please provide content for the story.");
                 return;
             }
 
@@ -223,6 +251,19 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => {
             if (response.status === 401) {
                 window.location.href = "/error.html?error=User%20not%20authenticated";
+                return;
+            }
+            else if (response.status === 405) {
+                window.location.href = "/error.html?error=Method%20not%20allowed";
+                return;
+            }
+            else if (response.status === 419) {
+                window.location.href = "/error.html?error=Session%20expired";
+                return;
+            }
+            else if (response.status === 500) {
+                handleErrorAddNovel("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+                return;
             }
             
             if (!response.ok) {
@@ -237,11 +278,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(data.message); // Display success message
                 fetchAndDisplayNovels(); // Refresh the novel list
             } else {
-                handleError(data.message, data.message);
+                handleErrorAddNovel(data.message, data.message);
             }
         })
         .catch(error => {
-            handleError(error, "An error occurred. Please try again later.");
+            handleErrorAddNovel("An error occurred. Please try again later.", "An error occurred. Please try again later.");
             return;
         });
     });
@@ -256,7 +297,22 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => {
             if (response.status === 401) {
                 window.location.href = "/error.html?error=User%20not%20authenticated";
+                return;
             }
+            else if (response.status === 405) {
+                window.location.href = "/error.html?error=Method%20not%20allowed";
+                return;
+            }
+            else if (response.status === 419) {
+                window.location.href = "/error.html?error=Session%20expired";
+                return;
+            }
+            else if (response.status === 500) {
+                handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+                return;
+            }
+
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -300,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
-            handleError(error, "An error occurred. Please try again later.");
+            handleError("An error occurred. Please try again later.", "An error occurred. Please try again later.");
             return;
         });
     }
@@ -384,6 +440,19 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => {
             if (response.status === 401) {
                 window.location.href = "/error.html?error=User%20not%20authenticated";
+                return;
+            }
+            else if (response.status === 405) {
+                window.location.href = "/error.html?error=Method%20not%20allowed";
+                return;
+            }
+            else if (response.status === 419) {
+                window.location.href = "/error.html?error=Session%20expired";
+                return;
+            }
+            else if (response.status === 500) {
+                handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+                return;
             }
 
             if (!response.ok) {
