@@ -11,19 +11,17 @@ if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    $error_message = urlencode('Invalid request method');
-    header("Location: /error.html?error=$error_message");
+    header("Location: /error.html?error=" . urlencode('Invalid request method'));
     exit;
 }
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user'])) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  No user is logged in.');
-  
-    http_response_code(401); // Unauthorized
-    $error_message = urlencode('User not authenticated');
-    header("Location: /error.html?error=$error_message");
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated.");
 
+    session_destroy();
+    http_response_code(401); // Unauthorized
+    header("Location: /error.html?error=" . urlencode('User not authenticated'));
     exit;
 }
 
@@ -35,23 +33,16 @@ $response = [
     'message' => ''
 ];
 
-try {
-    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Logout request received');
 
-    // Destroy session
-    session_destroy();
+syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Logout request received');
 
-    syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User logged out');
-    // Send a successful response
-    $response['success'] = true;
-    $response['message'] = 'Successful logout';
-} catch (PDOException $e) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  Database error: ' . $e->getMessage());
-    $response['message'] = "Database error: " . $e->getMessage();
-} catch (Exception $e) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  An error occured: ' . $e->getMessage());
-    $response['message'] = "General error: " . $e->getMessage();
-}
+// Destroy session
+session_destroy();
+
+syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User logged out');
+// Send a successful response
+$response['success'] = true;
+$response['message'] = 'Successful logout';
 
 // Return response as JSON
 echo json_encode($response);

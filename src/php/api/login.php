@@ -18,8 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    $error_message = urlencode('Invalid request method');
-    header("Location: /error.html?error=$error_message");
+    header("Location: /error.html?error=" . urlencode('Invalid request method'));
     exit;
 }
 
@@ -120,7 +119,8 @@ try{
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  " . $e->getMessage());
 
-    $response['message'] = "Database error";
+    http_response_code(500); // Internal Server Error
+    $response['message'] = 'An error occurred while processing user data.';
 }
 
 echo json_encode($response);

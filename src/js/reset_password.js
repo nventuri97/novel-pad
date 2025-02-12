@@ -26,6 +26,15 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     })
     .then(response => {
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+        
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
