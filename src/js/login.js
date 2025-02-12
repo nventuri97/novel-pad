@@ -46,7 +46,23 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             'Content-Type': 'application/x-www-form-urlencoded',
         }
     })
-    .then(response=>response.json())
+    .then(response => {
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+            });
+        }
+        return response.json(); // Parse JSON response
+    })
     .then(data => {
         if (data.success) {
             successMessage.textContent = data.message;
