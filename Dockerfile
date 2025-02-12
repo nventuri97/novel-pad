@@ -19,7 +19,7 @@ RUN a2enmod ssl rewrite headers
 WORKDIR /var/www/html
 
 # Copy Composer files first (for caching)
-COPY src/composer.json src/composer.lock /var/www/html/
+COPY src/composer.json /var/www/html/
 
 # Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer 
