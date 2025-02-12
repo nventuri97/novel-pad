@@ -125,8 +125,6 @@ try {
         default:
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid request method.");
 
-            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
-
             http_response_code(405); // HTTP method not allowed
             header("Location: /error.html?error=" . urlencode('Invalid request method'));
             exit;

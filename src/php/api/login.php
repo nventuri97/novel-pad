@@ -21,15 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: /error.html?error=" . urlencode('Invalid request method'));
     exit;
 }
-
-if (isset($_SESSION["user"])){
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User already logged in");
-    
-    $response["message"]= "Already logged in";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
     
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Login attempt");
 $email = $_POST["email"] ?? '';

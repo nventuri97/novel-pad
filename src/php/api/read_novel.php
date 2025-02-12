@@ -71,7 +71,7 @@ if (str_starts_with($file_path, $ok_dir.DIRECTORY_SEPARATOR) && file_exists($fil
 
             $novel = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if($novel['is_premium'] === 1) {
+            if($novel['is_premium'] === 1 && $_SESSION['user']->get_id() !== $novel['user_id']) {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User tried to read premium novel without premium account.');
                 http_response_code(403);
                 header("Location: /user_dashboard.html");
