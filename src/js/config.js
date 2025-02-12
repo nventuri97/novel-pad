@@ -7,6 +7,15 @@ const API_CONFIG = {
     logout() {
         return `${this.BASE_URL}logout.php`;
     },
+    logoutAdmin() {
+        return `${this.BASE_URL}admin_logout.php`;  // Aggiornato per puntare al file corretto
+    },
+    adminChangePassword() {
+        return `${this.BASE_URL}admin_change_password.php`;
+    },
+    adminRecoverPassword() {
+        return `${this.BASE_URL}admin_recover_password.php`;
+    },    
     login() {
         return `${this.BASE_URL}login.php`;
     },
@@ -30,7 +39,14 @@ const API_CONFIG = {
     },
     get_other_novels() {
         return `${this.BASE_URL}get_other_novels.php`;
+    },
+    adminLogin() {
+        return `${this.BASE_URL}admin_login.php`;
+    },
+    adminDashboard() {
+        return `${this.BASE_URL}admin_dashboard.php`;
     }
+
 };
 
 export default API_CONFIG;
