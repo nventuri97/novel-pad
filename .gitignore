@@ -1,6 +1,6 @@
 uploads/
 .env
-composer.*
+composer.lock
 vendor/
 certs/
 TODO
