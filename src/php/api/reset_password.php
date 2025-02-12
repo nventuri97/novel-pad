@@ -1,7 +1,9 @@
 <?php
 header('Content-Type: application/json'); // Ensure the response is JSON
+use ZxcvbnPhp\Zxcvbn;
 
 include '../utils/db-client.php';
+require __DIR__.'/../../vendor/autoload.php';
 
 // Enable output buffering to prevent accidental output
 ob_start();
@@ -70,6 +72,38 @@ try {
             
             $password = $_PUT['password'];
             $user_id = $_PUT['id'];
+
+            // Server side password validation
+            // Password must be at least 8 characters long
+            if (strlen($password) < 8) {
+                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too short.');
+
+                $response['message'] = "Password must be at least 8 characters long.";
+                echo json_encode($response);
+                ob_end_flush();
+                exit;
+            }
+
+            $password_regex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
+            if (preg_match($password_regex, $password)){
+                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
+
+                $response['message'] = "Password must agree password policy.";
+                echo json_encode($response);
+                ob_end_flush();
+                exit;
+            }
+
+            $zxcvbn = new Zxcvbn();
+            $result = $zxcvbn->passwordStrength($password);
+            if ($result['score']<4){
+                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
+
+                $response['message'] = "Password too weak.";
+                echo json_encode($response);
+                ob_end_flush();
+                exit;
+            }
 
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalidating token after password reset.");
             $expiry = date('Y-m-d H:i:s', strtotime('now')); // Invalid token
