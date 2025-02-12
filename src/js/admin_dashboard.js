@@ -3,13 +3,13 @@ import API_CONFIG from "./config.js";
 document.addEventListener('DOMContentLoaded', () => {
   const usersTableBody = document.querySelector('#usersTable tbody');
   const logoutButton   = document.getElementById('logoutButton');
-  const adminEmailElem = document.getElementById('adminEmail'); // elemento <span> in cui mostrare l'email
+  const adminEmailElem = document.getElementById('adminEmail'); 
 
   function showError(msg) {
     alert(msg);
   }
 
-  // 1. Caricare la lista utenti
+  //list of users
   function loadUsers() {
     fetch(API_CONFIG.adminDashboard(), {
       method: 'GET',
@@ -26,12 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         showError(data.message || "Error loading users");
         return;
       }
-      // Impostiamo l'email dell'admin nella pagina
+      // Set the admin email on the page
       if (data.adminEmail) {
         adminEmailElem.textContent = data.adminEmail;
       }
 
-      // data.users è un array di { email, nickname, is_premium }
+      // data.users is an array of { email, nickname, is_premium }
       renderUsersTable(data.users);
     })
     .catch(err => {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Disegnare la tabella utenti
+  //users table
   function renderUsersTable(users) {
     usersTableBody.innerHTML = '';
     users.forEach(user => {
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Funzione per togglare is_premium
+  // Function to toggle is_premium status
   function togglePremium(user, rowElement) {
     const newStatus = !user.is_premium;
     fetch(API_CONFIG.adminDashboard(), {
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(resp => resp.json())
     .then(data => {
       if (data.success) {
-        // Aggiorna lo stato in locale
+        // Update the status locally
         user.is_premium = newStatus;
         rowElement.cells[2].textContent = user.is_premium ? 'Premium' : 'Standard';
         rowElement.querySelector('.toggle-btn').textContent = user.is_premium ? 'Set Standard' : 'Set Premium';
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Logout (opzionale)
+  //  Logout
   if (logoutButton) {
     logoutButton.addEventListener('click', () => {
       fetch(API_CONFIG.logoutAdmin(), {
@@ -113,6 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Avvio
+  // Initialize
   loadUsers();
 });

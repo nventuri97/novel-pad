@@ -10,7 +10,7 @@ document.getElementById('adminRecoveryForm').addEventListener('submit', function
 
     const email = document.getElementById('admin-email').value.trim();
 
-    // Validazione base dell'email
+    // validation of email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         errorElem.textContent = "Please enter a valid email address.";

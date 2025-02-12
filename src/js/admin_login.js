@@ -32,7 +32,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         return;
     }
 
-    // Esegui la fetch con credenziali di tipo form-urlencoded
+    // Perform the fetch with form-urlencoded credentials
     fetch(API_CONFIG.adminLogin(), {
         method: 'POST',
         body: new URLSearchParams({
@@ -43,7 +43,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include' // Importante per gestire sessioni/cookie
+        credentials: 'include' // Important for handling sessions/cookies
     })
     .then(response => {
         if (!response.ok) {
@@ -54,7 +54,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
     .then(data => {
         console.log("Parsed JSON:", data);
         if (data.success) {
-            // Se il flag force_password_change è true, reindirizza alla pagina per il cambio password
+            // If the force_password_change flag is true, redirect to the password change page
             if (data.force_password_change) {
                 window.location.href = 'admin_change_password.html';
             } else {

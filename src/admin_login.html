@@ -10,7 +10,7 @@
 <body>
     <div>
         <div class="nav-bar">
-            <!-- Se vuoi un link alla "home" (admin_index.html) o altro -->
+            <!-- If you want a link to the "home" (admin_index.html) or other -->
             <!-- <a href="admin_index.html" class="home-button">Home</a> -->
         </div>
 
@@ -23,12 +23,12 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-                <!-- Link di recupero password -->
+                <!-- Password recovery link -->
                 <div class="password-recovery">
                     <a href="admin_recover_password.html">Forgot your password?</a>
                 </div>
 
-                <!-- reCAPTCHA anche qui -->
+                <!-- reCAPTCHA here as well -->
                 <div class="g-recaptcha" data-sitekey="6Ld-uM4qAAAAAKupstOmSPyjWmYy4En80C6ZqPXq"></div>
 
                 <div class="error-message" id="error-message" style="display: none;"></div>
@@ -37,12 +37,12 @@
                 <button type="submit">Login</button>
             </form>
 
-            <!-- L'admin NON può registrarsi, quindi niente link di register. -->
+            <!-- The admin CANNOT register, so no register link. -->
             <p><a href="index.html">Go to home page</a></p>
         </div>
     </div>
 
-    <!-- Script JS specifico per admin login -->
+    <!-- Specific JS script for admin login -->
     <script type="module" src="js/admin_login.js"></script>
     <!-- reCAPTCHA script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>

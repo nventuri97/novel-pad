@@ -4,7 +4,7 @@
 header('Content-Type: application/json');
 session_start();
 
-// Verifica che l'admin sia loggato e che debba forzare il cambio password
+// Verify that the admin is logged in and needs to force password change
 if (!isset($_SESSION["admin"]) || !isset($_SESSION['force_password_change'])) {
     http_response_code(403);
     echo json_encode([
@@ -15,7 +15,7 @@ if (!isset($_SESSION["admin"]) || !isset($_SESSION['force_password_change'])) {
 }
 
 require_once __DIR__ . '/../utils/db-client.php';
-// Carica anche il config se necessario
+// Load the config if necessary
 $config = require_once __DIR__ . '/../utils/config.php';
 
 $response = [
@@ -34,15 +34,14 @@ try {
             exit;
         }
 
-        // (Opzionale) Puoi aggiungere ulteriori controlli sulla complessità della password
 
-        // Ottieni la connessione al database per l'autenticazione
+        // Get the database connection for authentication
         $auth_conn = db_client::get_connection("authentication_db");
 
-        // Calcola l'hash della nuova password (usando BCRYPT)
+        // Calculate the hash of the new password (using BCRYPT)
         $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
 
-        // Aggiorna la password e imposta is_verified a true
+        // Update the password and set is_verified to true
         $stmt = $auth_conn->prepare("
             UPDATE admins 
             SET password_hash = :password_hash, is_verified = 1
@@ -52,7 +51,7 @@ try {
         $stmt->bindParam(':id', $_SESSION["admin"]['id'], PDO::PARAM_INT);
         $stmt->execute();
 
-        // Rimuovi il flag di cambio password forzato
+        // Remove the forced password change flag
         unset($_SESSION['force_password_change']);
 
         $response["success"] = true;

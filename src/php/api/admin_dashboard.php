@@ -4,7 +4,7 @@
 header('Content-Type: application/json');
 session_start();
 
-// Verifica se l'admin è loggato
+// Check if the admin is logged in
 if (!isset($_SESSION['admin'])) {
     http_response_code(403); // Forbidden
     echo json_encode([
@@ -25,14 +25,11 @@ try {
     $auth_conn = db_client::get_connection("authentication_db");
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Recuperiamo anche l'email dell'admin (supponendo che in sessione ci sia un oggetto Admin o singole variabili)
-         $adminEmail = $_SESSION['admin']['email'] ?? '';
-         $adminVerified= $_SESSION['admin']['is_verified'] ?? '';
+        // Retrieve the admin's email (assuming that the session contains an Admin object or individual variables)
+        $adminEmail = $_SESSION['admin']['email'] ?? '';
+        $adminVerified = $_SESSION['admin']['is_verified'] ?? '';
 
-        // Oppure, se hai salvato l’email in $_SESSION['admin_email']:
-        // $adminEmail = $_SESSION['admin_email'] ?? '';
-
-        // Recupera tutti gli utenti e i loro profili
+        // Retrieve all users and their profiles
         $stmt = $auth_conn->prepare("
             SELECT u.email, up.nickname, up.is_premium
             FROM authentication_db.users u
@@ -43,7 +40,7 @@ try {
 
         $response["success"]    = true;
         $response["users"]      = $users;
-        $response["adminEmail"] = $adminEmail;  // Passiamo l'email dell'admin al frontend
+        $response["adminEmail"] = $adminEmail;  // Pass the admin's email to the frontend
         echo json_encode($response);
         exit;
     }

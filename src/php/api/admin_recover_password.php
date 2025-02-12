@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-// Includi il client DB e il mail client (riutilizza le stesse funzioni degli utenti)
+// Include the DB client and mail client 
 include '../utils/db-client.php';
 require '../utils/mail-client.php';
 
@@ -15,7 +15,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = $_POST['email'] ?? '';
 
-        // Validazione base: l'email è obbligatoria
+        // Basic validation: email is required
         if (empty($email)) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . '] Admin password recovery attempt without email.');
             $response['message'] = "Email is required.";
@@ -25,7 +25,7 @@ try {
 
         syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . '] Admin password recovery request.');
 
-        // Ottieni la connessione e verifica se esiste un admin con questa email
+        // Get the connection and check if there is an admin with this email
         $auth_conn = db_client::get_connection($auth_db);
         $stmt = $auth_conn->prepare("SELECT id FROM admins WHERE email = :email");
         $stmt->bindParam(':email', $email);
@@ -40,17 +40,17 @@ try {
 
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
         $admin_id = $admin['id'];
-        $token = bin2hex(random_bytes(16)); // genera un token sicuro
-        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // token valido per 1 ora
+        $token = bin2hex(random_bytes(16)); // generate a secure token
+        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // token valid for 1 hour
 
-        // Aggiorna il record admin per salvare token e scadenza
+        // Update the admin record to save token and expiry
         $update_stmt = $auth_conn->prepare("UPDATE admins SET reset_token = :token, reset_token_expiry = :expiry WHERE id = :id");
         $update_stmt->bindParam(':token', $token);
         $update_stmt->bindParam(':expiry', $expiry);
         $update_stmt->bindParam(':id', $admin_id);
         $update_stmt->execute();
 
-        // Invia la mail di recupero password; puoi personalizzare il messaggio se necessario
+        // Send the password recovery email; you can customize the message if necessary
         $mailSent = sendRecoveryPwdMail($email, $token, $admin_id);
         if (!$mailSent) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . '] Failed to send admin recovery email.');

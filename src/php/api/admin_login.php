@@ -1,24 +1,13 @@
 <?php
-// Assicurati che non ci siano spazi o righe vuote prima di questo tag
 
-// Disabilita la visualizzazione degli errori (in produzione)
-// Nota: in fase di sviluppo potresti voler abilitare gli errori, ma fai attenzione che non vengano stampati nella risposta JSON.
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header('Content-Type: application/json'); // Ensure the response is in JSON
 
-header('Content-Type: application/json'); // Assicura che la risposta sia in JSON
-
-// Includi eventuali librerie o file di utilità specifici per gli admin.
-require_once __DIR__ . '/../utils/admin.php';
+// Include any libraries or utility files specific to admins.
+require_once __DIR__ . '/../utils/admin.php'; //TODO: chiedere a nicola del require_once
 require_once __DIR__ . '/../utils/db-client.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 
-// Configurazioni per la gestione delle sessioni (opzionali)
-// ini_set("session.cookie_httponly", 1);
-// ini_set("session.cookie_secure", 1);
-// ini_set("session.use_strict_mode", 1);
-
-ob_start();  // Avvia il buffering per catturare eventuali output indesiderati
+ob_start();  // Start buffering to capture any unwanted output
 openlog("admin_login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $response = [
@@ -30,7 +19,7 @@ try {
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin login attempt");
         
-        // Recupera email, password e risposta reCAPTCHA
+        // Retrieve email, password, and reCAPTCHA response
         $email = $_POST["email"] ?? '';
         $password = $_POST["password"] ?? '';
         $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
@@ -43,7 +32,7 @@ try {
             exit;
         }
 
-        // Verifica reCAPTCHA
+        // Verify reCAPTCHA
         $recaptcha_secret = $config['captcha_key'];
         $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
         $recaptcha_check = curl_init($recaptcha_url);
@@ -67,11 +56,11 @@ try {
             exit;
         }
 
-        // Ottieni la connessione al database per l'autenticazione
+        // Get the database connection for authentication
         $auth_conn = db_client::get_connection("authentication_db");
 
-        // Recupera l'admin dalla tabella "admins"
-        // Ora selezioniamo anche il campo is_verified
+        // Retrieve the admin from the "admins" table
+        // Now we also select the is_verified field
         $stmt = $auth_conn->prepare(
             "SELECT id, email, password_hash, is_verified FROM admins WHERE email = :email"
         );
@@ -85,7 +74,7 @@ try {
         } else if (password_verify($password, $admin["password_hash"])) {
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin logged in");
             
-            // Avvia la sessione e salva le informazioni dell'admin (id, email, is_verified)
+            // Start the session and save the admin's information (id, email, is_verified)
             session_start();
             $_SESSION["admin"] = [
                 'id'    => $admin['id'],
@@ -93,12 +82,12 @@ try {
                 'is_verified' => $admin['is_verified']
             ];
             
-            // Aggiorna il database impostando logged_in = 1 per l'admin
+            // Update the database setting logged_in = 1 for the admin
             $updateStmt = $auth_conn->prepare("UPDATE admins SET logged_in = 1 WHERE id = :id");
             $updateStmt->bindParam(':id', $admin['id'], PDO::PARAM_INT);
             $updateStmt->execute();
             
-            // Se l'admin non è ancora verificato, obbliga a cambiare password
+            // If the admin is not yet verified, force a password change
             if (!$admin['is_verified']) {
                 $_SESSION['force_password_change'] = true;
                 $response["success"] = true;
@@ -114,7 +103,7 @@ try {
         }
     } else {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid request method");
-        http_response_code(405); // Metodo HTTP non consentito
+        http_response_code(405); // HTTP method not allowed
         $error_message = urlencode('Invalid request method');
         header("Location: /error.html?error=$error_message");
         exit;
