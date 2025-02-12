@@ -64,7 +64,6 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         }
     }
 
-    // passwordPolicy.style.display = 'none';
     submitButton.disabled = true;
     submitButton.textContent = 'Registering...';
 
@@ -95,6 +94,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             errorMessage.style.display = 'block';
             submitButton.disabled = false;
             submitButton.textContent = 'Register';
+            grecaptcha.reset();
         }
     })
     .catch(error => {
