@@ -84,6 +84,7 @@ try {
                 exit;
             }
 
+            // Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters
             $password_regex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
             if (preg_match($password_regex, $password)){
                 syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
@@ -94,6 +95,7 @@ try {
                 exit;
             }
 
+            // Check password strength using zxcvbn
             $zxcvbn = new Zxcvbn();
             $result = $zxcvbn->passwordStrength($password);
             if ($result['score']<4){

@@ -42,37 +42,6 @@ if (empty($password) || empty($email) || empty($nickname) || empty($recaptcha_re
     exit;
 }
 
-// Server side password validation
-if (strlen($password) < 8) {
-    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too short.');
-
-    $response['message'] = "Password must be at least 8 characters long.";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
-
-$password_regex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
-if (preg_match($password_regex, $password)){
-    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
-
-    $response['message'] = "Password must agree password policy.";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
-
-$zxcvbn = new Zxcvbn();
-$result = $zxcvbn->passwordStrength($password);
-if ($result['score']<4){
-    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
-
-    $response['message'] = "Password too weak.";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
-
 // Verify reCAPTCHA
 $recaptcha_secret = $config['captcha_key'];
 $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
@@ -91,6 +60,40 @@ if (!$captcha_success || !$captcha_success["success"]) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong CAPTCHA");
 
     $response["message"]= "reCAPTCHA verification failed.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// Server side password validation
+// Password must be at least 8 characters long
+if (strlen($password) < 8) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too short.');
+
+    $response['message'] = "Password must be at least 8 characters long.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters
+$password_regex='/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/';
+if (preg_match($password_regex, $password)){
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
+
+    $response['message'] = "Password must agree password policy.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// Check password strength using zxcvbn
+$zxcvbn = new Zxcvbn();
+$result = $zxcvbn->passwordStrength($password);
+if ($result['score']<4){
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
+
+    $response['message'] = "Password too weak.";
     echo json_encode($response);
     ob_end_flush();
     exit;
