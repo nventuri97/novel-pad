@@ -3,6 +3,7 @@
 
 header('Content-Type: application/json');
 session_start();
+ob_start();
 
 // Check if the admin is logged in
 if (!isset($_SESSION['admin'])) {
@@ -23,17 +24,18 @@ $response = [
 
 try {
     $auth_conn = db_client::get_connection("authentication_db");
+    $novels_conn = db_client::get_connection("novels_db");
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Retrieve the admin's email (assuming that the session contains an Admin object or individual variables)
         $adminEmail = $_SESSION['admin']['email'] ?? '';
-        $adminVerified = $_SESSION['admin']['is_verified'] ?? '';
 
         // Retrieve all users and their profiles
         $stmt = $auth_conn->prepare("
-            SELECT u.email, up.nickname, up.is_premium
+            SELECT u.email, p.nickname, p.is_premium
             FROM authentication_db.users u
-            JOIN novels_db.user_profiles up ON u.id = up.user_id
+            JOIN novels_db.user_profiles p ON u.id = p.user_id
+            WHERE u.is_verified = 1
         ");
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -46,10 +48,10 @@ try {
     }
     elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Toggle is_premium
-        $email     = $_POST['email']     ?? '';
+        $nickname = $_POST['nickname'] ?? '';
         $newStatus = $_POST['newStatus'] ?? '';
 
-        if (empty($email) || $newStatus === '') {
+        if (empty($nickname) || $newStatus === '') {
             http_response_code(400);
             $response["message"] = "Missing data (email or newStatus).";
             echo json_encode($response);
@@ -58,35 +60,18 @@ try {
 
         $boolValue = ($newStatus === 'true') ? 1 : 0;
 
-        $stmt = $auth_conn->prepare("
-            SELECT up.user_id
-            FROM novels_db.user_profiles up
-            JOIN authentication_db.users u ON u.id = up.user_id
-            WHERE u.email = :email
-        ");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $profile = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$profile) {
-            $response["message"] = "User not found.";
-            echo json_encode($response);
-            exit;
-        }
-
-        $update = $auth_conn->prepare("
-            UPDATE novels_db.user_profiles
+        $update = $novels_conn->prepare("
+            UPDATE user_profiles
             SET is_premium = :val
-            WHERE user_id = :uid
+            WHERE nickname = :nickname
         ");
         $update->bindParam(':val', $boolValue, PDO::PARAM_INT);
-        $update->bindParam(':uid', $profile['user_id'], PDO::PARAM_INT);
+        $update->bindParam(':nickname', $nickname);
         $update->execute();
 
         $response["success"] = true;
         $response["message"] = "Premium status updated.";
-        echo json_encode($response);
-        exit;
+        
     }
     else {
         http_response_code(405);
@@ -101,3 +86,8 @@ catch (PDOException $e) {
     echo json_encode($response);
     exit;
 }
+
+ob_end_clean();
+echo json_encode($response);
+exit;
+?>

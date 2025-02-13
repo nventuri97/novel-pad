@@ -9,11 +9,6 @@
 </head>
 <body>
     <div>
-        <div class="nav-bar">
-            <!-- If you want a link to the "home" (admin_index.html) or other -->
-            <!-- <a href="admin_index.html" class="home-button">Home</a> -->
-        </div>
-
         <div class="login-container">
             <h2>Admin Login</h2>
             <form id="adminLoginForm" method="POST">
@@ -23,11 +18,6 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-                <!-- Password recovery link -->
-                <div class="password-recovery">
-                    <a href="admin_recover_password.html">Forgot your password?</a>
-                </div>
-
                 <!-- reCAPTCHA here as well -->
                 <div class="g-recaptcha" data-sitekey="6Ld-uM4qAAAAAKupstOmSPyjWmYy4En80C6ZqPXq"></div>
 
@@ -36,9 +26,6 @@
 
                 <button type="submit">Login</button>
             </form>
-
-            <!-- The admin CANNOT register, so no register link. -->
-            <p><a href="index.html">Go to home page</a></p>
         </div>
     </div>
 

@@ -7,6 +7,7 @@ require_once __DIR__ . '/../utils/admin.php'; //TODO: chiedere a nicola del requ
 require_once __DIR__ . '/../utils/db-client.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 
+session_start();
 ob_start();  // Start buffering to capture any unwanted output
 openlog("admin_login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
@@ -57,12 +58,12 @@ try {
         }
 
         // Get the database connection for authentication
-        $auth_conn = db_client::get_connection("authentication_db");
+        $admin_conn = db_client::get_connection("admin_db");
 
         // Retrieve the admin from the "admins" table
         // Now we also select the is_verified field
-        $stmt = $auth_conn->prepare(
-            "SELECT id, email, password_hash, is_verified FROM admins WHERE email = :email"
+        $stmt = $admin_conn->prepare(
+            "SELECT id, password_hash, is_verified FROM admins WHERE email = :email"
         );
         $stmt->bindParam(":email", $email);
         $stmt->execute();
@@ -75,17 +76,13 @@ try {
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin logged in");
             
             // Start the session and save the admin's information (id, email, is_verified)
-            session_start();
             $_SESSION["admin"] = [
                 'id'    => $admin['id'],
-                'email' => $admin['email'],
+                'email' => $email,
                 'is_verified' => $admin['is_verified']
             ];
             
-            // Update the database setting logged_in = 1 for the admin
-            $updateStmt = $auth_conn->prepare("UPDATE admins SET logged_in = 1 WHERE id = :id");
-            $updateStmt->bindParam(':id', $admin['id'], PDO::PARAM_INT);
-            $updateStmt->execute();
+            $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
             
             // If the admin is not yet verified, force a password change
             if (!$admin['is_verified']) {
@@ -113,7 +110,6 @@ try {
     $response["message"] = "Database error";
 }
 
-ob_clean();
+ob_end_clean();
 echo json_encode($response);
-ob_end_flush();
 exit;
