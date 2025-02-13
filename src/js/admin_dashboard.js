@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({
-        email: user.email,
+        nickname: user.nickname,
         newStatus: newStatus
       })
     })

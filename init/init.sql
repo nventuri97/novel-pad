@@ -1,10 +1,27 @@
+CREATE DATABASE IF NOT EXISTS `admin_db`;
 CREATE DATABASE IF NOT EXISTS `authentication_db`;
 CREATE DATABASE IF NOT EXISTS `novels_db`;
+GRANT ALL ON `admin_db`.* TO 'admin'@'%';
 GRANT ALL ON `authentication_db`.* TO 'admin'@'%';
 GRANT ALL ON `novels_db`.* TO 'admin'@'%';
 
-USE `authentication_db`;
+USE `admin_db`;
+-- Tabella per gli admin
+CREATE TABLE IF NOT EXISTS `admins` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `email` VARCHAR(100) UNIQUE NOT NULL,
+    `is_verified` BOOLEAN DEFAULT FALSE,
+    `password_hash` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+-- Inserimento degli admin iniziali
+INSERT INTO `admins` (`email`, `password_hash`) VALUES 
+    ('francescobeno@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
+    ('leomanne2000@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
+    ('n.venturi97@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG');
+
+USE `authentication_db`;
 -- Tabella utenti (authentication)
 CREATE TABLE IF NOT EXISTS `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,23 +33,6 @@ CREATE TABLE IF NOT EXISTS `users` (
     `reset_token_expiry` TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Tabella per gli admin
-CREATE TABLE IF NOT EXISTS `admins` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(50) UNIQUE NOT NULL,
-    `email` VARCHAR(100) UNIQUE NOT NULL,
-    `is_verified` BOOLEAN DEFAULT FALSE,
-    `logged_in` BOOLEAN DEFAULT FALSE,
-    `password_hash` VARCHAR(255) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Inserimento degli admin iniziali
-INSERT INTO `admins` (`name`, `email`, `password_hash`) VALUES 
-    ('francesco', 'francescobeno@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
-    ('leonardo', 'leomanne2000@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG'),
-    ('nicola', 'n.venturi97@gmail.com', '$2y$10$mJE3XpdyWlFg6rwMMcET5OiQu7IKEquQ2UP2U.9W4.GeDiH1wOKhG');
 
 USE `novels_db`;
 

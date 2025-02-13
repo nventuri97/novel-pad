@@ -1,4 +1,5 @@
 import API_CONFIG from "./config.js";
+import "./zxcvbn.js";
 
 document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -17,6 +18,30 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         errorElem.textContent = "Please fill in all fields.";
         errorElem.style.display = 'block';
         return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (newPassword.length < 8) {
+        errorMessage.textContent = "Password must be at least 8 characters.";
+        errorMessage.style.display = 'block';
+        document.getElementById('password').focus();
+        grecaptcha.reset();
+        return;
+    } else if (!passwordRegex.test(newPassword)) {
+        errorMessage.textContent = "Password must agree password policy";
+        errorMessage.style.display = 'block';
+        document.getElementById('password').focus();
+        grecaptcha.reset();
+        return;
+    } else {
+        const result = zxcvbn(newPassword);
+        if (result.score < 4) {
+            errorMessage.textContent = "Password is too weak. Please use a stronger password.";
+            errorMessage.style.display = 'block';
+            document.getElementById('password').focus();
+            grecaptcha.reset();
+            return;
+        }
     }
     
     if (newPassword !== confirmPassword) {
