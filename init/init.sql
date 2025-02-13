@@ -23,8 +23,6 @@ CREATE TABLE IF NOT EXISTS `admins` (
     `name` VARCHAR(50) UNIQUE NOT NULL,
     `email` VARCHAR(100) UNIQUE NOT NULL,
     `is_verified` BOOLEAN DEFAULT FALSE,
-    `reset_token` VARCHAR(255) UNIQUE,
-    `reset_token_expiry` TIMESTAMP,
     `logged_in` BOOLEAN DEFAULT FALSE,
     `password_hash` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
