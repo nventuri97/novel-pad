@@ -12,10 +12,7 @@ const API_CONFIG = {
     },
     adminChangePassword() {
         return `${this.BASE_URL}admin_change_password.php`;
-    },
-    adminRecoverPassword() {
-        return `${this.BASE_URL}admin_recover_password.php`;
-    },    
+    },  
     login() {
         return `${this.BASE_URL}login.php`;
     },
