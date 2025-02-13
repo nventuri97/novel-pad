@@ -94,7 +94,7 @@ try {
         // Admin is already logged in; we do NOT increment tries here
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin tried to login while is_logged is TRUE");
         
-        $response["message"] = "Wrong credentials.";
+        $response["message"] = "Admin already logged in.";
     }
     // Verify correct password
     else if (password_verify($password, $admin["password_hash"])) {

@@ -78,7 +78,7 @@ function sendAllertMail($user_mail, $requestType) {
             $mail->Body = '<p>We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
             $mail->AltBody = 'We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
         }else  {
-            //TODO: GESTIONE ERRORE
+            //TODO: HANDLE admin blocked?
         }
 
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending allert email.");
