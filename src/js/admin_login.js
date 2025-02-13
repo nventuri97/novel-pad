@@ -46,13 +46,23 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         credentials: 'include' // Important for handling sessions/cookies
     })
     .then(response => {
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+            });
         }
         return response.json();
     })
     .then(data => {
-        console.log("Parsed JSON:", data);
         if (data.success) {
             // If the force_password_change flag is true, redirect to the password change page
             if (data.force_password_change) {
@@ -67,7 +77,6 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         }
     })
     .catch(error => {
-        console.error('Fetch error:', error);
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
         grecaptcha.reset();
