@@ -10,8 +10,6 @@ session_start();
 ob_start();  // Start buffering to capture any unwanted output
 openlog("admin_login.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
-syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin login attempt");
-
 $response = [
     'success' => false,
     'message' => ''
@@ -21,7 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    header("Location: /error.html?error=" . urlencode('Invalid request method'));
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
     

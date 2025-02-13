@@ -10,7 +10,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    header("Location: /error.html?error=" . urlencode('Invalid request method'));
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
 
@@ -19,7 +22,10 @@ if (!isset($_SESSION['user'])) {
 
     session_destroy();
     http_response_code(401); // Unauthorized
-    header("Location: /error.html?error=" . urlencode('User not authenticated'));
+    header("Content-Type: text/html");
+
+    echo "<h1>401 User not authenticated</h1>";
+    echo "<p>The user is not authorized.</p>";
     exit;
 }
 
@@ -28,7 +34,10 @@ if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
 
     session_destroy();
     http_response_code(419); // Timeout error
-    header("Location: /error.html?error=" . urlencode('Session expired'));
+    header("Content-Type: text/html");
+
+    echo "<h1>419 Session expired</h1>";
+    echo "<p>The user session is expired, try to login again.</p>";
     exit;
 }
 

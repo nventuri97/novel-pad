@@ -74,10 +74,33 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 405) {
+                window.location.href = "/error.html?error=Method%20not%20allowed";
+                return;
             }
-            return response.json(); // Parse JSON response
+            else if (response.status === 401) {
+                window.location.href = "/error.html?error=Unauthorized";
+                return;
+            }
+            else if (response.status === 403) {
+                window.location.href = "/error.html?error=Forbidden";
+                return;
+            }
+            else if (response.status === 419) {
+                window.location.href = "/error.html?error=Session%20expired";
+                return;
+            }
+            else if (response.status === 500) {
+                handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+                return;
+            }
+      
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+                });
+            }
+            return response.json();
         })
         .then(data => {
             if (data.success) {

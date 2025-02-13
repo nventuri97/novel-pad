@@ -4,18 +4,23 @@ import "./zxcvbn.js";
 document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
-    const errorElem = document.getElementById('error-message');
-    const successElem = document.getElementById('success-message');
-    
-    errorElem.style.display = 'none';
-    successElem.style.display = 'none';
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
     
     const newPassword = document.getElementById('newPassword').value.trim();
     const confirmPassword = document.getElementById('confirmPassword').value.trim();
     
     if (newPassword === '' || confirmPassword === '') {
-        errorElem.textContent = "Please fill in all fields.";
-        errorElem.style.display = 'block';
+        errorMessage.textContent = "Please fill in all fields.";
+        errorMessage.style.display = 'block';
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        errorMessage.textContent = "Passwords do not match.";
+        errorMessage.style.display = 'block';
         return;
     }
 
@@ -23,30 +28,24 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     if (newPassword.length < 8) {
         errorMessage.textContent = "Password must be at least 8 characters.";
         errorMessage.style.display = 'block';
-        document.getElementById('password').focus();
-        grecaptcha.reset();
+        document.getElementById('newPassword').focus();
+        document.getElementById('confirmPassword').focus();
         return;
     } else if (!passwordRegex.test(newPassword)) {
         errorMessage.textContent = "Password must agree password policy";
         errorMessage.style.display = 'block';
-        document.getElementById('password').focus();
-        grecaptcha.reset();
+        document.getElementById('newPassword').focus();
+        document.getElementById('confirmPassword').focus();
         return;
     } else {
         const result = zxcvbn(newPassword);
         if (result.score < 4) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
-            document.getElementById('password').focus();
-            grecaptcha.reset();
+            document.getElementById('newPassword').focus();
+            document.getElementById('confirmPassword').focus();
             return;
         }
-    }
-    
-    if (newPassword !== confirmPassword) {
-        errorElem.textContent = "Passwords do not match.";
-        errorElem.style.display = 'block';
-        return;
     }
     
     fetch(API_CONFIG.adminChangePassword(), {
@@ -89,21 +88,19 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         return response.json(); // Parse JSON response
     })
     .then(data => {
-        console.log("Parsed JSON:", data);
         if (data.success) {
-            successElem.textContent = "Password changed successfully! Redirecting...";
-            successElem.style.display = 'block';
+            successMessage.textContent = "Password changed successfully! Redirecting...";
+            successMessage.style.display = 'block';
             setTimeout(() => {
                 window.location.href = 'admin_dashboard.html';
             }, 2000);
         } else {
-            errorElem.textContent = data.message || "Error changing password.";
-            errorElem.style.display = 'block';
+            errorMessage.textContent = data.message || "Error changing password.";
+            errorMessage.style.display = 'block';
         }
     })
     .catch(error => {
-        console.error('Fetch error:', error);
-        errorElem.textContent = "An error occurred. Please try again.";
-        errorElem.style.display = 'block';
+        errorMessage.textContent = "An error occurred. Please try again.";
+        errorMessage.style.display = 'block';
     });
 });
