@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User registration</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="icon" type="image/png" href="/images/favicon_book.png">
+    </head>
+    <body>
+	<div>
+        <div class="nav-bar">
+            <a href="index.html" class="home-button">Home</a>
+        </div>
+
+        <div class="register-container">
+            <h2>Register</h2>
+            <form id="registerForm" method="POST">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="nickname">Nickname</label>
+                <input type="text" id="nickname" name="nickname" placeholder="Enter your nickname" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter a password" required>
+                <div class="password-requirements" id="password-policy" style="display: block;">
+                    <p style="text-align: center; color: rgb(149, 149, 155)">Password must contains:</p>
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>At least one uppercase letter</li>
+                            <li>At least one lowercase letter</li>
+                            <li>At least one number</li>
+                            <li>At least one special character</li>
+                        </ul>
+                </div>
+
+                <div class="g-recaptcha" data-sitekey="6Ld-uM4qAAAAAKupstOmSPyjWmYy4En80C6ZqPXq"></div>
+
+                <div class="error-message" id="error-message" style="display: none;"></div>
+                <div class="success-message" id="success-message" style="display: none;"></div>
+
+                <button type="submit" id="register-button">Register</button>
+            </form>
+
+            <p>Already have an account? <a href="login.html">Go to Login</a></p>
+        </div>
+        <script type="module" src="js/register.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    </body>
+</html>

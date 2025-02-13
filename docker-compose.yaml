@@ -1,0 +1,67 @@
+services:
+  php-apache:
+    build: .
+    container_name: php-apache
+    ports:
+      - "8085:443"
+    environment:
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_ENCRYPTION=${SMTP_ENCRYPTION}
+      - NOVELPAD_URL=${NOVELPAD_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - CAPTCHA_KEY=${CAPTCHA_KEY}
+    volumes:
+      - ./init/php.ini:/usr/local/etc/php/php.ini             # This volume allows to change the php.ini file without rebuilding the image
+      - code-sync:/var/www/html                               # This volume allows to sync the code between host and container without rebuilding the image
+      - novel-upload:/var/www/private/uploads                 # This volume allows to sync the uploads between host and container without rebuilding the image   
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: 'password'
+    volumes:
+      - mysql-data:/var/lib/mysql                        # Actually persistency of data is not required for development
+      - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  phpmyadmin:
+    depends_on:
+      - mysql
+    container_name: mysql-ui
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  code-sync:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./src
+      o: bind
+  novel-upload:
+  mysql-data:
