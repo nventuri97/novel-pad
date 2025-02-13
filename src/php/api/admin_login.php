@@ -4,6 +4,7 @@ header('Content-Type: application/json'); // Ensure the response is in JSON
 
 // Include any libraries or utility files specific to admins.
 require_once __DIR__ . '/../utils/db-client.php';
+require_once __DIR__ . '/../utils/mail-client.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 
 session_start();
@@ -65,7 +66,6 @@ if (!$captcha_success || !$captcha_success["success"]) {
 }
 
 // After the success of reCAPTCHA, we send the warning email
-require_once __DIR__ . '/../utils/mail-client.php';
 sendAllertMail($email, 'admin');
 
 try {
