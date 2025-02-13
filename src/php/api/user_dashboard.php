@@ -45,6 +45,7 @@ $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
 try {
     syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User authenticated.");
+    
     $user = $_SESSION['user'];
     $response['success'] = true;
     $response['data'] = $user->to_array(); // Ensure this function returns an associative array

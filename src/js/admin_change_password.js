@@ -7,7 +7,6 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     const errorElem = document.getElementById('error-message');
     const successElem = document.getElementById('success-message');
     
-    // Nascondi eventuali messaggi precedenti
     errorElem.style.display = 'none';
     successElem.style.display = 'none';
     
@@ -50,7 +49,6 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         return;
     }
     
-    // Esegui la fetch con credenziali di tipo form-urlencoded
     fetch(API_CONFIG.adminChangePassword(), {
         method: 'POST',
         body: new URLSearchParams({
@@ -59,13 +57,36 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include' // Importante per gestire la sessione/cookie
+        credentials: 'include'
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
         }
-        return response.json();
+        else if (response.status === 401) {
+            window.location.href = "/error.html?error=Unauthorized";
+            return;
+        }
+        else if (response.status === 403) {
+            window.location.href = "/error.html?error=Forbidden";
+            return;
+        }
+        else if (response.status === 419) {
+            window.location.href = "/error.html?error=Session%20expired";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+            });
+        }
+        return response.json(); // Parse JSON response
     })
     .then(data => {
         console.log("Parsed JSON:", data);

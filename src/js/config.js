@@ -8,7 +8,7 @@ const API_CONFIG = {
         return `${this.BASE_URL}logout.php`;
     },
     logoutAdmin() {
-        return `${this.BASE_URL}admin_logout.php`;  // Aggiornato per puntare al file corretto
+        return `${this.BASE_URL}admin_logout.php`;
     },
     adminChangePassword() {
         return `${this.BASE_URL}admin_change_password.php`;

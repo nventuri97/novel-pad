@@ -15,11 +15,34 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'GET',
       credentials: 'include'
     })
-    .then(resp => {
-      if (!resp.ok) {
-        throw new Error(`HTTP error! status: ${resp.status}`);
+    .then(response => {
+      if (response.status === 405) {
+          window.location.href = "/error.html?error=Method%20not%20allowed";
+          return;
       }
-      return resp.json();
+      else if (response.status === 401) {
+          window.location.href = "/error.html?error=Unauthorized";
+          return;
+      }
+      else if (response.status === 403) {
+          window.location.href = "/error.html?error=Forbidden";
+          return;
+      }
+      else if (response.status === 419) {
+          window.location.href = "/error.html?error=Session%20expired";
+          return;
+      }
+      else if (response.status === 500) {
+          handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+          return;
+      }
+
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+          });
+      }
+      return response.json();
     })
     .then(data => {
       if (!data.success) {
@@ -76,7 +99,35 @@ document.addEventListener('DOMContentLoaded', () => {
         newStatus: newStatus
       })
     })
-    .then(resp => resp.json())
+    .then(response => {
+      if (response.status === 405) {
+          window.location.href = "/error.html?error=Method%20not%20allowed";
+          return;
+      }
+      else if (response.status === 401) {
+          window.location.href = "/error.html?error=Unauthorized";
+          return;
+      }
+      else if (response.status === 403) {
+          window.location.href = "/error.html?error=Forbidden";
+          return;
+      }
+      else if (response.status === 419) {
+          window.location.href = "/error.html?error=Session%20expired";
+          return;
+      }
+      else if (response.status === 500) {
+          handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+          return;
+      }
+
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+          });
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         // Update the status locally
@@ -99,7 +150,35 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         credentials: 'include'
       })
-      .then(resp => resp.json())
+      .then(response => {
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
+        }
+        else if (response.status === 401) {
+            window.location.href = "/error.html?error=Unauthorized";
+            return;
+        }
+        else if (response.status === 403) {
+            window.location.href = "/error.html?error=Forbidden";
+            return;
+        }
+        else if (response.status === 419) {
+            window.location.href = "/error.html?error=Session%20expired";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+            });
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           window.location.href = 'admin_login.html';
