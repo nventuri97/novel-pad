@@ -64,14 +64,17 @@ if (!$captcha_success || !$captcha_success["success"]) {
     exit;
 }
 
+// After the success of reCAPTCHA, we send the warning email
+require_once __DIR__ . '/../utils/mail-client.php';
+sendAllertMail($email, 'admin');
+
 try {
     // Get the database connection for authentication
     $admin_conn = db_client::get_connection("admin_db");
 
-    // Retrieve the admin from the "admins" table
-    // Now we also select the is_verified field
+    // Modified to retrieve also tries and is_logged
     $stmt = $admin_conn->prepare(
-        "SELECT id, password_hash, is_verified FROM admins WHERE email = :email"
+        "SELECT id, password_hash, is_verified, tries, is_logged FROM admins WHERE email = :email"
     );
     $stmt->bindParam(":email", $email);
     $stmt->execute();
@@ -81,7 +84,20 @@ try {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin inserted wrong email");
         
         $response["message"] = "Wrong credentials.";
-    } else if (password_verify($password, $admin["password_hash"])) {
+    } 
+    // If the admin exists, check if it is blocked or already logged in, then check password.
+    else if ($admin["tries"] == 3) {
+        // The account is considered blocked
+        $response["message"] = "Your account is blocked.";
+    }
+    else if ($admin["is_logged"]) {
+        // Admin is already logged in; we do NOT increment tries here
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin tried to login while is_logged is TRUE");
+        
+        $response["message"] = "Wrong credentials.";
+    }
+    // Verify correct password
+    else if (password_verify($password, $admin["password_hash"])) {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin logged in");
         
         // Start the session and save the admin's information (id, email, is_verified)
@@ -93,7 +109,7 @@ try {
         
         $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
         
-        // If the admin is not yet verified, force a password change
+        // If the admin is not yet verified, force password change
         if (!$admin['is_verified']) {
             $_SESSION['force_password_change'] = true;
             $response["success"] = true;
@@ -103,10 +119,35 @@ try {
             $response["success"] = true;
             $response["message"] = "Login succeeded!";
         }
-    } else {
+
+        // Reset tries and set is_logged to 1 (true)
+        $updateStmt = $admin_conn->prepare("UPDATE admins SET tries = 0, is_logged = 1 WHERE id = :id");
+        $updateStmt->bindValue(':id', $admin["id"], PDO::PARAM_INT);
+        $updateStmt->execute();
+    } 
+    // Otherwise the password is wrong
+    else {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Wrong password");
         
-        $response["message"] = "Wrong credentials.";
+        // Increment tries
+        $newTries = $admin["tries"] + 1;
+        if ($newTries > 3) {
+            $newTries = 3;
+        }
+        
+        $updateStmt = $admin_conn->prepare("UPDATE admins SET tries = :tries WHERE id = :id");
+        $updateStmt->bindValue(':tries', $newTries, PDO::PARAM_INT);
+        $updateStmt->bindValue(':id', $admin["id"], PDO::PARAM_INT);
+        $updateStmt->execute();
+        
+        // If it reaches 3, account is blocked
+        if ($newTries >= 3) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin account blocked due to too many attempts");
+            $response["message"] = "Your account is blocked.";
+        } else {
+            // If it has not yet reached 3 attempts, remain with "Wrong credentials"
+            $response["message"] = "Wrong credentials.";
+        }
     }
 } catch (PDOException $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] " . $e->getMessage());

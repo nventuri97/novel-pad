@@ -132,7 +132,7 @@ try {
     if ($email_exists) {
         syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email already exists. Send allert mail.');
 
-        $mailSent = sendAllertMail($email);
+        $mailSent = sendAllertMail($email,'user');
         if (!$mailSent) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send allert email.');
 
