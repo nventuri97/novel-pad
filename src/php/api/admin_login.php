@@ -1,8 +1,8 @@
 <?php
+
 header('Content-Type: application/json'); // Ensure the response is in JSON
 
 // Include any libraries or utility files specific to admins.
-require_once __DIR__ . '/../utils/admin.php'; //TODO: chiedere a nicola del require_once
 require_once __DIR__ . '/../utils/db-client.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 

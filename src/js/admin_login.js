@@ -77,7 +77,6 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         }
     })
     .catch(error => {
-        console.error('Error:', error);
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
         grecaptcha.reset();
