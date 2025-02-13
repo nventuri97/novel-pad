@@ -1,6 +1,0 @@
-{
-    "require": {
-        "phpmailer/phpmailer": "^6.9",
-        "bjeavons/zxcvbn-php": "^1.4"
-    }
-}
