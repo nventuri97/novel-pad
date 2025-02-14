@@ -23,99 +23,106 @@
             </div>
         </div>
 
-        <!-- Left column (your existing dashboard) -->
-        <div class="left-box">
-            <div class="dashboard-container">
-                <div class="dashboard-header">
-                    <h2>Welcome, <span id="nickname"></span>!</h2>
-                </div>
+        <div class="content">
+            <!-- Left column (your existing dashboard) -->
+            <div class="left-box">
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <h2>Welcome, <span id="nickname"></span>!</h2>
+                    </div>
 
-                <div class="dashboard-content">
-                    <p>Email: <span id="email"></span></p>
-                    <p>Status: <span id="status"></span></p>
-                    
-                    <div id="error-message" class="error-message"></div>
-                    <button id="addNovelButton" class="dashboard-actions">Add a New Novel</button>
-                    <h3>Your Novels</h3>
-                    <!-- This section remains unchanged: displays the user's novels -->
-                    <div id="novelsList" class="novel-list" 
-                         style="max-height: 400px; overflow-y: auto; padding: 0; margin: 0;">
-                        <!-- ... -->
+                    <div class="dashboard-content">
+                        <div class="user-info">
+                            <div class="email-info">
+                                <span class="email-label">Email:</span>
+                                <span class="email-value" id="email">user@example.com</span>
+                            </div>
+                            
+                            <div class="status-info">
+                                <span class="status-label">Status:</span>
+                                <span class="status-value" id="status">Active</span>
+                            </div>
+                        </div>
+                        
+                        <div id="error-message" class="error-message"></div>
+                        <button id="addNovelButton" class="dashboard-actions">Add a New Novel</button>
+                        <h3>Your Novels</h3>
+                        <!-- This section remains unchanged: displays the user's novels -->
+                        <div id="novelsList" class="novel-list" 
+                            style="max-height: 400px; overflow-y: auto; padding: 0; margin: 0;">
+                            <!-- ... -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- <div class="dashboard-actions">
-                    <button class="logout-button">Logout</button>
-                </div> -->
-            </div>
-
-            <!-- Modal for Adding Novel -->
-            <div id="addNovelModal" class="modal">
-                <div class="modal-content">
-                    <span id="closeModal" class="close-button">&times;</span>
-                    <h3>Add a New Novel</h3>
-                    <form id="addNovelForm" method="POST" enctype="multipart/form-data">
-                        <div class="form-field">
-                            <label for="novelTitle">Title:</label>
-                            <input type="text" id="novelTitle" name="title" required />
-                        </div>
-                        <div class="form-field">
-                            <label for="novelGenre">Genre:</label>
-                            <select id="novelGenre" name="genre" required>
-                                <option value="">Select Genre</option>
-                                <!-- Options will be added dynamically via JS -->
-                            </select>
-                        </div>
-                        <div class="form-field">
-                            <label for="novelType">Type:</label>
-                            <select id="novelType" name="type" required>
-                                <option value="">Select Type</option>
-                                <option value="short_story">Short Story</option>
-                                <option value="full_novel">Full Novel</option>
-                            </select>
-                        </div>
-                        <!-- Textarea for Short Story Content -->
-                        <div class="form-field" id="shortStoryField" style="display: none;">
-                            <label for="shortStoryContent">Story Content:</label>
-                            <textarea id="shortStoryContent" name="story_content"></textarea>
-                        </div>
-                        <!-- File Upload for Full Novel -->
-                        <div class="form-field" id="fileField" style="display: none;">
-                            <label for="novelFile">Upload File:</label>
-                            <input type="file" id="novelFile" name="file" accept=".pdf" />
-                        </div>
-                        <div class="form-field">
-                            <label for="novelPremium">Premium:</label>
-                            <input type="checkbox" id="novelPremium" name="is_premium" />
-                        </div>
-                        <button type="submit" class="submit-button">Submit</button>
-                    </form>
-                    <div id="error-message-add-novel" class="error-message"></div>
+                <!-- Modal for Adding Novel -->
+                <div id="addNovelModal" class="modal">
+                    <div class="modal-content">
+                        <span id="closeModal" class="close-button">&times;</span>
+                        <h3>Add a New Novel</h3>
+                        <form id="addNovelForm" method="POST" enctype="multipart/form-data">
+                            <div class="form-field">
+                                <label for="novelTitle">Title:</label>
+                                <input type="text" id="novelTitle" name="title" required />
+                            </div>
+                            <div class="form-field">
+                                <label for="novelGenre">Genre:</label>
+                                <select id="novelGenre" name="genre" required>
+                                    <option value="">Select Genre</option>
+                                    <!-- Options will be added dynamically via JS -->
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="novelType">Type:</label>
+                                <select id="novelType" name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="short_story">Short Story</option>
+                                    <option value="full_novel">Full Novel</option>
+                                </select>
+                            </div>
+                            <!-- Textarea for Short Story Content -->
+                            <div class="form-field" id="shortStoryField" style="display: none;">
+                                <label for="shortStoryContent">Story Content:</label>
+                                <textarea id="shortStoryContent" name="story_content"></textarea>
+                            </div>
+                            <!-- File Upload for Full Novel -->
+                            <div class="form-field" id="fileField" style="display: none;">
+                                <label for="novelFile">Upload File:</label>
+                                <input type="file" id="novelFile" name="file" accept=".pdf" />
+                            </div>
+                            <div class="form-field">
+                                <label for="novelPremium">Premium:</label>
+                                <input type="checkbox" id="novelPremium" name="is_premium" />
+                            </div>
+                            <button type="submit" class="submit-button">Submit</button>
+                        </form>
+                        <div id="error-message-add-novel" class="error-message"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-      
-        <!-- Right column: Search bar for "other" novels -->
-        <div class="showNovel right-box">
-            <h2>Search for Other Novels</h2>
-            <!-- Search bar: author/title and genre (enum) -->
-            <div style="margin-bottom: 15px;">
-                <!-- Text input (search by author or title) -->
-                <input type="text" id="searchTerm" placeholder="Search by Author or Title..." />
+        
+            <!-- Right column: Search bar for "other" novels -->
+            <div class="showNovel right-box">
+                <h2>Search for Other Novels</h2>
+                <!-- Search bar: author/title and genre (enum) -->
+                <div class="search-container">
+                    <!-- Text input (search by author or title) -->
+                    <input type="text" id="searchTerm" placeholder="Search by Author or Title..." />
 
-                <select id="selectGenre">
-                    <option value="">All Genres</option>
-                    <!-- Other options will be added dynamically via JS -->
-                </select>
-                
+                    <select id="selectGenre">
+                        <option value="">All Genres</option>
+                        <!-- Other options will be added dynamically via JS -->
+                    </select>
+                    
 
-                <!-- Button to trigger the search -->
-                <button id="searchButton">Search</button>
-            </div>
+                    <!-- Button to trigger the search -->
+                    <button id="searchButton">Search</button>
+                </div>
 
-            <!-- Search results (other novels) -->
-            <div id="otherNovelsList" style="max-height: 500px; overflow-y: auto;">
-                <!-- Filtered novels will be listed here -->
+                <!-- Search results (other novels) -->
+                <div id="otherNovelsList" style="max-height: 500px; overflow-y: auto;">
+                    <!-- Filtered novels will be listed here -->
+                </div>
             </div>
         </div>
     </div>

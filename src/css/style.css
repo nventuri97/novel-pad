@@ -119,6 +119,43 @@ label {
     color: #555;
 }
 
+.label {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.email-label, .status-label {
+    font-size: 1.1rem;
+    color: #5a8dee; /* Colore distintivo per l'email */
+}
+
+.email-label:before, .status-label:before {
+    content: '';
+    display: inline-block;
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #5a8dee;
+    vertical-align: middle;
+}
+
+.email-value, .status-value {
+    font-size: 1rem;
+    color: #555;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.email-value {
+    font-weight: 500;
+    color: #2e2e2e;
+    text-decoration: underline;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"] {
@@ -191,15 +228,29 @@ input[type="email"] {
 
 
 .novel-item {
-    margin-bottom: 10px; /* Add some space between items */
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f0f8ff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+}
+
+.novel-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background-color: #e6f7ff;
 }
 
 .novel-item h3 {
-    margin: 0 0 5px;
+    margin: 0 0 10px;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+.novel-item p {
+    margin: 5px 0;
+    color: #666;
 }
 
 /* Modal Panel Styles */
@@ -354,8 +405,54 @@ button[disabled] {
     height: 100vh;
 }
 
-.top-bar {
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    align-items: stretch;
     width: 100%;
+}
+
+#searchTerm {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    flex: 2 1 70%;
+}
+
+#selectGenre {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    flex: 1 1 20%;
+}
+
+#searchButton {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #5a8dee;
+    color: white;
+    cursor: pointer;
+}
+
+#searchButton:hover {
+    background-color: #4b7fbf;
+}
+
+#searchTerm:focus, #selectGenre:focus {
+    border-color: #5a8dee;
+    outline: none;
+}
+
+.top-bar {
+    width: 100vw;
+    left: 0;
+    right: 0;
     background: #333333;
     color: white;
     padding: 15px;
@@ -364,29 +461,45 @@ button[disabled] {
     align-items: center;
 }
 
-/* Ensuring the layout of left-box and right-box */
+
+/* Layout for the left and right boxes */
 .content {
+    width: 100vw;
     display: flex;
     flex: 1;
-    width: 100%;
+    overflow: hidden;
 }
 
 .left-box {
-    flex: 2;
-    background: #f4f4f4;
+    flex: 4;
+    background-color: #f9f9f9;
     padding: 20px;
-    box-sizing: border-box;
-    height: 100%;
     overflow-y: auto;
 }
 
 .right-box {
-    flex: 3;
-    background: #fff;
+    flex: 6;
+    background-color: #fff;
     padding: 20px;
-    box-sizing: border-box;
-    height: 100%;
+    border-left: 2px solid #ddd;
     overflow-y: auto;
+}
+
+/* Ensuring the layout of left-box and right-box */
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+    }
+
+    .left-box, .right-box {
+        flex: none;
+        width: 100%;
+    }
+
+    .right-box {
+        border-left: none;
+        border-top: 2px solid #ddd;
+    }
 }
 
 /* New part */
