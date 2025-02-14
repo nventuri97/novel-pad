@@ -1,11 +1,11 @@
 <?php
 header('Content-Type: application/json'); // Ensure response is JSON
 
-include '../utils/admin.php';
 include '../utils/db-client.php';
 
 openlog("admin_logout.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
+ob_start();
 
 // Ensure the admin is logged in
 if (!isset($_SESSION['admin'])) {

@@ -7,6 +7,7 @@ include '../utils/db-client.php';
 
 openlog("get_other_novels.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
+ob_start();
 
 $response = [
     'success' => false,
@@ -113,6 +114,7 @@ try {
 }
 
 echo json_encode($response);
-
+ob_end_flush();
+closelog();
 exit;
 ?>
