@@ -3,8 +3,8 @@ header('Content-Type: application/json'); // Ensure the response is JSON
 
 use ZxcvbnPhp\Zxcvbn;
 
-include '../utils/db-client.php';
-include '../utils/user.php';
+require '../utils/db-client.php';
+require '../utils/user.php';
 require '../utils/mail-client.php';
 require __DIR__.'/../../vendor/autoload.php';
 
@@ -22,7 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    header("Location: /error.html?error=" . urlencode('Invalid request method'));
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
 
@@ -137,7 +140,7 @@ try {
     if ($email_exists) {
         syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email already exists. Send allert mail.');
 
-        $mailSent = sendAllertMail($email);
+        $mailSent = sendAllertMail($email,'user');
         if (!$mailSent) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send allert email.');
 

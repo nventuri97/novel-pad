@@ -10,6 +10,8 @@ USE `admin_db`;
 CREATE TABLE IF NOT EXISTS `admins` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `email` VARCHAR(100) UNIQUE NOT NULL,
+    `tries` INT DEFAULT 0,
+    `is_logged` BOOLEAN DEFAULT FALSE,
     `is_verified` BOOLEAN DEFAULT FALSE,
     `password_hash` VARCHAR(255) NOT NULL,
     `password_expiry` TIMESTAMP,

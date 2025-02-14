@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json');                           // Ensure response is JSON
 
-require_once __DIR__ . '/../utils/user.php';
-require_once __DIR__ . '/../utils/db-client.php';
-$config = require_once __DIR__ . '/../utils/config.php';
+require __DIR__ . '/../utils/user.php';
+require __DIR__ . '/../utils/db-client.php';
+$config = require __DIR__ . '/../utils/config.php';
 
 
 session_start();
@@ -19,7 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
     http_response_code(405); // HTTP method not allowed
-    header("Location: /error.html?error=" . urlencode('Invalid request method'));
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
     

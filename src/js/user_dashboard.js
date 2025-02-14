@@ -94,10 +94,33 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 405) {
+                window.location.href = "/error.html?error=Method%20not%20allowed";
+                return;
             }
-            return response.json(); // Parse JSON response
+            else if (response.status === 401) {
+                window.location.href = "/error.html?error=Unauthorized";
+                return;
+            }
+            else if (response.status === 403) {
+                window.location.href = "/error.html?error=Forbidden";
+                return;
+            }
+            else if (response.status === 419) {
+                window.location.href = "/error.html?error=Session%20expired";
+                return;
+            }
+            else if (response.status === 500) {
+                handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+                return;
+            }
+      
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+                });
+            }
+            return response.json();
         })
         .then(data => {
             if (data.success) {
@@ -180,6 +203,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const title = formData.get("title");
             const genre = formData.get("genre");
             const storyContent = formData.get("story_content");
+
+            // Validate form fields
+            const titleRegex = /^[a-zA-Z0-9\s]+$/;
+            if (!titleRegex.test(title)) {
+                handleErrorAddNovel("Title can only contain letters, numbers, and spaces.", "Title can only contain letters, numbers, and spaces.");
+                return;
+            }
 
             if (!storyContent.trim()) {
                 handleErrorAddNovel("Please provide content for the story.", "Please provide content for the story.");

@@ -5,11 +5,9 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     event.preventDefault();
     
     const errorMessage = document.getElementById('error-message');
-    const successElem = document.getElementById('success-message');
-    
-    // Nascondi eventuali messaggi precedenti
+    const successMessage = document.getElementById('success-message');
     errorMessage.style.display = 'none';
-    successElem.style.display = 'none';
+    successMessage.style.display = 'none';
     
     const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
@@ -25,22 +23,22 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     if (newPassword.length < 8) {
         errorMessage.textContent = "Password must be at least 8 characters.";
         errorMessage.style.display = 'block';
-        document.getElementById('password').focus();
-        grecaptcha.reset();
+        document.getElementById('newPassword').focus();
+        document.getElementById('confirmPassword').focus();
         return;
     } else if (!passwordRegex.test(newPassword)) {
         errorMessage.textContent = "Password must agree password policy";
         errorMessage.style.display = 'block';
-        document.getElementById('password').focus();
-        grecaptcha.reset();
+        document.getElementById('newPassword').focus();
+        document.getElementById('confirmPassword').focus();
         return;
     } else {
         const result = zxcvbn(newPassword);
         if (result.score < 4) {
             errorMessage.textContent = "Password is too weak. Please use a stronger password.";
             errorMessage.style.display = 'block';
-            document.getElementById('password').focus();
-            grecaptcha.reset();
+            document.getElementById('newPassword').focus();
+            document.getElementById('confirmPassword').focus();
             return;
         }
     }
@@ -51,13 +49,13 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         return;
     }
     
+
     if (newPassword !== confirmPassword) {
         errorMessage.textContent = "Passwords do not match.";
         errorMessage.style.display = 'block';
         return;
     }
     
-    // Esegui la fetch con credenziali di tipo form-urlencoded
     fetch(API_CONFIG.adminChangePassword(), {
         method: 'POST',
         body: new URLSearchParams({
@@ -67,19 +65,41 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include' // Importante per gestire la sessione/cookie
+        credentials: 'include'
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 405) {
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
         }
-        return response.json();
+        else if (response.status === 401) {
+            window.location.href = "/error.html?error=Unauthorized";
+            return;
+        }
+        else if (response.status === 403) {
+            window.location.href = "/error.html?error=Forbidden";
+            return;
+        }
+        else if (response.status === 419) {
+            window.location.href = "/error.html?error=Session%20expired";
+            return;
+        }
+        else if (response.status === 500) {
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
+        }
+
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+            });
+        }
+        return response.json(); // Parse JSON response
     })
     .then(data => {
-        console.log("Parsed JSON:", data);
         if (data.success) {
-            successElem.textContent = "Password changed successfully! Redirecting...";
-            successElem.style.display = 'block';
+            successMessage.textContent = "Password changed successfully! Redirecting...";
+            successMessage.style.display = 'block';
             setTimeout(() => {
                 window.location.href = 'admin_dashboard.html';
             }, 2000);
@@ -89,7 +109,6 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         }
     })
     .catch(error => {
-        console.error('Fetch error:', error);
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
     });

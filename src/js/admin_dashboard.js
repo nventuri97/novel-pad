@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutButton   = document.getElementById('logoutButton');
   const adminEmailElem = document.getElementById('adminEmail'); 
 
-  // New part
   const userIcon = document.getElementById("userIcon");
   const dropdownMenu = document.getElementById("dropdownMenu");
   const changePassword = document.getElementById("changePassword");
@@ -26,41 +25,69 @@ document.addEventListener('DOMContentLoaded', () => {
   changePassword.addEventListener("click", () => {
       window.location.href = "admin_change_password.html"; // Redirect to change password page
   });
-  //////////////////////////
 
-  function showError(msg) {
-    alert(msg);
+  function handleError(error, userMessage = "An unexpected error occurred.") {
+    console.error('Error:', error);
+    const errorMessage = document.getElementById('error-message');
+    if (errorMessage) {
+      errorMessage.innerText = userMessage;
+      errorMessage.style.display = 'block';
+    } else {
+      alert(userMessage);
+    }
   }
 
-  //list of users
-  function loadUsers() {
-    fetch(API_CONFIG.adminDashboard(), {
-      method: 'GET',
-      credentials: 'include'
-    })
-    .then(resp => {
-      if (!resp.ok) {
-        throw new Error(`HTTP error! status: ${resp.status}`);
-      }
-      return resp.json();
-    })
-    .then(data => {
-      if (!data.success) {
-        showError(data.message || "Error loading users");
+  fetch(API_CONFIG.adminDashboard(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => {
+    if (response.status === 405) {
+        window.location.href = "/error.html?error=Method%20not%20allowed";
         return;
-      }
-      // Set the admin email on the page
-      if (data.adminEmail) {
-        adminEmailElem.textContent = data.adminEmail;
-      }
+    }
+    else if (response.status === 401) {
+        window.location.href = "/error.html?error=Unauthorized";
+        return;
+    }
+    else if (response.status === 403) {
+        window.location.href = "/error.html?error=Forbidden";
+        return;
+    }
+    else if (response.status === 419) {
+        window.location.href = "/error.html?error=Session%20expired";
+        return;
+    }
+    else if (response.status === 500) {
+        handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+        return;
+    }
 
-      // data.users is an array of { email, nickname, is_premium }
-      renderUsersTable(data.users);
-    })
-    .catch(err => {
-      showError("Error fetching users: " + err);
-    });
-  }
+    if (!response.ok) {
+        return response.text().then(text => {
+            throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+        });
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Set the admin email on the page
+    if (data.adminEmail) {
+      adminEmailElem.textContent = data.adminEmail;
+    }
+    else {
+      handleError(data.message, data.message);
+    }
+
+    // data.users is an array of { email, nickname, is_premium }
+    renderUsersTable(data.users);
+  })
+  .catch(error => {
+    handleError("An error occurred. Please try again later.", "An error occurred. Please try again later.");
+    return;
+  });
 
   //users table
   function renderUsersTable(users) {
@@ -99,7 +126,35 @@ document.addEventListener('DOMContentLoaded', () => {
         newStatus: newStatus
       })
     })
-    .then(resp => resp.json())
+    .then(response => {
+      if (response.status === 405) {
+          window.location.href = "/error.html?error=Method%20not%20allowed";
+          return;
+      }
+      else if (response.status === 401) {
+          window.location.href = "/error.html?error=Unauthorized";
+          return;
+      }
+      else if (response.status === 403) {
+          window.location.href = "/error.html?error=Forbidden";
+          return;
+      }
+      else if (response.status === 419) {
+          window.location.href = "/error.html?error=Session%20expired";
+          return;
+      }
+      else if (response.status === 500) {
+          handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+          return;
+      }
+
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+          });
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         // Update the status locally
@@ -107,35 +162,64 @@ document.addEventListener('DOMContentLoaded', () => {
         rowElement.cells[2].textContent = user.is_premium ? 'Premium' : 'Standard';
         rowElement.querySelector('.toggle-btn').textContent = user.is_premium ? 'Set Standard' : 'Set Premium';
       } else {
-        showError(data.message || "Error updating premium status");
+        handleError(data.message, data.message)
+      }
+    })
+    .catch(error => {
+      handleError(error, "An error occurred. Please try again later.");
+      return;
+    });
+  }
+
+  // Handle logout
+  logoutButton.addEventListener('click', function (event) {
+    event.preventDefault();
+    fetch(API_CONFIG.logoutAdmin(), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+    })
+    .then(response => {
+      if (response.status === 405) {
+          window.location.href = "/error.html?error=Method%20not%20allowed";
+          return;
+      }
+      else if (response.status === 401) {
+          window.location.href = "/error.html?error=Unauthorized";
+          return;
+      }
+      else if (response.status === 403) {
+          window.location.href = "/error.html?error=Forbidden";
+          return;
+      }
+      else if (response.status === 419) {
+          window.location.href = "/error.html?error=Session%20expired";
+          return;
+      }
+      else if (response.status === 500) {
+          handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+          return;
+      }
+
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+          });
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        window.location.href = 'admin_login.html';
+      } else {
+        handleError(data.message, data.message);
       }
     })
     .catch(err => {
-      showError("Error toggling premium: " + err);
+      handleError(error, "An error occurred. Please try again later.");
+      return;
     });
-  }
+  });
 
-  //  Logout
-  if (logoutButton) {
-    logoutButton.addEventListener('click', () => {
-      fetch(API_CONFIG.adminLogout(), {
-        method: 'POST',
-        credentials: 'include'
-      })
-      .then(resp => resp.json())
-      .then(data => {
-        if (data.success) {
-          window.location.href = 'admin_login.html';
-        } else {
-          showError("Error logging out");
-        }
-      })
-      .catch(err => {
-        showError("Error logging out: " + err);
-      });
-    });
-  }
-
-  // Initialize
-  loadUsers();
 });
