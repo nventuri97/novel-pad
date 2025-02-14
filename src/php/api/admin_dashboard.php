@@ -19,6 +19,7 @@ if (!isset($_SESSION['admin'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Access not authenticated.");
 
     session_destroy();
+    http_response_code(401); // Unauthorized
     header("Content-Type: text/html");
 
     echo "<h1>401 User not authenticated</h1>";
