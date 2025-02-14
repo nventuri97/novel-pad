@@ -9,8 +9,20 @@
 </head>
 
 <body>
+    <div class="main-container">
+        <div class="top-bar">
+            <h1>User Dashboard</h1>
+            
+            <!-- User Icon & Dropdown -->
+            <div class="user-menu">
+                <img src="./images/user_icon.png" alt="User Icon" id="userIcon">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#" id="change-password">Change Password</a>
+                    <a href="#" id="logout-button">Logout</a>
+                </div>
+            </div>
+        </div>
 
-    <div class="two-column-container">
         <!-- Left column (your existing dashboard) -->
         <div class="left-box">
             <div class="dashboard-container">
@@ -32,9 +44,9 @@
                     </div>
                 </div>
 
-                <div class="dashboard-actions">
+                <!-- <div class="dashboard-actions">
                     <button class="logout-button">Logout</button>
-                </div>
+                </div> -->
             </div>
 
             <!-- Modal for Adding Novel -->
@@ -84,7 +96,7 @@
         </div>
       
         <!-- Right column: Search bar for "other" novels -->
-        <div class="showNovel">
+        <div class="showNovel right-box">
             <h2>Search for Other Novels</h2>
             <!-- Search bar: author/title and genre (enum) -->
             <div style="margin-bottom: 15px;">

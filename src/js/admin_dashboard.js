@@ -5,6 +5,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutButton   = document.getElementById('logoutButton');
   const adminEmailElem = document.getElementById('adminEmail'); 
 
+  const userIcon = document.getElementById("userIcon");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  const changePassword = document.getElementById("changePassword");
+
+  // Toggle dropdown menu on user icon click
+  userIcon.addEventListener("click", () => {
+    dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+  });
+
+  // Close dropdown if clicked outside
+  document.addEventListener("click", (event) => {
+      if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+          dropdownMenu.style.display = "none";
+      }
+  });
+
+  // Change password action
+  changePassword.addEventListener("click", () => {
+      window.location.href = "admin_change_password.html"; // Redirect to change password page
+  });
+
   function handleError(error, userMessage = "An unexpected error occurred.") {
     console.error('Error:', error);
     const errorMessage = document.getElementById('error-message');

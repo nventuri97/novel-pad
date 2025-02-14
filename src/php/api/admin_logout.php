@@ -5,8 +5,8 @@ require '../utils/db-client.php';
 
 session_start();
 ob_start();
-openlog("admin_logout.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
+openlog("admin_logout.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $response = [
     'success' => false,
@@ -75,3 +75,4 @@ $response['message'] = 'Successful logout';
 
 ob_end_clean();
 echo json_encode($response);
+?>

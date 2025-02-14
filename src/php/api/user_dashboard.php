@@ -6,6 +6,7 @@ require '../utils/db-client.php';
 
 openlog("user_dashboard.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
+ob_start();
 
 // Initialize response
 $response = [
@@ -66,4 +67,7 @@ try {
 }
 
 echo json_encode($response); // Output the final response
+ob_end_flush();
+closelog();
+exit;
 ?>

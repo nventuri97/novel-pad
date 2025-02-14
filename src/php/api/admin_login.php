@@ -74,7 +74,7 @@ try {
 
     // Modified to retrieve also tries and is_logged
     $stmt = $admin_conn->prepare(
-        "SELECT id, password_hash, is_verified, tries, is_logged FROM admins WHERE email = :email"
+        "SELECT id, password_hash, is_verified, tries, is_logged, password_expiry FROM admins WHERE email = :email"
     );
     $stmt->bindParam(":email", $email);
     $stmt->execute();
@@ -110,7 +110,7 @@ try {
         $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
         
         // If the admin is not yet verified, force password change
-        if (!$admin['is_verified']) {
+        if (!$admin['is_verified'] || strtotime($admin['password_expiry']) > date("Y-m-d H:i:s")) {
             $_SESSION['force_password_change'] = true;
             $response["success"] = true;
             $response["message"] = "Password change required.";
