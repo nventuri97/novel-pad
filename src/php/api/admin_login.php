@@ -84,7 +84,7 @@ try {
             $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
             
             // If the admin is not yet verified, force a password change
-            if (!$admin['is_verified'] || strtotime($admin['password_expiry']) < date("Y-m-d H:i:s")) {
+            if (!$admin['is_verified'] || strtotime($admin['password_expiry']) > date("Y-m-d H:i:s")) {
                 $_SESSION['force_password_change'] = true;
                 $response["success"] = true;
                 $response["message"] = "Password change required.";

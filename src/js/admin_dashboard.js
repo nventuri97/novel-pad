@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // New part
   const userIcon = document.getElementById("userIcon");
-    const dropdownMenu = document.getElementById("dropdownMenu");
-    const changePassword = document.getElementById("changePassword");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  const changePassword = document.getElementById("changePassword");
 
   // Toggle dropdown menu on user icon click
   userIcon.addEventListener("click", () => {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //  Logout
   if (logoutButton) {
     logoutButton.addEventListener('click', () => {
-      fetch(API_CONFIG.logoutAdmin(), {
+      fetch(API_CONFIG.adminLogout(), {
         method: 'POST',
         credentials: 'include'
       })

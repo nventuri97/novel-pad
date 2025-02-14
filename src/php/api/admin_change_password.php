@@ -119,7 +119,8 @@ try {
         $stmt->execute();
 
         // Remove the forced password change flag
-        unset($_SESSION['force_password_change']);
+        if(isset($_SESSION['force_password_change']))
+            unset($_SESSION['force_password_change']);
 
         $response["success"] = true;
         $response["message"] = "Password changed successfully.";
