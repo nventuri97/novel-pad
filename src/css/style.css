@@ -450,7 +450,7 @@ button[disabled] {
 }
 
 .top-bar {
-    width: 100vw;
+    width: 100%;
     left: 0;
     right: 0;
     background: #333333;
