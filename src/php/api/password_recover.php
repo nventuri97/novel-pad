@@ -25,10 +25,18 @@ $email = $_POST['email'] ?? '';
 $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
 // Basic validation
-if (empty($email)) {
+if (empty($email) || empty($recaptcha_response)) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Empty email or recaptcha');
 
     $response['message'] = "Please fill all the fields.";
+    echo json_encode($response);
+    exit;
+}
+
+if(!preg_match($email, FILTER_VALIDATE_EMAIL)){
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid email format');
+
+    $response['message'] = "Invalid email format.";
     echo json_encode($response);
     exit;
 }
