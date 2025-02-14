@@ -1,7 +1,7 @@
 <?php
-include '../utils/novel.php';
-include '../utils/user.php';
-include '../utils/db-client.php';
+require '../utils/novel.php';
+require '../utils/user.php';
+require '../utils/db-client.php';
 
 openlog("download_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();

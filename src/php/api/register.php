@@ -3,8 +3,8 @@ header('Content-Type: application/json'); // Ensure the response is JSON
 
 use ZxcvbnPhp\Zxcvbn;
 
-include '../utils/db-client.php';
-include '../utils/user.php';
+require '../utils/db-client.php';
+require '../utils/user.php';
 require '../utils/mail-client.php';
 require __DIR__.'/../../vendor/autoload.php';
 

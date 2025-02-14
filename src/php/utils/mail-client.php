@@ -129,3 +129,4 @@ function sendRecoveryPwdMail($user_mail, $token, $user_id){
         syslog(LOG_ERR, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
     }
 }
+?>

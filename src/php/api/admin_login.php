@@ -3,9 +3,9 @@
 header('Content-Type: application/json'); // Ensure the response is in JSON
 
 // Include any libraries or utility files specific to admins.
-require_once __DIR__ . '/../utils/db-client.php';
-require_once __DIR__ . '/../utils/mail-client.php';
-$config = require_once __DIR__ . '/../utils/config.php';
+require __DIR__ . '/../utils/db-client.php';
+require __DIR__ . '/../utils/mail-client.php';
+$config = require __DIR__ . '/../utils/config.php';
 
 session_start();
 ob_start();  // Start buffering to capture any unwanted output
