@@ -11,6 +11,8 @@ require __DIR__.'/../../vendor/autoload.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 session_start();
 ob_start();
+openlog("admin_change_password.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+
 
 $response = [
     "success" => false,
@@ -29,9 +31,12 @@ if (!isset($_SESSION["admin"]) || !isset($_SESSION['force_password_change'])) {
 
 try {
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $currentPassword = $_POST["currentPassword"] ?? '';
         $newPassword = $_POST["newPassword"] ?? '';
 
-        if (empty($newPassword)) {
+        if (empty($currentPassword) || empty($newPassword)) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Attempt to change password with current password or new password empty');
+            
             http_response_code(400);
             $response["message"] = "New password is required.";
             echo json_encode($response);
@@ -72,19 +77,44 @@ try {
             exit;
         }
 
+        if ($currentPassword === $newPassword){
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  New password corresponds to current one.');
+
+            $response['message'] = "New password must be different from the current one";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
         // Get the database connection for authentication
         $admin_conn = db_client::get_connection("admin_db");
 
+        $stmt = $admin_conn->prepare("SELECT password_hash FROM admins WHERE id = :id");
+        $stmt->bindParam(':id', $_SESSION["admin"]['id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $storedPassword = $stmt->fetchColumn();
+
+        if (!$storedPassword || !password_verify($currentPassword, $storedPassword)) {
+            syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Incorrect password.');
+
+            $response["message"] = "Incorrect password.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+
         // Calculate the hash of the new password (using BCRYPT)
         $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        $passwordExpiry = date('Y-m-d H:i:s', strtotime('+90 days'));
 
         // Update the password and set is_verified to true
         $stmt = $admin_conn->prepare("
             UPDATE admins 
-            SET password_hash = :password_hash, is_verified = 1
+            SET password_hash = :password_hash, is_verified = 1, password_expiry = :password_expiry
             WHERE id = :id
         ");
         $stmt->bindParam(':password_hash', $newPasswordHash);
+        $stmt->bindParam(':password_expiry', $passwordExpiry);
         $stmt->bindParam(':id', $_SESSION["admin"]['id'], PDO::PARAM_INT);
         $stmt->execute();
 

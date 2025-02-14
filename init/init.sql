@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `admins` (
     `email` VARCHAR(100) UNIQUE NOT NULL,
     `is_verified` BOOLEAN DEFAULT FALSE,
     `password_hash` VARCHAR(255) NOT NULL,
+    `password_expiry` TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

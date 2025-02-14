@@ -3,7 +3,6 @@
 header('Content-Type: application/json'); // Ensure the response is in JSON
 
 // Include any libraries or utility files specific to admins.
-require_once __DIR__ . '/../utils/admin.php'; //TODO: chiedere a nicola del require_once
 require_once __DIR__ . '/../utils/db-client.php';
 $config = require_once __DIR__ . '/../utils/config.php';
 
@@ -63,7 +62,7 @@ try {
         // Retrieve the admin from the "admins" table
         // Now we also select the is_verified field
         $stmt = $admin_conn->prepare(
-            "SELECT id, password_hash, is_verified FROM admins WHERE email = :email"
+            "SELECT id, password_hash, is_verified, password_expiry FROM admins WHERE email = :email"
         );
         $stmt->bindParam(":email", $email);
         $stmt->execute();
@@ -85,7 +84,7 @@ try {
             $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
             
             // If the admin is not yet verified, force a password change
-            if (!$admin['is_verified']) {
+            if (!$admin['is_verified'] || strtotime($admin['password_expiry']) < date("Y-m-d H:i:s")) {
                 $_SESSION['force_password_change'] = true;
                 $response["success"] = true;
                 $response["message"] = "Password change required.";
