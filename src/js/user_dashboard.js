@@ -2,7 +2,27 @@ import API_CONFIG from "./config.js";
 
 // Execute when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
-    const logoutButton = document.getElementsByClassName('logout-button')[0];
+    const logoutButton = document.getElementById('logout-button');
+    const userIcon = document.getElementById("userIcon");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const changePassword = document.getElementById("change-password");
+
+    // Toggle dropdown menu on user icon click
+    userIcon.addEventListener("click", () => {
+        dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    // Close dropdown if clicked outside
+    document.addEventListener("click", (event) => {
+        if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.style.display = "none";
+        }
+    });
+
+    // Change password action
+    changePassword.addEventListener("click", () => {
+        window.location.href = "change_password.html"; // Redirect to change password page
+    });
 
     function handleError(error, userMessage = "An unexpected error occurred.") {
         console.error('Error:', error);
