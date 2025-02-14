@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle logout
   logoutButton.addEventListener('click', function (event) {
     event.preventDefault();
-    fetch(API_CONFIG.logoutAdmin(), {
+    fetch(API_CONFIG.adminLogout(), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'

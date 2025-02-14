@@ -55,7 +55,15 @@ $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime('+30 minutes'));
 
 try {
     syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User authenticated.");
-    
+
+    $user_id=$_SESSION['user']->get_id();
+    $novel_conn = db_client::get_connection('novels_db');
+    $stmt = $novel_conn->prepare('SELECT is_premium FROM novels WHERE user_id = :user_id');
+    $stmt->bindParam(':user_id', $user_id);
+    $stmt->execute();
+    $is_premium = $stmt->fetchColumn();
+
+    $_SESSION['user']->set_premium($is_premium);
     $user = $_SESSION['user'];
     $response['success'] = true;
     $response['data'] = $user->to_array(); // Ensure this function returns an associative array
