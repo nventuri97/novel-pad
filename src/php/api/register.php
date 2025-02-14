@@ -41,7 +41,7 @@ if (empty($password) || empty($email) || empty($nickname) || empty($recaptcha_re
     exit;
 }
 
-if(!preg_match($email, FILTER_VALIDATE_EMAIL)){
+if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid email format');
 
     $response['message'] = "Invalid email format.";
