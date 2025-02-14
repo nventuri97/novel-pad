@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json'); // Ensure response is JSON
 
-include '../utils/db-client.php';
+require '../utils/db-client.php';
 
 session_start();
 ob_start();
@@ -53,6 +53,16 @@ $admin = $_SESSION['admin'];
 
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"] . ' - - [' . date("Y-m-d H:i:s") . '] Logout request received');
 
+// Update the admin's is_logged status
+try {
+    $admin_conn = db_client::get_connection("admin_db");
+    $updateStmt = $admin_conn->prepare("UPDATE admins SET is_logged = 0 WHERE id = :id");
+    $updateStmt->bindValue(':id', $admin['id'], PDO::PARAM_INT);
+    $updateStmt->execute();
+} catch (PDOException $e) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . ' - - [' . date("Y-m-d H:i:s") . '] DB error: ' . $e->getMessage());
+}
+
 // Unset session variables and destroy session
 session_unset();
 session_destroy();
@@ -65,4 +75,3 @@ $response['message'] = 'Successful logout';
 
 ob_end_clean();
 echo json_encode($response);
-?>

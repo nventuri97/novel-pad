@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json');                           // Ensure response is JSON
 
-require_once __DIR__ . '/../utils/user.php';
-require_once __DIR__ . '/../utils/db-client.php';
-$config = require_once __DIR__ . '/../utils/config.php';
+require __DIR__ . '/../utils/user.php';
+require __DIR__ . '/../utils/db-client.php';
+$config = require __DIR__ . '/../utils/config.php';
 
 
 session_start();

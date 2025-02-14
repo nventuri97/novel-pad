@@ -3,8 +3,8 @@ header('Content-Type: application/json'); // Ensure the response is JSON
 
 use ZxcvbnPhp\Zxcvbn;
 
-include '../utils/db-client.php';
-include '../utils/user.php';
+require '../utils/db-client.php';
+require '../utils/user.php';
 require '../utils/mail-client.php';
 require __DIR__.'/../../vendor/autoload.php';
 
@@ -132,7 +132,7 @@ try {
     if ($email_exists) {
         syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Email already exists. Send allert mail.');
 
-        $mailSent = sendAllertMail($email);
+        $mailSent = sendAllertMail($email,'user');
         if (!$mailSent) {
             syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send allert email.');
 

@@ -4,8 +4,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-include '../utils/user.php';
-include '../utils/db-client.php';
+require '../utils/user.php';
+require '../utils/db-client.php';
 
 ob_start();
 openlog("add_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);

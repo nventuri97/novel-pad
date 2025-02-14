@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json'); // Ensure response is JSON
 
-include '../utils/user.php';
-include '../utils/db-client.php';
+require '../utils/user.php';
+require '../utils/db-client.php';
 
 openlog("user_dashboard.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();

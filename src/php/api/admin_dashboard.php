@@ -3,7 +3,7 @@
 
 header('Content-Type: application/json');
 
-include '../utils/db-client.php';
+require '../utils/db-client.php';
 
 openlog("admin_dashboard.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();

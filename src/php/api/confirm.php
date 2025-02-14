@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json'); 
 
-include '../utils/db-client.php';
-include '../utils/user.php';
+require '../utils/db-client.php';
+require '../utils/user.php';
 
 ob_start();
 openlog("confirm.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);

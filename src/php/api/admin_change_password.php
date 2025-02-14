@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 use ZxcvbnPhp\Zxcvbn;
 
-require_once __DIR__ . '/../utils/db-client.php';
+require __DIR__ . '/../utils/db-client.php';
 require __DIR__.'/../../vendor/autoload.php';
 
 // Load the config if necessary

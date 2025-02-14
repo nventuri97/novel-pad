@@ -47,7 +47,7 @@ function sendVerificationMail($user_mail, $token) {
     }
 }
 
-function sendAllertMail($user_mail) {
+function sendAllertMail($user_mail, $requestType) {
     global $config;
 
     try {
@@ -69,10 +69,17 @@ function sendAllertMail($user_mail) {
         // Content
         $mail->isHTML(true);
 
-        $mail->Subject = 'Security Alert: Registration Attempt Detected';
-        $mail->Body = '<p>We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
-        $mail->AltBody = 'We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
-
+        if ($requestType === 'admin') {
+            $mail->Subject = 'Security Alert: Admin Login Attempt Detected';
+            $mail->Body = '<p>We detected an admin login attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
+            $mail->AltBody = 'We detected an admin login attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
+        } else if ($requestType === 'user') {
+            $mail->Subject = 'Security Alert: Registration Attempt Detected';
+            $mail->Body = '<p>We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
+            $mail->AltBody = 'We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
+        }else  {
+            //TODO: HANDLE admin blocked?
+        }
 
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending allert email.");
         $result=$mail->send();
@@ -122,5 +129,4 @@ function sendRecoveryPwdMail($user_mail, $token, $user_id){
         syslog(LOG_ERR, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
     }
 }
-
 ?>
