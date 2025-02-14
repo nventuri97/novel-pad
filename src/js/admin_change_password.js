@@ -4,19 +4,20 @@ import "./zxcvbn.js";
 document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
-    const errorElem = document.getElementById('error-message');
+    const errorMessage = document.getElementById('error-message');
     const successElem = document.getElementById('success-message');
     
     // Nascondi eventuali messaggi precedenti
-    errorElem.style.display = 'none';
+    errorMessage.style.display = 'none';
     successElem.style.display = 'none';
     
+    const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
     const confirmPassword = document.getElementById('confirmPassword').value.trim();
     
-    if (newPassword === '' || confirmPassword === '') {
-        errorElem.textContent = "Please fill in all fields.";
-        errorElem.style.display = 'block';
+    if (currentPassword === '' || newPassword === '' || confirmPassword === '') {
+        errorMessage.textContent = "Please fill in all fields.";
+        errorMessage.style.display = 'block';
         return;
     }
 
@@ -43,10 +44,16 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
             return;
         }
     }
+
+    if(newPassword === currentPassword) {
+        errorMessage.textContent = "New password must be different from current password.";
+        errorMessage.style.display = 'block';
+        return;
+    }
     
     if (newPassword !== confirmPassword) {
-        errorElem.textContent = "Passwords do not match.";
-        errorElem.style.display = 'block';
+        errorMessage.textContent = "Passwords do not match.";
+        errorMessage.style.display = 'block';
         return;
     }
     
@@ -54,6 +61,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     fetch(API_CONFIG.adminChangePassword(), {
         method: 'POST',
         body: new URLSearchParams({
+            currentPassword: currentPassword,
             newPassword: newPassword
         }),
         headers: {
@@ -76,13 +84,13 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
                 window.location.href = 'admin_dashboard.html';
             }, 2000);
         } else {
-            errorElem.textContent = data.message || "Error changing password.";
-            errorElem.style.display = 'block';
+            errorMessage.textContent = data.message || "Error changing password.";
+            errorMessage.style.display = 'block';
         }
     })
     .catch(error => {
         console.error('Fetch error:', error);
-        errorElem.textContent = "An error occurred. Please try again.";
-        errorElem.style.display = 'block';
+        errorMessage.textContent = "An error occurred. Please try again.";
+        errorMessage.style.display = 'block';
     });
 });

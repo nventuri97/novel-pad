@@ -359,3 +359,104 @@ button[disabled] {
     padding: 15px;
     border-radius: 5px;
 }
+
+/* New part */
+/* Admin Dashboard Container */
+.admin-dashboard-container {
+    width: calc(80% - 60px); /* full width minus edge space */
+    height: calc(80% - 60px); /* full height minus edge space */
+    max-width: 1920px;
+    margin: 20px; /* margin around the container */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Top Bar */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-menu img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    width: 150px;
+    overflow: hidden;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.3s;
+}
+
+.dropdown-menu a:hover {
+    background: #f1f1f1;
+}
+
+.show {
+    display: block;
+}
+
+/* Table Styling */
+.table-container {
+    overflow-x: auto;
+}
+
+#usersTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#usersTable th, #usersTable td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#usersTable th {
+    background: rgb(93, 170, 253);
+    color: white;
+}
+
+#usersTable tr:hover {
+    background: #f1f1f1;
+}
