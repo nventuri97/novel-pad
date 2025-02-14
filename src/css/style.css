@@ -144,6 +144,7 @@ input[type="email"] {
 }
 
 .dashboard-container {
+    height: calc(80%-60px);
     max-width: 800px;
     margin: 50px auto;
     padding: 20px;
@@ -241,7 +242,6 @@ input[type="email"] {
     text-decoration: none;
     cursor: pointer;
 }
-
 
 /* Form Fields */
 .form-field {
@@ -341,23 +341,52 @@ button[disabled] {
     margin: 0 0 20px 0;
 }
 
-/* Esempio di layout a 2 colonne (left - right) */
- .two-column-container {
-    display: flex; 
-    gap: 20px;
+/* Two columns layout (left - right) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.left-box {
-    flex: 1; /* occuperà lo spazio necessario */
-    max-width: 80%; /* se vuoi limitare la larghezza */
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
-.right-box {
-    flex: 2; /* box più grande a destra */
-}
-/* Un po' di margine intorno */
-.right-box {
-    border: 1px solid #ccc; 
+
+.top-bar {
+    width: 100%;
+    background: #333333;
+    color: white;
     padding: 15px;
-    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Ensuring the layout of left-box and right-box */
+.content {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+.left-box {
+    flex: 2;
+    background: #f4f4f4;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.right-box {
+    flex: 3;
+    background: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
 }
 
 /* New part */
@@ -371,18 +400,6 @@ button[disabled] {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-
-/* Top Bar */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: white;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 10px 10px 0 0;
 }
 
 h1 {
