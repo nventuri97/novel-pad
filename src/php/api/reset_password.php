@@ -72,6 +72,8 @@ try {
             
             $password = $_PUT['password'];
             $user_id = $_PUT['id'];
+            $email = $_PUT['email'];
+            $nickname = $_PUT['nickname'];
 
             // Server side password validation
             // Password must be at least 8 characters long
@@ -97,7 +99,7 @@ try {
 
             // Check password strength using zxcvbn
             $zxcvbn = new Zxcvbn();
-            $result = $zxcvbn->passwordStrength($password, $userInputs = [$_SESSION['user']->get_email(), $_SESSION['user']->get_nickname()]);
+            $result = $zxcvbn->passwordStrength($password, $userInputs = [$email, $nickname]);
             if ($result['score']<4){
                 syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
 

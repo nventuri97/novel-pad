@@ -90,6 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
             body: new URLSearchParams({
                 password: password,
                 id:id,
+                email:email,
+                nickname:nickname,
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
