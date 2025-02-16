@@ -58,7 +58,7 @@ try {
 
     $user_id=$_SESSION['user']->get_id();
     $novel_conn = db_client::get_connection('novels_db');
-    $stmt = $novel_conn->prepare('SELECT is_premium FROM novels WHERE user_id = :user_id');
+    $stmt = $novel_conn->prepare('SELECT is_premium FROM user_profiles WHERE user_id = :user_id');
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
     $is_premium = $stmt->fetchColumn();
