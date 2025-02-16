@@ -161,6 +161,7 @@ try {
     if(isset($_SESSION['force_password_change']))
         $_SESSION['force_password_change']=false;
 
+    session_regenerate_id(true);
     $response["success"] = true;
     $response["message"] = "Password changed successfully.";
     

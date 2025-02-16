@@ -145,6 +145,7 @@ try {
     $stmt->bindParam(':id', $_SESSION["user"]->get_id(), PDO::PARAM_INT);
     $stmt->execute();
 
+    session_regenerate_id(true);
     $response["success"] = true;
     $response["message"] = "Password changed successfully.";
 } catch (PDOException $e) {

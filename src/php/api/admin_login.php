@@ -118,6 +118,7 @@ try {
         } else {
             $response["success"] = true;
             $response["message"] = "Login succeeded!";
+            session_regenerate_id(true);
         }
 
         // Reset tries and set is_logged to 1 (true)
