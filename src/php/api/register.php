@@ -109,6 +109,15 @@ if ($result['score']<4){
     exit;
 }
 
+if (strlen($nickname) < 3 || strlen($nickname) > 20) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
+
+    $response['message'] = "Nickname must be between 3 and 20 characters long.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
 syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User requested to register');
 
 try {

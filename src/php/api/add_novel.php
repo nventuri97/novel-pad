@@ -65,7 +65,15 @@ $genre = $_POST['genre'] ?? '';
 $type = $_POST['type'] ?? '';
 $is_premium = isset($_POST['is_premium']) ? 1 : 0;
 
-// Check for invalid characters in the title
+if (strlen($title) < 3 || strlen($title) > 30) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
+
+    $response['message'] = "Title must be between 3 and 30 characters long.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
 if (!preg_match('/^[a-zA-Z0-9\s]+$/', $title)) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel title.");
 
@@ -75,16 +83,42 @@ if (!preg_match('/^[a-zA-Z0-9\s]+$/', $title)) {
     exit;
 }
 
+$genresEnum = [
+    "fantasy", "science_fiction", "romance", "mystery", "horror",
+    "thriller", "historical", "non-fiction", "young_adult", "adventure"
+];
+
+if (!in_array($genre, $genresEnum, true)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid genre: " . $genre);
+    
+    $response["message"] = "Invalid genre.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+
 // Handle file upload
 if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['file'] ?? null;
 
     // Define allowed file types and size limits
     $allowedTypes = ['application/pdf', 'text/html'];
+    $maxFileSize = 5 * 1024 * 1024; // 5MB
+
     if (!in_array($file['type'], $allowedTypes)) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid file type.");
 
         $response["message"] = "Invalid file type.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+
+    if ($file['size'] > $maxFileSize) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] File too large.");
+        
+        $response["message"] = "The uploaded file exceeds the maximum allowed size of 5MB.";
         echo json_encode($response);
         ob_end_flush();
         exit;
