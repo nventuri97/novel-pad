@@ -91,7 +91,7 @@ function sendAllertMail($user_mail, $requestType) {
     }
 }
 
-function sendRecoveryPwdMail($user_mail, $token, $user_id){
+function sendRecoveryPwdMail($user_mail, $token){
     global $config;
 
     try {
@@ -113,7 +113,7 @@ function sendRecoveryPwdMail($user_mail, $token, $user_id){
 
         // Content
         $mail->isHTML(true);
-        $resetUrl = $config['novelpad_url'] . '/reset-password.html?token=' . urlencode($token). '&id=' . urlencode($user_id);
+        $resetUrl = $config['novelpad_url'] . '/reset-password.html?token=' . urlencode($token);
 
         $mail->Subject = 'Password Recovery';
         $mail->Body = '<p>We received your request to recover your password. To reset password click <a href="' . htmlspecialchars($resetUrl) . '">here</a>.</p>';

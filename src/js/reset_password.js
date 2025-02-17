@@ -7,9 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const resetContainer = document.getElementById('reset-container');
     const waitingContainer = document.getElementById('waiting-container');
 
-    let email='';
-    let nickname='';
-
     const queryParams = new URLSearchParams(window.location.search);
 
     const reset_token = queryParams.get('token');
@@ -44,9 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.success) {
             waitingContainer.style.display='none';
             resetContainer.style.display='block';
-
-            email=data.email;
-            nickname=data.nickname;
         } else {
             waitingContainer.innerHTML = '<h2 style="color: red;">'+data.message+'</h2>';
         }
@@ -75,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             grecaptcha.reset();
             return;
         } else {
-            const result = zxcvbn(password, [String(email), String(nickname)]);
+            const result = zxcvbn(password);
             if (result.score < 4) {
                 errorMessage.textContent = "Password is too weak. Please use a stronger password.";
                 errorMessage.style.display = 'block';
@@ -89,9 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'PUT',
             body: new URLSearchParams({
                 password: password,
-                id:id,
-                email:email,
-                nickname:nickname,
+                reset_token: reset_token,
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
