@@ -1,4 +1,6 @@
 <?php
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/");
+
 require '../utils/novel.php';
 require '../utils/user.php';
 require '../utils/db-client.php';

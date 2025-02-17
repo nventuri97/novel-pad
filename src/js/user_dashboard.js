@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../../images/favicon_book.png">
     <title>${title}</title>
     <style>
         body {
@@ -284,7 +285,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="genre">${genre}</p>
         <div class="story-content">${storyContent}</div>
     </div>
-    <button class="back-button"  onclick="location.href='/user_dashboard.html'">Back to Dashboard</button>
+    <button class="back-button">Back to Dashboard</button>
+    <script src="../../js/back_button.js"></script>
 </body>
 </html>`;
 

@@ -1,6 +1,5 @@
 <?php
-// admin_dashboard.php
-
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/");
 header('Content-Type: application/json');
 
 require '../utils/db-client.php';
