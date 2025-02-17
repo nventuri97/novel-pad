@@ -65,13 +65,8 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
             successMessage.textContent = "Check your email";
             successMessage.style.display = 'block';
             document.getElementById('recoveryForm').reset(); // Reset form on success
-
-            const heading = document.querySelector('.login-container h2');
-            if (heading) heading.style.display = 'none';
-
-            document.getElementById('e-mail').style.display = 'none';
-            document.querySelector('.g-recaptcha').style.display = 'none';
-            submitButton.style.display = 'none';
+            document.getElementById('recoveryForm').style.display = 'none';
+            
 
         } else {
             errorMessage.textContent = data.message;
