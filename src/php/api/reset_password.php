@@ -10,12 +10,12 @@ ob_start();
 openlog("reset_password.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 $auth_db = 'authentication_db';
-$novel_db = 'novels_db';
 
-$response = ['success' => false, 'message' => '', 'email' => '', 'nickname' => '']; // Default response structure
+$response = ['success' => false, 'message' => '']; // Default response structure
 $request= $_SERVER['REQUEST_METHOD'];
 
 try {
+    $auth_conn = db_client::get_connection($auth_db);
     switch ($request) {
         case 'POST':
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Received request to verify reset token.");
@@ -28,10 +28,9 @@ try {
             }
             
             $reset_token = $_POST['reset_token'];
-            $user_id = $_POST['id'];
 
             // check if the token is valid string
-            if (!is_string($reset_token) || !is_numeric($user_id)) {
+            if (!is_string($reset_token)) {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid token.");
 
                 $response['message'] = "Invalid token.";
@@ -39,28 +38,17 @@ try {
                 exit;
             }
 
-            $auth_conn = db_client::get_connection($auth_db);
-            $stmt = $auth_conn->prepare("SELECT email, reset_token_expiry FROM users WHERE id = :id AND reset_token = :reset_token");
-            $stmt->bindParam(':id', $user_id);
+            $stmt = $auth_conn->prepare("SELECT reset_token_expiry FROM users WHERE reset_token = :reset_token");
             $stmt->bindParam(':reset_token', $reset_token);
             $stmt->execute();
 
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $novel_conn = db_client::get_connection($novel_db);
-            $stmt = $novel_conn->prepare("SELECT nickname FROM user_profiles WHERE user_id = :id");
-            $stmt->bindParam(':id', $user_id);
-            $stmt->execute();
-
-            $novel_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && strtotime($user['reset_token_expiry']) > time()) {
                 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Token is valid.");
 
                 $response['success'] = true;
                 $response['message'] = "Token is valid.";
-                $response['email'] = $novel_user['email'];
-                $response['nickname'] = $novel_user['nickname'];
             } else {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid or expired token.");
 
@@ -71,7 +59,7 @@ try {
         case 'PUT':
             syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Received request to reset password.");
             parse_str(file_get_contents("php://input"), $_PUT);
-            if (!isset($_PUT['password']) || !isset($_PUT['id'])) {
+            if (!isset($_PUT['password'])) {
                 syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Required parameters missing.");
 
                 $response['message'] = "Required parameters missing.";
@@ -80,18 +68,7 @@ try {
             }
             
             $password = $_PUT['password'];
-            $user_id = $_PUT['id'];
-            $nickname = $_PUT['nickname'];
-
-            // check if user_id is a valid integer
-            if (!is_numeric($user_id)) {
-                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid user ID.');
-
-                $response['message'] = "Invalid user ID.";
-                echo json_encode($response);
-                ob_end_flush();
-                exit;
-            }
+            $reset_token = $_PUT['reset_token'];
 
             // Server side password validation
             // Password must be at least 8 characters long
@@ -115,9 +92,31 @@ try {
                 exit;
             }
 
+            $stmt = $auth_conn->prepare("SELECT id, email FROM users WHERE reset_token = :reset_token");
+            $stmt->bindParam(':reset_token', $reset_token);
+            $stmt->execute();
+
+            $user_info = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if(!$user_info){
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid token.");
+
+                $response['message'] = "Invalid token.";
+                echo json_encode($response);
+                exit;
+            }
+
+            $user_id = $user_info['id'];
+            $novel_conn = db_client::get_connection('novels_db');
+            $novel_stmt = $novel_conn->prepare("SELECT nickname FROM user_profiles WHERE user_id = :id");
+            $novel_stmt->bindParam(':id', $user_id);
+            $novel_stmt->execute();
+
+            $nickname = $novel_stmt->fetch(PDO::FETCH_ASSOC)['nickname'];
+
             // Check password strength using zxcvbn
             $zxcvbn = new Zxcvbn();
-            $result = $zxcvbn->passwordStrength($password, $userInputs = [$email, $nickname]);
+            $result = $zxcvbn->passwordStrength($password, $userInputs = [$user_info["email"], $nickname]);
             if ($result['score']<4){
                 syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too weak.');
 

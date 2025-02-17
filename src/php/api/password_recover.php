@@ -96,7 +96,7 @@ try {
 
     $user = $auth_stmt->fetch(PDO::FETCH_ASSOC);
     $user_id = $user['id'];
-    $token = bin2hex(random_bytes(16)); // Secure random token
+    $token = bin2hex(random_bytes(32)); // Secure random token
     $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
 
     // Save token and expiry to the database
@@ -108,8 +108,7 @@ try {
 
 
     // Send verification email
-    echo "Sending email...";
-    $mailSent = sendRecoveryPwdMail($email, $token, $user_id);
+    $mailSent = sendRecoveryPwdMail($email, $token);
     if (!$mailSent) {
         syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Failed to send password recovery email.');
 
