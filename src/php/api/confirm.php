@@ -52,7 +52,7 @@ try{
     $response['message'] = "Registration completed successfully!";
 
     syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  User registration completed successfully.");
-}catch (PDOException $e) {
+}catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Database error: ". $e->getMessage());
 
     $response['message'] = "An error occurred accessing DB.";
