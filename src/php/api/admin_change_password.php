@@ -70,6 +70,16 @@ if (!isset($_SESSION['force_password_change'])) {
 $currentPassword = $_POST["currentPassword"] ?? '';
 $newPassword = $_POST["newPassword"] ?? '';
 
+// check if passwords are strings
+if (!is_string($currentPassword) || !is_string($newPassword)) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Passwords must be strings');
+
+    http_response_code(400);
+    $response["message"] = "Passwords must be strings.";
+    echo json_encode($response);
+    exit;
+}
+
 $_SESSION["timeout"] = date("Y-m-d H:i:s", strtotime("+30 minutes"));
 
  if (empty($currentPassword) || empty($newPassword)) {

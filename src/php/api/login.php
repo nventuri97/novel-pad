@@ -63,6 +63,26 @@ if (!$captcha_success || !$captcha_success["success"]) {
     exit;
 }
 
+// check if the email is valid
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid email");
+
+    $response["message"]= "Invalid email.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// check if the password is a string
+if (!is_string($password)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Password must be a string");
+
+    $response["message"]= "Password must be a string.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
 try{
     $auth_conn = db_client::get_connection("authentication_db");
 

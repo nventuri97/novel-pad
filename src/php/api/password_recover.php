@@ -67,6 +67,14 @@ if (!$captcha_success || !$captcha_success["success"]) {
     exit;
 }
 
+// check if the email is valid
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid email format");
+    $response["message"] = "Invalid email format.";
+    echo json_encode($response);
+    exit;
+}
+
 syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password recovery request.');
 
 try {

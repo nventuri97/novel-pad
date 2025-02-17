@@ -30,6 +30,15 @@ try {
             $reset_token = $_POST['reset_token'];
             $user_id = $_POST['id'];
 
+            // check if the token is valid string
+            if (!is_string($reset_token) || !is_numeric($user_id)) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid token.");
+
+                $response['message'] = "Invalid token.";
+                echo json_encode($response);
+                exit;
+            }
+
             $auth_conn = db_client::get_connection($auth_db);
             $stmt = $auth_conn->prepare("SELECT email, reset_token_expiry FROM users WHERE id = :id AND reset_token = :reset_token");
             $stmt->bindParam(':id', $user_id);
@@ -72,15 +81,24 @@ try {
             
             $password = $_PUT['password'];
             $user_id = $_PUT['id'];
-            $email = $_PUT['email'];
             $nickname = $_PUT['nickname'];
+
+            // check if user_id is a valid integer
+            if (!is_numeric($user_id)) {
+                syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Invalid user ID.');
+
+                $response['message'] = "Invalid user ID.";
+                echo json_encode($response);
+                ob_end_flush();
+                exit;
+            }
 
             // Server side password validation
             // Password must be at least 8 characters long
-            if (strlen($password) < 8) {
+            if (!is_string($password) || strlen($password) < 8) {
                 syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too short.');
 
-                $response['message'] = "Password must be at least 8 characters long.";
+                $response['message'] = "Password must be a string at least 8 characters long.";
                 echo json_encode($response);
                 ob_end_flush();
                 exit;

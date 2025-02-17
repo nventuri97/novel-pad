@@ -58,6 +58,15 @@ if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
 $currentPassword = $_POST["currentPassword"] ?? '';
 $newPassword = $_POST["newPassword"] ?? '';
 
+if (!is_string($currentPassword) || !is_string($newPassword)) {
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Passwords must be string');
+
+    http_response_code(400);
+    $response["message"] = "Password must be a string.";
+    echo json_encode($response);
+    exit;
+}
+
 if (empty($currentPassword) || empty($newPassword)) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Attempt to change password with current password or new password empty');
     

@@ -65,6 +65,24 @@ if (!$captcha_success || !$captcha_success["success"]) {
     exit;
 }
 
+// check if the email is valid
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid email format");
+    $response["message"] = "Invalid email format.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// check if the password is valid
+if (!is_string($password)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Password not a string");
+    $response["message"] = "Password must be a string.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
 // After the success of reCAPTCHA, we send the warning email
 sendAllertMail($email, 'admin');
 

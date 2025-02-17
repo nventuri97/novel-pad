@@ -77,10 +77,10 @@ if (!$captcha_success || !$captcha_success["success"]) {
 
 // Server side password validation
 // Password must be at least 8 characters long
-if (strlen($password) < 8) {
+if (!is_string($password) || strlen($password) < 8) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Password too short.');
 
-    $response['message'] = "Password must be at least 8 characters long.";
+    $response['message'] = "Password must be a string at least 8 characters long.";
     echo json_encode($response);
     ob_end_flush();
     exit;
@@ -109,10 +109,10 @@ if ($result['score']<4){
     exit;
 }
 
-if (strlen($nickname) < 3 || strlen($nickname) > 20) {
+if (!is_string($nickname) || strlen($nickname) < 3 || strlen($nickname) > 20) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
 
-    $response['message'] = "Nickname must be between 3 and 20 characters long.";
+    $response['message'] = "Nickname must be a string between 3 and 20 characters long.";
     echo json_encode($response);
     ob_end_flush();
     exit;

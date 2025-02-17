@@ -65,10 +65,10 @@ $genre = $_POST['genre'] ?? '';
 $type = $_POST['type'] ?? '';
 $is_premium = isset($_POST['is_premium']) ? 1 : 0;
 
-if (strlen($title) < 3 || strlen($title) > 30) {
+if (!isset($title) || !is_string($title) || strlen($title) < 3 || strlen($title) > 30) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
 
-    $response['message'] = "Title must be between 3 and 30 characters long.";
+    $response['message'] = "Title must be a string between 3 and 30 characters long.";
     echo json_encode($response);
     ob_end_flush();
     exit;
@@ -88,10 +88,20 @@ $genresEnum = [
     "thriller", "historical", "non-fiction", "young_adult", "adventure"
 ];
 
-if (!in_array($genre, $genresEnum, true)) {
+if (!isset($genre) || !is_string($genre) || !in_array($genre, $genresEnum, true)) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid genre: " . $genre);
     
     $response["message"] = "Invalid genre.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+// check of novel type
+if (!isset($type) || !is_string($type) || ($type !== 'full_novel' && $type !== 'short_story')) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel type: " . $type);
+    
+    $response["message"] = "Invalid novel type.";
     echo json_encode($response);
     ob_end_flush();
     exit;
