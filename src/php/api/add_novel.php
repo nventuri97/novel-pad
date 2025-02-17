@@ -114,7 +114,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
 
     // Define allowed file types and size limits
     $allowedTypes = ['application/pdf', 'text/html'];
-    $maxFileSize = 5 * 1024 * 1024; // 5MB
+    $maxFileSize = 10 * 1024 * 1024; // 10MB
 
     if (!in_array($file['type'], $allowedTypes)) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid file type.");
@@ -128,7 +128,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     if ($file['size'] > $maxFileSize) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] File too large.");
         
-        $response["message"] = "The uploaded file exceeds the maximum allowed size of 5MB.";
+        $response["message"] = "The uploaded file exceeds the maximum allowed size of 10MB.";
         echo json_encode($response);
         ob_end_flush();
         exit;
