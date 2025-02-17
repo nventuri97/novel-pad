@@ -582,29 +582,3 @@ h1 {
 #usersTable tr:hover {
     background: #f1f1f1;
 }
-/* Stile generale per la login-container (se già lo avevi, conservalo pure) */
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    /* Altri stili a tuo piacere */
-  }
-  
-  /* BOX DEL MESSAGGIO DI SUCCESSO */
-  .success-message-box {
-    max-width: 600px;
-    margin: 50px auto;
-    border: 2px solid #5cb85c;
-    background-color: #dff0d8;
-    border-radius: 8px;
-    text-align: center;
-    padding: 30px;
-  }
-  
-  /* Stile del testo di successo */
-  .success-message {
-    color: #3c763d;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
-  

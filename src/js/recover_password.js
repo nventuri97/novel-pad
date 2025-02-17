@@ -10,6 +10,17 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
+    function handleError(error, userMessage = "An unexpected error occurred.") {
+        console.error('Error:', error);
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            errorMessage.innerText = userMessage;
+            errorMessage.style.display = 'block';
+        } else {
+            alert(userMessage);
+        }
+    }
+
     // Get field values
     const email = document.getElementById('e-mail').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
@@ -49,7 +60,7 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
             return;
         }
         else if (response.status === 500) {
-            window.location.href = "/error.html?error=Internal%20Server%20Error";
+            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
             return;
         }
 
