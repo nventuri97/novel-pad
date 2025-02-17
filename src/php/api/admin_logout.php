@@ -59,7 +59,7 @@ try {
     $updateStmt = $admin_conn->prepare("UPDATE admins SET is_logged = 0 WHERE id = :id");
     $updateStmt->bindValue(':id', $admin['id'], PDO::PARAM_INT);
     $updateStmt->execute();
-} catch (PDOException $e) {
+} catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . ' - - [' . date("Y-m-d H:i:s") . '] DB error: ' . $e->getMessage());
 }
 

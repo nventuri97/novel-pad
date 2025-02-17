@@ -49,7 +49,7 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
             return;
         }
         else if (response.status === 500) {
-            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            window.location.href = "/error.html?error=Internal%20Server%20Error";
             return;
         }
 
@@ -62,9 +62,17 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
     })
     .then(data => {
         if (data.success) {
-            successMessage.textContent = data.message;
+            successMessage.textContent = "Check your email";
             successMessage.style.display = 'block';
             document.getElementById('recoveryForm').reset(); // Reset form on success
+
+            const heading = document.querySelector('.login-container h2');
+            if (heading) heading.style.display = 'none';
+
+            document.getElementById('e-mail').style.display = 'none';
+            document.querySelector('.g-recaptcha').style.display = 'none';
+            submitButton.style.display = 'none';
+
         } else {
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';
@@ -81,6 +89,6 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
         submitButton.textContent = 'Send';
         submitButton.disabled = false;
         grecaptcha.reset();
-    })
+    });
 
 });

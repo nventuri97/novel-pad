@@ -152,7 +152,7 @@ try {
             echo "<p>The request method is not allowed. This method is not allowed.</p>";
             exit;
     }
-} catch (PDOException $e) {
+} catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Database error: " . $e->getMessage());
     
     http_response_code(500); // Internal Server Error

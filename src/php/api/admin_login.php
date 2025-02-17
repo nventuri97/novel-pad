@@ -168,7 +168,7 @@ try {
             $response["message"] = "Wrong credentials.";
         }
     }
-} catch (PDOException $e) {
+} catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] " . $e->getMessage());
     
     http_response_code(500); // Internal Server Error
