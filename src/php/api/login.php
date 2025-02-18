@@ -95,6 +95,15 @@ try{
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    if (isset($_SESSION['user']) && $_SESSION['user']->get_email() !== $email) {   
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User already authenticated.");
+    
+        $response["message"]= "You are already logged in with another account, please first log out.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+
     if (!$user) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong email");
 
