@@ -1,5 +1,5 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
 header('Content-Type: application/json'); // Ensure the response is JSON
 
 use ZxcvbnPhp\Zxcvbn;
@@ -114,6 +114,15 @@ if (!is_string($nickname) || strlen($nickname) < 4 || strlen($nickname) > 20) {
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
 
     $response['message'] = "Nickname must be a string between 4 and 20 characters long.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+if (!preg_match('/^[a-zA-Z0-9\s]+$/', $nickname)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid nickname.");
+
+    $response["message"] = "Invalid nickname. Only letters, numbers, and spaces are allowed.";
     echo json_encode($response);
     ob_end_flush();
     exit;

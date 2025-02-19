@@ -1,5 +1,5 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
 
 require '../utils/novel.php';
 require '../utils/user.php';
@@ -62,40 +62,38 @@ $file = $_GET['file'];
 $file_path = realpath($ok_dir. DIRECTORY_SEPARATOR . $file);
 
 if (str_starts_with($file_path, $ok_dir.DIRECTORY_SEPARATOR) && file_exists($file_path)) {
-    if (str_starts_with($file_path, $ok_dir.DIRECTORY_SEPARATOR) && file_exists($file_path)) {
     
-        // Check if the user is not premium and the file is premium
-        if(!$is_premium) {
-            // Get the novel from the DB
-            try{
-                $novel_conn = db_client::get_connection('novels_db');
-    
-                if (!$novel_conn) {
-                    throw new Exception('Failed to connect to novels_db');
-                }
-    
-                // Check if the novel is premium
-                $stmt = $novel_conn->prepare('SELECT * FROM novels WHERE file_path = :file_path');
-                $stmt->bindParam(':file_path', $file_path);
-                $stmt->execute();
-    
-                $novel = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-                if($novel['is_premium'] === 1 && $_SESSION['user']->get_id() !== $novel['user_id']) {
-                    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User tried to read premium novel without premium account.');
-                    http_response_code(403);
-                    header("Location: /user_dashboard.html");
-                    exit('You need to be a premium user to read this novel.');
-                }
-    
-            }catch (Exception $e) {
-                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  An error occurred while processing other novels: ' . $e->getMessage());
-                
-                http_response_code(500);
-                $response['message'] = 'An error occurred while processing other novels.';
+    // Check if the user is not premium and the file is premium
+    if(!$is_premium) {
+        // Get the novel from the DB
+        try{
+            $novel_conn = db_client::get_connection('novels_db');
+
+            if (!$novel_conn) {
+                throw new Exception('Failed to connect to novels_db');
             }
+
+            // Check if the novel is premium
+            $stmt = $novel_conn->prepare('SELECT * FROM novels WHERE file_path = :file_path');
+            $stmt->bindParam(':file_path', $file_path);
+            $stmt->execute();
+
+            $novel = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if($novel['is_premium'] === 1 && $_SESSION['user']->get_id() !== $novel['user_id']) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  User tried to read premium novel without premium account.');
+                http_response_code(403);
+                header("Location: /user_dashboard.html");
+                exit('You need to be a premium user to read this novel.');
+            }
+
+        }catch (Exception $e) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"].' - - [' . date("Y-m-d H:i:s") . ']  An error occurred while processing other novels: ' . $e->getMessage());
+            
+            http_response_code(500);
+            $response['message'] = 'An error occurred while processing other novels.';
         }
-    }    
+    } 
     
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
