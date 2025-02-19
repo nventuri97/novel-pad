@@ -106,7 +106,8 @@ try {
     // If the admin exists, check if it is blocked or already logged in, then check password.
     else if ($admin["tries"] == 3) {
         // The account is considered blocked
-        $response["message"] = "Your account is blocked.";
+        sendAllertMail($email, 'admin_blocked');
+        $response["message"] = "Wrong credentials.";
     }
     else if ($admin["is_logged"]) {
         // Admin is already logged in; we do NOT increment tries here
@@ -162,11 +163,9 @@ try {
         // If it reaches 3, account is blocked
         if ($newTries >= 3) {
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Admin account blocked due to too many attempts");
-            $response["message"] = "Your account is blocked.";
-        } else {
-            // If it has not yet reached 3 attempts, remain with "Wrong credentials"
-            $response["message"] = "Wrong credentials.";
-        }
+            sendAllertMail($email, 'admin_blocked');
+        } 
+        $response["message"] = "Wrong credentials.";
     }
 } catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] " . $e->getMessage());
