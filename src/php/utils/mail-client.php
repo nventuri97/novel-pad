@@ -77,8 +77,10 @@ function sendAllertMail($user_mail, $requestType) {
             $mail->Subject = 'Security Alert: Registration Attempt Detected';
             $mail->Body = '<p>We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.</p>';
             $mail->AltBody = 'We detected a registration attempt using your email address. If this was not you, please change your password immediately on our website to secure your account.';
-        }else  {
-            //TODO: HANDLE admin blocked?
+        } else if ($requestType === 'admin_blocked'){
+            $mail->Subject = 'Security Alert: Admin Account Blocked';
+            $mail->Body = '<p>Your account has been blocked due to too many login attempts. Please contact the administrator to unblock your account.</p>';
+            $mail->AltBody = 'Your account has been blocked due to too many login attempts. Please contact the administrator to unblock your account.';
         }
 
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Sending allert email.");
