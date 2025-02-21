@@ -91,23 +91,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   //users table
   function renderUsersTable(users) {
-    usersTableBody.innerHTML = '';
     users.forEach(user => {
-      const row = document.createElement('tr');
+      // Create table row
+      const row = document.createElement("tr");
 
-      const premiumText = user.is_premium ? 'Premium' : 'Standard';
+      // Create and append cells
+      const emailCell = document.createElement("td");
+      emailCell.textContent = user.email;
+      row.appendChild(emailCell);
+
+      const nicknameCell = document.createElement("td");
+      nicknameCell.textContent = user.nickname;
+      row.appendChild(nicknameCell);
+
+      const statusCell = document.createElement("td");
+      statusCell.textContent = user.isPremium ? "Premium" : "Standard";
+      row.appendChild(statusCell);
+
+      // Create actions cell with a button
+      const actionCell = document.createElement("td");
+      const actionButton = document.createElement("button");
       const toggleLabel = user.is_premium ? 'Set Standard' : 'Set Premium';
-      
-      row.innerHTML = `
-        <td>${user.email}</td>
-        <td>${user.nickname}</td>
-        <td>${premiumText}</td>
-        <td><button class="toggle-btn">${toggleLabel}</button></td>
-      `;
+      actionButton.textContent = toggleLabel;
+      actionButton.classList.add("toggle-btn");
+      actionButton.addEventListener("click", () => togglePremium(user, row));
 
-      const toggleBtn = row.querySelector('.toggle-btn');
-      toggleBtn.addEventListener('click', () => togglePremium(user, row));
+      actionCell.appendChild(actionButton);
+      row.appendChild(actionCell);
 
+      // Append row to the table body
       usersTableBody.appendChild(row);
     });
   }
@@ -159,8 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         // Update the status locally
         user.is_premium = newStatus;
-        rowElement.cells[2].textContent = user.is_premium ? 'Premium' : 'Standard';
-        rowElement.querySelector('.toggle-btn').textContent = user.is_premium ? 'Set Standard' : 'Set Premium';
+        const statusCell = rowElement.cells[2];  
+        statusCell.textContent = user.is_premium ? "Premium" : "Standard";
+
+        // Update the button text inside the row
+        const toggleButton = rowElement.querySelector(".toggle-btn");
+        if (toggleButton) {
+            toggleButton.textContent = user.is_premium ? "Set Standard" : "Set Premium";
+        }
       } else {
         handleError(data.message, data.message)
       }
