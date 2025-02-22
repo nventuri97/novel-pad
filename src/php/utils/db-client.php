@@ -1,5 +1,5 @@
 <?php
-openlog("add_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+openlog("db-client.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 class db_client {
     public static function get_connection($db_name) {

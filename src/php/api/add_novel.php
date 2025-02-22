@@ -7,6 +7,7 @@ header('Expires: 0');
 
 require '../utils/user.php';
 require '../utils/db-client.php';
+require '../utils/html-page-creator.php';
 
 ob_start();
 openlog("add_novel.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
@@ -67,7 +68,7 @@ $type = $_POST['type'] ?? '';
 $is_premium = isset($_POST['is_premium']) ? 1 : 0;
 
 if (!isset($title) || !is_string($title) || strlen($title) < 3 || strlen($title) > 30) {
-    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
+    syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Title too long or too short.');
 
     $response['message'] = "Title must be a string between 3 and 30 characters long.";
     echo json_encode($response);
@@ -75,14 +76,15 @@ if (!isset($title) || !is_string($title) || strlen($title) < 3 || strlen($title)
     exit;
 }
 
-if (!preg_match('/^[a-zA-Z0-9\s]+$/', $title)) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel title.");
+$title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+// if (!preg_match('/^[a-zA-Z0-9\s.,\'"!?()-]+$/', $title) || !htmlspecialchars($title)) {
+//     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel title.");
 
-    $response["message"] = "Invalid title. Only letters, numbers, and spaces are allowed.";
-    echo json_encode($response);
-    ob_end_flush();
-    exit;
-}
+//     $response["message"] = "Invalid title. Only letters, numbers, and spaces are allowed.";
+//     echo json_encode($response);
+//     ob_end_flush();
+//     exit;
+// }
 
 $genresEnum = [
     "fantasy", "science_fiction", "romance", "mystery", "horror",
@@ -144,14 +146,14 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         exit;
     }
 
-    if(($type === 'short_story' && $file['type'] !== 'text/html')) {
-        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
+    // if(($type === 'short_story' && $file['type'] !== 'text/html')) {
+    //     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
 
-        $response["message"] = "Error occured: not an html file.";
-        echo json_encode($response);
-        ob_end_flush();
-        exit;
-    }
+    //     $response["message"] = "Error occured: not an html file.";
+    //     echo json_encode($response);
+    //     ob_end_flush();
+    //     exit;
+    // }
 
     $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
     // Ensure the uploads directory exists
@@ -170,6 +172,36 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     // Save file to a directory (ensure appropriate directory exists and has write permissions)
     $filePath = $uploadDir . basename($file['name']);
     if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to upload the file.");
+
+        $response["message"] = "Failed to upload the file.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+} else if(isset($_POST['story_content'])) {
+    $storyContent = htmlspecialchars($_POST['story_content'], ENT_QUOTES, 'UTF-8');
+    $htmlStory = createHtmlNovelPage($title, $genre, $storyContent);
+    $fileName = $title . '.html';
+
+
+    $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
+    // Ensure the uploads directory exists
+    $uploadDir = '/var/www/private/uploads/'. $dir_name . '/';
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to create upload directory.");
+
+            $response["message"] = "Failed to create upload directory.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }
+    }
+
+    // Save file to a directory (ensure appropriate directory exists and has write permissions)
+    $filePath = $uploadDir . $fileName;
+    if (!file_put_contents($filePath, $htmlStory, LOCK_EX)) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Failed to upload the file.");
 
         $response["message"] = "Failed to upload the file.";
