@@ -32,7 +32,7 @@ $email = $_POST["email"] ?? '';
 $password = $_POST["password"] ?? '';
 $recaptcha_response = $_POST["recaptcharesponse"] ?? '';
 
-if (empty($email) || empty($password || empty($recaptcha_response))) {
+if (empty($email) || empty($password) || empty($recaptcha_response)) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Empty email or password");
 
     $response["message"]= "Please fill all the fields.";
@@ -68,7 +68,7 @@ if (!$captcha_success || !$captcha_success["success"]) {
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid email");
 
-    $response["message"]= "Invalid email.";
+    $response["message"] = "Wrong credentials or account blocked for too many login attempts.";
     echo json_encode($response);
     ob_end_flush();
     exit;
@@ -89,13 +89,13 @@ try{
 
     // Retrieve user from authentication_db
     $stmt = $auth_conn->prepare(
-        "SELECT id, password_hash, is_verified FROM users WHERE email = :email"
+        "SELECT id, password_hash, is_verified, login_attempts, last_login_attempt FROM users WHERE email = :email"
     );
     $stmt->bindParam(":email", $email);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (isset($_SESSION['user']) && $_SESSION['user']->get_email() !== $email) {   
+    if (!empty($_SESSION['user']) && $_SESSION['user'] instanceof User && $_SESSION['user']->get_email() !== $email) {   
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User already authenticated.");
     
         $response["message"]= "You are already logged in with another account, please first log out.";
@@ -107,15 +107,54 @@ try{
     if (!$user) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User inserted wrong email");
 
-        $response["message"]= "Wrong credentials.";
-    } else if (!$user["is_verified"]) {
+        $response["message"]= "Wrong credentials or account blocked for too many login attempts.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+    
+    if (!$user["is_verified"]) {
         syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User not verified");
 
-        $response["message"]= "User not verified. Please check your email.";
-    } else if ($user && password_verify($password, $user["password_hash"])) {
+        $response["message"]= "Wrong credentials or account blocked for too many login attempts.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+
+    // Check if the user has reached the maximum number of login attempts
+    $login_attempts = $user["login_attempts"];
+    $last_login_attempt = $user["last_login_attempt"];
+
+    $last_login_time = $last_login_attempt ? strtotime($last_login_attempt) : 0;
+    $one_hour_ago = strtotime("-1 hour");
+
+    // Reset login attempts if last login attempt was more than 1 hour ago
+    if ($last_login_time < $one_hour_ago) {
+        syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Resetting login attempts");
+        $login_attempts = 0;
+    }
+
+    if ($login_attempts >= 10) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] User blocked for too many login attempts");
+
+        $response["message"] = "Wrong credentials or account blocked for too many login attempts.";
+        echo json_encode($response);
+        ob_end_flush();
+        exit;
+    }
+    
+    if ($user && password_verify($password, $user["password_hash"])) {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Retrieving user profile from novels_db");
         // Login successful, retrieve premium status from novels_db
         $user_id = $user["id"];
+
+        // Reset login attempts
+        $stmt = $auth_conn->prepare(
+            "UPDATE users SET login_attempts = 0, last_login_attempt = NULL WHERE email = :email"
+        );
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
 
         $novel_conn = db_client::get_connection("novels_db");
 
@@ -126,6 +165,15 @@ try{
         $novel_stmt->bindParam(":user_id", $user_id);
         $novel_stmt->execute();
         $novel_user = $novel_stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$novel_user) {
+            syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  User profile not found in novels_db");
+            
+            $response["message"] = "An error occurred while retrieving your profile.";
+            echo json_encode($response);
+            ob_end_flush();
+            exit;
+        }        
 
         $session_user = new User($novel_user["user_id"], $email, $novel_user["nickname"], $novel_user["is_premium"]);
 
@@ -138,20 +186,35 @@ try{
         $response["message"]="Login succed!";
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User logged in");
     } else{
-        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong password");
+        // Update login attempts
+        $login_attempts++;
+        $timestamp = date("Y-m-d H:i:s");
 
-        $response["message"]= "Wrong credentials.";
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Wrong password: number of login attempts: " . $login_attempts);
+
+        $stmt = $auth_conn->prepare(
+            "UPDATE users SET login_attempts = :login_attempts, last_login_attempt = :last_login_attempt WHERE email = :email"
+        );
+        $stmt->bindParam(":login_attempts", $login_attempts);
+        $stmt->bindParam(":last_login_attempt", $timestamp);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+
+        $response["message"]= "Wrong credentials or account blocked for too many login attempts.";
     }
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+
 } catch (Exception $e) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  " . $e->getMessage());
 
     http_response_code(500); // Internal Server Error
     $response['message'] = 'An error occurred while processing user data.';
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
 }
-
-echo json_encode($response);
-ob_end_flush();
-exit;
 ?>
 
 

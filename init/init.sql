@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS `users` (
     `is_verified` BOOLEAN DEFAULT FALSE,
     `reset_token` VARCHAR(255) UNIQUE,
     `reset_token_expiry` TIMESTAMP,
+    `login_attempts` INT DEFAULT 0,
+    `last_login_attempt` TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
