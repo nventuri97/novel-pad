@@ -46,8 +46,6 @@ if (!isset($_SESSION['csrf_token'])) {
     echo "<p>CSRF token not set in session.</p>";
     exit;
 }
-
-// Leggiamo l'header "X-CSRF-Token"
 if (!isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in GET header");
     http_response_code(400);
