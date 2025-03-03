@@ -14,6 +14,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     const password = document.getElementById('password').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
 
+    // Get CSRF token
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
     if (!recaptcharesponse) {
         errorMessage.textContent = "Please complete the reCAPTCHA";
         errorMessage.style.display = 'block';
@@ -40,11 +43,13 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         body: new URLSearchParams({
             email: email,
             password: password,
-            recaptcharesponse: recaptcharesponse
+            recaptcharesponse: recaptcharesponse,
+            csrf_token: csrfToken
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        },
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 405) {
@@ -52,7 +57,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             return;
         }
         else if (response.status === 500) {
-            handleError("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            // handleError non è definito qui, ma puoi usare un tuo metodo:
+            errorMessage.textContent = "Internal server error. Please try again later.";
+            errorMessage.style.display = 'block';
             return;
         }
 
@@ -79,6 +86,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         errorMessage.textContent = "An error occurred. Please try again.";
         errorMessage.style.display = 'block';
         grecaptcha.reset();
-    })
+    });
 
 });

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const waitingContainer = document.getElementById('waiting-container');
 
     const queryParams = new URLSearchParams(window.location.search);
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     const reset_token = queryParams.get('token');
     const id=queryParams.get('id');
@@ -17,10 +18,12 @@ document.addEventListener('DOMContentLoaded', function () {
         body: new URLSearchParams({
             reset_token: reset_token,
             id:id,
+            csrfToken : csrfToken
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 405) {
@@ -84,10 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
             body: new URLSearchParams({
                 password: password,
                 reset_token: reset_token,
+                csrfToken : csrfToken
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
+            credentials: 'include'
         })
         .then(response => {
             if (response.status === 405) {

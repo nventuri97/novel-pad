@@ -8,6 +8,7 @@ include '../utils/db-client.php';
 openlog("logout.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 session_start();
 
+parse_str(file_get_contents("php://input"), $_PUT);
 if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Invalid request method");
 
@@ -29,6 +30,20 @@ if (!isset($_SESSION['user'])) {
 
     echo "<h1>401 User not authenticated</h1>";
     echo "<p>The user is not authorized.</p>";
+    exit;
+}
+if (!isset($_SESSION['csrf_token']) || !isset($_PUT['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] CSRF token missing in PUT data.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>CSRF token missing.</p>";
+    exit;
+}
+if ($_SESSION['csrf_token'] !== $_PUT['csrf_token']) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token in logout PUT.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>Invalid CSRF token.</p>";
     exit;
 }
 

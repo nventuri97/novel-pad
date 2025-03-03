@@ -40,6 +40,20 @@ if (!isset($_SESSION['user'])) {
     echo "<p>The user is not authorized.</p>";
     exit;
 }
+if (!isset($_SESSION['csrf_token']) || !isset($_POST['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] CSRF token missing in POST data.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>CSRF token missing.</p>";
+    exit;
+}
+if ($_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token for add_novel POST.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>Invalid CSRF token.</p>";
+    exit;
+}
 
 if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Session expired.");

@@ -29,6 +29,35 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
+if (!isset($_SESSION['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in session");
+
+    http_response_code(405);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+if (!isset($_POST['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in POST data");
+
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+if ($_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token");
+
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
 
 if (!isset($_SESSION['admin'])) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] User not authenticated.");
@@ -54,18 +83,6 @@ if(!isset($_SESSION["timeout"]) || $_SESSION["timeout"] < date("Y-m-d H:i:s")) {
     exit;
 }
 
-if (!isset($_SESSION['force_password_change'])) {
-    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] force_password_change value missing.");
-
-    session_destroy();
-    
-    http_response_code(403); // Forbidden
-    header("Content-Type: text/html");
-
-    echo "<h1>403 Forbidden</h1>";
-    echo "<p>Forbidden.</p>";
-    exit;
-}
 
 $currentPassword = $_POST["currentPassword"] ?? '';
 $newPassword = $_POST["newPassword"] ?? '';

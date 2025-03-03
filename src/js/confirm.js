@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
     const confirmLabel = document.getElementById('confirm-label');
-
+    const csrf_token = window.csrfToken;
     if(window.location.search.length > 0) {
         const queryParams = new URLSearchParams(window.location.search);
 
@@ -15,10 +15,12 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: new URLSearchParams({
                 token: token,
+                csrf_token: csrf_token
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
+            credentials: 'include'
         })
         .then(response => {
             if (response.status === 405) {

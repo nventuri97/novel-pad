@@ -11,6 +11,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
     const recaptcharesponse = grecaptcha.getResponse();
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     if (!recaptcharesponse) {
         errorMessage.textContent = "Please complete the reCAPTCHA";
@@ -38,12 +39,13 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(ev
         body: new URLSearchParams({
             email: email,
             password: password,
-            recaptcharesponse: recaptcharesponse
+            recaptcharesponse: recaptcharesponse,
+            csrf_token: csrfToken
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include' // Important for handling sessions/cookies
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 405) {

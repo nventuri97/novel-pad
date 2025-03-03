@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const userIcon = document.getElementById("userIcon");
     const dropdownMenu = document.getElementById("dropdownMenu");
     const changePassword = document.getElementById("change-password");
+    const csrf_token = window.csrfToken;
 
     // Toggle dropdown menu on user icon click
     userIcon.addEventListener("click", () => {
@@ -40,7 +41,10 @@ document.addEventListener('DOMContentLoaded', function () {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf_token
+
         },
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 401) {
@@ -89,10 +93,14 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         fetch(API_CONFIG.logout(), {
             method: 'PUT',
+            body: new URLSearchParams({
+              csrf_token: csrf_token
+          }),
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-        })
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          credentials: 'include'
+          })
         .then(response => {
             if (response.status === 405) {
                 window.location.href = "/error.html?error=Method%20not%20allowed";
@@ -218,41 +226,42 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Send form data to the server
+        formData.append('csrf_token', csrf_token); // Add CSRF token to the form data
         fetch(API_CONFIG.add_novel(), {
             method: 'POST',
             body: formData,
         })
         .then(response => {
             if (response.status === 401) {
-                window.location.href = "/error.html?error=User%20not%20authenticated";
-                return;
+            window.location.href = "/error.html?error=User%20not%20authenticated";
+            return;
             }
             else if (response.status === 405) {
-                window.location.href = "/error.html?error=Method%20not%20allowed";
-                return;
+            window.location.href = "/error.html?error=Method%20not%20allowed";
+            return;
             }
             else if (response.status === 419) {
-                window.location.href = "/error.html?error=Session%20expired";
-                return;
+            window.location.href = "/error.html?error=Session%20expired";
+            return;
             }
             else if (response.status === 500) {
-                handleErrorAddNovel("Internal server error. Please try again later.", "Internal server error. Please try again later.");
-                return;
+            handleErrorAddNovel("Internal server error. Please try again later.", "Internal server error. Please try again later.");
+            return;
             }
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json(); // Parse JSON response
         })
         .then(data => {
             if (data.success) {
-                addNovelModal.style.display = 'none'; // Close the modal
-                addNovelForm.reset(); // Reset the form
-                alert(data.message); // Display success message
-                fetchAndDisplayNovels(); // Refresh the novel list
+            addNovelModal.style.display = 'none'; // Close the modal
+            addNovelForm.reset(); // Reset the form
+            alert(data.message); // Display success message
+            fetchAndDisplayNovels(); // Refresh the novel list
             } else {
-                handleErrorAddNovel(data.message, data.message);
+            handleErrorAddNovel(data.message, data.message);
             }
         })
         .catch(error => {
@@ -266,7 +275,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const novelsList = document.getElementById('novelsList');
         fetch(API_CONFIG.get_novels(), {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token
+
+             },
         })
         .then(response => {
             if (response.status === 401) {
@@ -409,7 +421,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function fetchAllOtherNovels() {
         fetch(API_CONFIG.get_other_novels(), {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token
+
+             },
         })
         .then(response => {
             if (response.status === 401) {
