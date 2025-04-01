@@ -13,6 +13,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     const newPassword = document.getElementById('newPassword').value.trim();
     const confirmPassword = document.getElementById('confirmPassword').value.trim();
     
+    const csrf_token = document.querySelector('input[name="csrf_token"]').value;
     if (currentPassword === '' || newPassword === '' || confirmPassword === '') {
         errorMessage.textContent = "Please fill in all fields.";
         errorMessage.style.display = 'block';
@@ -60,7 +61,8 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         method: 'POST',
         body: new URLSearchParams({
             currentPassword: currentPassword,
-            newPassword: newPassword
+            newPassword: newPassword,
+            csrf_token: csrf_token
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

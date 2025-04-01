@@ -1,5 +1,6 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'");
+header("X-Frame-Options: SAMEORIGIN");
 header('Content-Type: application/json');
 
 require '../utils/db-client.php';
@@ -23,6 +24,54 @@ if (!isset($_SESSION['admin'])) {
 
     echo "<h1>401 User not authenticated</h1>";
     echo "<p>The user is not authorized.</p>";
+    exit;
+}
+if (!isset($_SESSION['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in session");
+    http_response_code(405);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+// Determine the CSRF token received based on the request method
+$receivedToken = null;
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (!isset($_POST['csrf_token'])) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in POST data");
+        http_response_code(400);
+        header("Content-Type: text/html");
+        echo "<h1>405 Method Not Allowed</h1>";
+        echo "<p>The request method is not allowed. This method is not allowed.</p>";
+        exit;
+    }
+    $receivedToken = $_POST['csrf_token'];
+} elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (!isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in GET header");
+        http_response_code(400);
+        header("Content-Type: text/html");
+        echo "<h1>405 Method Not Allowed</h1>";
+        echo "<p>The request method is not allowed. This method is not allowed.</p>";
+        exit;
+    }
+    $receivedToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
+} else {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] Invalid request method for CSRF check");
+    http_response_code(405);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+if ($_SESSION['csrf_token'] !== $receivedToken) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
 

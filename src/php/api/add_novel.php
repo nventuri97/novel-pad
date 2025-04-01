@@ -1,5 +1,6 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'");
+header("X-Frame-Options: SAMEORIGIN");
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
@@ -38,6 +39,20 @@ if (!isset($_SESSION['user'])) {
 
     echo "<h1>401 User not authenticated</h1>";
     echo "<p>The user is not authorized.</p>";
+    exit;
+}
+if (!isset($_SESSION['csrf_token']) || !isset($_POST['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] CSRF token missing in POST data.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>CSRF token missing.</p>";
+    exit;
+}
+if ($_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token for add_novel POST.");
+    http_response_code(400);
+    header("Content-Type: text/html");
+    echo "<h1>405 Method Not Allowed</h1><p>Invalid CSRF token.</p>";
     exit;
 }
 

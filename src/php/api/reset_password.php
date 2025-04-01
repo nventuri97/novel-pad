@@ -1,12 +1,13 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
-header('Content-Type: application/json'); // Ensure the response is JSON
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'");
+header("X-Frame-Options: SAMEORIGIN");header('Content-Type: application/json'); // Ensure the response is JSON
 use ZxcvbnPhp\Zxcvbn;
 
 require '../utils/db-client.php';
 require __DIR__.'/../../vendor/autoload.php';
 
 // Enable output buffering to prevent accidental output
+session_start();
 ob_start();
 openlog("reset_password.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
@@ -25,6 +26,20 @@ try {
 
                 $response['message'] = "Required parameters missing.";
                 echo json_encode($response);
+                exit;
+            }
+            if (!isset($_SESSION['csrf_token']) || !isset($_POST['csrfToken'])) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  CSRF token missing in POST data.");
+                http_response_code(400);
+                header("Content-Type: text/html");
+                echo "<h1>405 Method Not Allowed</h1>";
+                exit;
+            }
+            if ($_SESSION['csrf_token'] !== $_POST['csrfToken']) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid CSRF token.");
+                http_response_code(400);
+                header("Content-Type: text/html");
+                echo "<h1>405 Method Not Allowed</h1>";
                 exit;
             }
             
@@ -65,6 +80,20 @@ try {
 
                 $response['message'] = "Required parameters missing.";
                 echo json_encode($response);
+                exit;
+            }
+            if (!isset($_SESSION['csrf_token']) || !isset($_PUT['csrfToken'])) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  CSRF token missing in PUT data.");
+                http_response_code(400);
+                header("Content-Type: text/html");
+                echo "<h1>405 Method Not Allowed</h1>";
+                exit;
+            }
+            if ($_SESSION['csrf_token'] !== $_PUT['csrfToken']) {
+                syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  Invalid CSRF token in PUT.");
+                http_response_code(400);
+                header("Content-Type: text/html");
+                echo "<h1>405 Method Not Allowed</h1>";
                 exit;
             }
             

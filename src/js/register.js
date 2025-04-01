@@ -8,6 +8,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
     const submitButton = document.getElementById('register-button');
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
@@ -74,11 +75,13 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             email: email,
             password: password,
             nickname: nickname,
-            recaptcharesponse: recaptcharesponse
+            recaptcharesponse: recaptcharesponse,
+            csrf_token: csrfToken
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        },
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 405) {
@@ -102,9 +105,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             successMessage.textContent = data.message;
             successMessage.style.display = 'block';
             document.getElementById('registerForm').reset(); // Reset form on success
-
-            // Optionally, you can redirect to the user dashboard if success
-            window.location.href = '../confirm.html';  // Or any other page
+            window.location.href = '../confirm.html';
         } else {
             errorMessage.textContent = data.message;
             errorMessage.style.display = 'block';

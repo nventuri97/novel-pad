@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const userIcon = document.getElementById("userIcon");
   const dropdownMenu = document.getElementById("dropdownMenu");
   const changePassword = document.getElementById("changePassword");
+  const csrf_token = window.csrfToken;
 
   // Toggle dropdown menu on user icon click
   userIcon.addEventListener("click", () => {
@@ -41,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRF-Token': csrf_token
     },
+    credentials: 'include'
   })
   .then(response => {
     if (response.status === 405) {
@@ -135,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: new URLSearchParams({
         nickname: user.nickname,
-        newStatus: newStatus
+        newStatus: newStatus,
+        csrf_token: csrf_token
       })
     })
     .then(response => {
@@ -194,9 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     fetch(API_CONFIG.adminLogout(), {
       method: 'PUT',
+      body: new URLSearchParams({
+        csrf_token: csrf_token
+    }),
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    credentials: 'include'
     })
     .then(response => {
       if (response.status === 405) {

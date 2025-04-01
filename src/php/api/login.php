@@ -1,5 +1,6 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestor 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'");
+header("X-Frame-Options: SAMEORIGIN");
 header('Content-Type: application/json');// Ensure response is JSON
 
 require __DIR__ . '/../utils/user.php';
@@ -26,7 +27,40 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo "<p>The request method is not allowed. This method is not allowed.</p>";
     exit;
 }
-    
+if (!isset($_SESSION['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in session");
+
+    http_response_code(405); // HTTP method not allowed 
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+if (!isset($_POST['csrf_token'])) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] CSRF token not set in POST data");
+
+    http_response_code(405); // HTTP method not allowed 
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+
+if ($_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] Invalid CSRF token");
+
+    http_response_code(405); // HTTP method not allowed 
+    header("Content-Type: text/html");
+
+    echo "<h1>405 Method Not Allowed</h1>";
+    echo "<p>The request method is not allowed. This method is not allowed.</p>";
+    exit;
+}
+syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] POST CSRF token: " . $_POST['csrf_token']);
+syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "] SESSION CSRF token: " . $_SESSION['csrf_token']);
 syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Login attempt");
 $email = $_POST["email"] ?? '';
 $password = $_POST["password"] ?? '';
@@ -84,7 +118,7 @@ if (!is_string($password)) {
     exit;
 }
 
-try{
+try {
     $auth_conn = db_client::get_connection("authentication_db");
 
     // Retrieve user from authentication_db
@@ -143,7 +177,6 @@ try{
         ob_end_flush();
         exit;
     }
-    
     if ($user && password_verify($password, $user["password_hash"])) {
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  Retrieving user profile from novels_db");
         // Login successful, retrieve premium status from novels_db
@@ -158,7 +191,6 @@ try{
 
         $novel_conn = db_client::get_connection("novels_db");
 
-        // Correct query to retrieve is_premium from user_profiles
         $novel_stmt = $novel_conn->prepare(
             "SELECT * FROM user_profiles WHERE user_id = :user_id"
         );
@@ -168,7 +200,6 @@ try{
 
         if (!$novel_user) {
             syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "]  User profile not found in novels_db");
-            
             $response["message"] = "An error occurred while retrieving your profile.";
             echo json_encode($response);
             ob_end_flush();
@@ -185,7 +216,7 @@ try{
         $response["success"] = true;
         $response["message"]="Login succed!";
         syslog(LOG_INFO, $_SERVER["REMOTE_ADDR"]. " - - [" . date("Y-m-d H:i:s") . "]  User logged in");
-    } else{
+    } else {
         // Update login attempts
         $login_attempts++;
         $timestamp = date("Y-m-d H:i:s");
@@ -216,6 +247,3 @@ try{
     exit;
 }
 ?>
-
-
-

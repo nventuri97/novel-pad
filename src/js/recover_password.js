@@ -7,6 +7,7 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
     const submitButton = document.getElementById('send-button');
+    const csrf_token = document.querySelector('input[name="csrf_token"]').value;
     errorMessage.style.display = 'none';
     successMessage.style.display = 'none';
 
@@ -48,11 +49,13 @@ document.getElementById('recoveryForm').addEventListener('submit', function(even
         method: 'POST',
         body: new URLSearchParams({
             email: email,
-            recaptcharesponse: recaptcharesponse
+            recaptcharesponse: recaptcharesponse,
+            csrf_token: csrf_token
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        },
+        credentials: 'include'
     })
     .then(response => {
         if (response.status === 405) {
