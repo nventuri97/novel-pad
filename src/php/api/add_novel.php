@@ -92,14 +92,6 @@ if (!isset($title) || !is_string($title) || strlen($title) < 3 || strlen($title)
 }
 
 $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-// if (!preg_match('/^[a-zA-Z0-9\s.,\'"!?()-]+$/', $title) || !htmlspecialchars($title)) {
-//     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid novel title.");
-
-//     $response["message"] = "Invalid title. Only letters, numbers, and spaces are allowed.";
-//     echo json_encode($response);
-//     ob_end_flush();
-//     exit;
-// }
 
 $genresEnum = [
     "fantasy", "science_fiction", "romance", "mystery", "horror",
@@ -160,15 +152,6 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         ob_end_flush();
         exit;
     }
-
-    // if(($type === 'short_story' && $file['type'] !== 'text/html')) {
-    //     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"]." - - [" . date("Y-m-d H:i:s") . "]  This type of file is not allowed.");
-
-    //     $response["message"] = "Error occured: not an html file.";
-    //     echo json_encode($response);
-    //     ob_end_flush();
-    //     exit;
-    // }
 
     $dir_name = hash('sha256', $_SESSION["user"]->get_nickname());
     // Ensure the uploads directory exists
