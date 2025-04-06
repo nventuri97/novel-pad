@@ -147,11 +147,10 @@ if (!preg_match('/^[a-zA-Z0-9\s]+$/', $nickname)) {
     syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid nickname.");
 
     $response["message"] = "Invalid nickname. Only letters, numbers, and spaces are allowed.";
-
-    $response['message'] = "Nickname must be a string between 3 and 20 characters long.";
     echo json_encode($response);
     ob_end_flush();
     exit;
+    
 }
 
 syslog(LOG_INFO, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  User requested to register');
