@@ -134,8 +134,19 @@ if ($result['score']<4){
     exit;
 }
 
-if (!is_string($nickname) || strlen($nickname) < 3 || strlen($nickname) > 20) {
+if (!is_string($nickname) || strlen($nickname) < 4 || strlen($nickname) > 20) {
+    
     syslog(LOG_ERR, $_SERVER['REMOTE_ADDR'] . ' - - [' . date("Y-m-d H:i:s") . ']  Nickname too long or too short.');
+    $response['message'] = "Nickname must be a string between 4 and 20 characters long.";
+    echo json_encode($response);
+    ob_end_flush();
+    exit;
+}
+
+if (!preg_match('/^[a-zA-Z0-9\s]+$/', $nickname)) {
+    syslog(LOG_ERR, $_SERVER["REMOTE_ADDR"] . " - - [" . date("Y-m-d H:i:s") . "] Invalid nickname.");
+
+    $response["message"] = "Invalid nickname. Only letters, numbers, and spaces are allowed.";
 
     $response['message'] = "Nickname must be a string between 3 and 20 characters long.";
     echo json_encode($response);
